@@ -6,15 +6,8 @@
 #include "ce_block.h"
 #include "code_element.h"
 #include "code_if_else.h"
+#include "code_multi_if.h"
 #include "function.h"
-
-class code_multi_if : public code_element
-{
-	public:
-		code_multi_if();
-		~code_multi_if();
-	private:
-};
 
 int main(int argc, char *argv[])
 {
