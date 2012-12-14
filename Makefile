@@ -2,7 +2,7 @@
 all: decompile
 
 DECOMPILE_OBJS = ce_block.o code_element.o code_if_else.o decompile.o function.o \
-	code_multi_if.o
+	code_multi_if.o code_run.o code_do_while_loop.o
 
 DECOMPILE_DEPS := $(DECOMPILE_OBJS:.o=.d)
 

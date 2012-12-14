@@ -28,11 +28,12 @@ class function
 		std::vector<code_element *> xblocks; //extra blocks created to simplify logic (delete these when done)
 		std::vector<code_element *> pieces;
 		void remove_piece(code_element *rmv);	//removes a piece
-		void fix_pieces();
 		void replace_references(code_element *old, code_element *nw);
 		
 		int find_if_else();
 		int do_simple_if(code_element *a, code_element *b, int i);
+		int do_multi_if(int i);
+		int do_if_else(int i);
 		int find_loop();
 		int find_runs();
 };

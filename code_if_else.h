@@ -16,11 +16,12 @@ class code_if_else : public code_element
 		void add_ecb(code_element *add);
 		void set_else(code_element *h);
 		void set_last(code_element *l);
+		void set_next(code_element *l);	//when the final element cannot be merged into this block
 	private:
 		std::vector<code_element*>lcb;	//the logic blocks
 		std::vector<code_element*>ecb;	//the executing blocks
 		code_element *helse;	//the else block
-		code_element *last;	//the block everything merges to
+		code_element *next;
 };
 
 #endif

@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+void begin_line(FILE *b, int a);
+
 struct line_info
 {
 	void *addr;
@@ -40,16 +42,14 @@ class code_element
 		void sb(code_element *bb);	//sets b
 		code_element *gb();
 		virtual void fprint(FILE *dest, int depth);
-		void setbnum(int n);
-		int getbnum();
 		int gins();	//get ins
+		void dins(int by);	//decrease ins
 		int is_cbranch();	//does this element have a conditional branch at the end
 	protected:
 		int ins;	//number of elements that point to this one
 		void *s;	//the starting address
 		code_element *a;	//next element
 		code_element *b;	//other next element (if a decision has to be made)
-		int block_num;
 };
 
 #endif

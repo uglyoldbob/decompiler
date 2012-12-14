@@ -1,5 +1,13 @@
 #include "code_element.h"
 
+void begin_line(FILE *b, int a)
+{
+	for (int xyz = 0; xyz < a; xyz++)
+	{
+		fprintf(b, "\t");
+	}
+}
+
 code_element::code_element()
 {
 	ins = 0;
@@ -35,7 +43,10 @@ code_element *code_element::ga()
 
 code_element *code_element::gb()
 {
-	return b;
+	if (a == 0)
+		return a;
+	else
+		return b;
 }
 
 void code_element::fprint(FILE *dest, int depth)
@@ -63,12 +74,8 @@ void code_element::sb(code_element *bb)
 	b = bb;
 }
 
-void code_element::setbnum(int n)
+void code_element::dins(int by)	//decrease ins
 {
-	block_num = n;
-}
-
-int code_element::getbnum()
-{
-	return block_num;
+	printf("Reduce ins of %x by %d\n", s, by);
+	ins -= by;
 }
