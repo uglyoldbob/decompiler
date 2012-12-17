@@ -5,6 +5,7 @@
 #include "code_if_else.h"
 #include "code_do_while_loop.h"
 #include "code_multi_if.h"
+#include "code_while_loop.h"
 #include "code_run.h"
 #include "ce_block.h"
 
@@ -53,11 +54,14 @@ int find_stuff(struct code_block* c, int num_blocks, int j)
 function::function()
 {
 	num_lines = 0;
+	name = 0;
 }
 
 function::~function()
 {
 	unsigned int i;
+	if (name != 0)
+		delete [] name;
 	if (output != 0)
 		fclose(output);
 	if (c_blocks != 0)
@@ -65,9 +69,22 @@ function::~function()
 	if (da_lines != 0)
 		delete [] da_lines;
 	for (i = 0; i < xblocks.size(); i++)
-	{
 		delete xblocks[i];
+}
+
+void function::set_name(const char *to)
+{
+	if (name != 0)
+	{
+		delete [] name;
 	}
+	name = new char[strlen(to)+1];
+	strcpy(name, to);
+}
+
+const char *function::get_name()
+{
+	return name;
 }
 
 void function::remove_piece(code_element *rmv)
@@ -103,6 +120,14 @@ void function::replace_references(code_element *old, code_element *nw)
 		if (pieces[i] == old)
 		{
 			pieces[i] = nw;
+			if (pieces[i]->ga() == old)
+			{
+				pieces[i]->sa(nw);
+			}
+			if (pieces[i]->gb() == old)
+			{
+				pieces[i]->sb(nw);
+			}
 		}
 	}
 }
@@ -334,23 +359,36 @@ void function::simplify()
 //		find_stuff(c_blocks, actual_num_blocks, 1);
 //		printf("End of stage %d %d\n", ++stage, reduced);
 	} while (reduced > 0);
+	if (pieces.size() > 1)
+	{
+		printf("Failed to simplify enough (%d/%d)\n", pieces.size(), actual_num_blocks);
+	}
+	else
+	{
+		printf("Logic fully reduced\n");
+	}
 }
 
 void function::fprint()
 {	//print the code to the output for examination
 	unsigned int i;
-	fprintf(output, "There are %d blocks\n", pieces.size());
+	fprintf(output, "//There are %d blocks\n", pieces.size());
+	if (name != 0)
+		fprintf(output, "int %s(int argc, char *argv[])\n{\n", name);
+	else
+		fprintf(output, "int unknown()\n{\n");
 	for (i = 0; i < pieces.size(); i++)
 	{
-		fprintf(output, "****~~~~ %x %d inputs ", (int)pieces[i]->gets(), pieces[i]->gins());
+		fprintf(output, "\t****~~~~ %x %d inputs ", (int)pieces[i]->gets(), pieces[i]->gins());
 		if (pieces[i]->ga() != 0)
 			fprintf(output, "%x (%d) ", (int)pieces[i]->ga()->gets(), pieces[i]->ga()->gins());
 		if (pieces[i]->gb() != 0)
 			fprintf(output, "%x (%d) ", (int)pieces[i]->gb()->gets(), pieces[i]->gb()->gins());
 		fprintf(output, "\n");
-		pieces[i]->fprint(output, 0);
-		fprintf(output, "~~~~**** \n");
+		pieces[i]->fprint(output, 1);
+		fprintf(output, "\t~~~~**** \n");
 	}
+	fprintf(output, "}\n");
 }
 
 void function::create_pieces()
@@ -392,7 +430,7 @@ int function::find_runs()
 					temp->done();
 					replace_references(pieces[i], temp);
 					found++;
-					printf("Spotted start of run at block %x\n", (int)pieces[i]->gets());
+					//printf("Spotted start of run at block %x\n", (int)pieces[i]->gets());
 				}
 			}
 		}
@@ -406,9 +444,9 @@ int function::find_loop()
 	unsigned int i;
 	for (i = 0; i < pieces.size(); i++)
 	{
-		if ((pieces[i]->ga() == pieces[i]) || (pieces[i]->gb() == pieces[i]) )
+		if ( (pieces[i]->ga() == pieces[i]) || (pieces[i]->gb() == pieces[i]) )
 		{
-			printf("Do while loop at block %x\n", pieces[i]->gets());
+//			printf("Do while loop at block %x\n", pieces[i]->gets());
 			code_do_while_loop *temp;
 			temp = new code_do_while_loop(pieces[i]);
 			xblocks.push_back(temp);
@@ -417,10 +455,19 @@ int function::find_loop()
 		}
 		else if ( (pieces[i]->is_cbranch() != 1) &&
 				  (pieces[i]->ga() != 0) &&
+				  (pieces[i]->gins() == 1) &&
 				  ( (pieces[i]->ga()->ga() == pieces[i]) ||
 					(pieces[i]->ga()->gb() == pieces[i])  ) )
 		{
-			printf("While loop at block %x\n", pieces[i]->ga()->gets());
+//			printf("While loop at block %x (%d ins) %x (%d ins)\n", 
+//				   pieces[i]->ga()->gets(), pieces[i]->ga()->gins(),
+//				   pieces[i]->gets(), pieces[i]->gins());
+			code_while_loop *temp;
+			temp = new code_while_loop(pieces[i]->ga(), pieces[i]);
+			xblocks.push_back(temp);
+			replace_references(pieces[i]->ga(), temp);
+			remove_piece(pieces[i]);
+			found++;
 		}
 	}
 	return 0;//found;
@@ -429,7 +476,7 @@ int function::find_loop()
 int function::do_simple_if(code_element *a, code_element *b, int i)
 {
 	if ( (a->gins() == 1) &&
-		 (b->gins() == 2) &&
+		 (b->gins() >= 2) &&
 	     (a->ga() == b) && 
 	     (a->is_cbranch() != 1) )
 	{
@@ -510,14 +557,13 @@ int function::do_multi_if(int i)
 		{
 			if (list.size() == (unsigned int)common->gins())
 			{
-				unsigned int asdf;
 				if (list.back()->is_cbranch() != 1)
 				{	//possibly a combination of AND without an ELSE block
 					printf("Something found %x\n", (int)list.back()->gets());
 					if ( (common->is_cbranch() != 1) &&
 						 ( (common->ga() == list.back()->ga()) || (common->ga() == list.back()->gb()) ) )
 					{//AND without an ELSE block
-						printf("Multiple conditions AND-ed with no ELSE statement at %x\n", (int)pieces[i]->gets());
+//						printf("Multiple conditions AND-ed with no ELSE statement at %x\n", (int)pieces[i]->gets());
 						code_multi_if *temp;
 						temp = new code_multi_if;
 						unsigned int q = 0;
@@ -540,7 +586,7 @@ int function::do_multi_if(int i)
 					if ((common->is_cbranch() != 1) &&
 						( (common->ga() == list.back()->ga()) || (common->ga() == list.back()->gb()) ) )
 					{
-						printf("Multiple conditions OR-ed with no else statement at %x\n", (int)pieces[i]->gets());
+//						printf("Multiple conditions OR-ed with no else statement at %x\n", (int)pieces[i]->gets());
 						code_multi_if *temp;
 						temp = new code_multi_if;
 						unsigned int q = 0;
@@ -556,12 +602,12 @@ int function::do_multi_if(int i)
 						remove_piece(common);
 						if (common->ga()->gins() > 1)
 						{
-							printf("reducing ins of %x\n", common->ga()->gets());
+//							printf("reducing ins of %x\n", common->ga()->gets());
 							common->ga()->dins(1);
 						}
 						else if (common->ga()->gins() == 1)
 						{
-							printf("removing %x\n", common->ga()->gets());
+//							printf("removing %x\n", common->ga()->gets());
 							remove_piece(common->ga());
 						}
 						replace_references(pieces[i], temp);
@@ -572,8 +618,8 @@ int function::do_multi_if(int i)
 							(list.back()->ga()->ga() == list.back()->gb()->ga()) &&
 							(common != list.back()->gb()) )
 					{	//AND or OR with an ELSE block
-						printf("Multiple conditions ANDed or ORed with ELSE block at %x, last %x, common %x\n", 
-							   (int)pieces[i]->gets(), (int)list.back()->gets(), (int)common->gets());
+//						printf("Multiple conditions ANDed or ORed with ELSE block at %x, last %x, common %x\n", 
+//							   (int)pieces[i]->gets(), (int)list.back()->gets(), (int)common->gets());
 						code_multi_if *temp;
 						temp = new code_multi_if;
 						unsigned int q = 0;
@@ -601,6 +647,39 @@ int function::do_multi_if(int i)
 						xblocks.push_back(temp);
 						found++;
 					}
+					else if ( (common->is_cbranch() != 1) && (list.back()->is_cbranch() == 1) &&
+							(list.back()->gb()->ga() == list.back()->ga()->ga()) &&
+							(common != list.back()->ga()) )
+					{	//AND or OR with an ELSE block
+//						printf("Multiple conditions ANDed or ORed with ELSE block at %x, last %x, common %x\n", 
+//							   (int)pieces[i]->gets(), (int)list.back()->gets(), (int)common->gets());
+						code_multi_if *temp;
+						temp = new code_multi_if;
+						unsigned int q = 0;
+						for (q = 0; q < list.size(); q++)
+						{
+							temp->add(list[q]);
+							if (q != 0)
+								remove_piece(list[q]);
+						}
+						temp->common(common);
+						temp->set_else(list.back()->ga());
+						temp->set_final(common->ga());
+						temp->finish_with_else();
+						remove_piece(common);
+						remove_piece(list.back()->ga());
+						if (common->ga()->gins() > 1)
+						{
+							common->ga()->dins(1);
+						}
+						else if (common->ga()->gins() == 1)
+						{
+							remove_piece(common->ga());
+						}
+						replace_references(pieces[i], temp);
+						xblocks.push_back(temp);
+						found++;
+					}
 				}
 			}
 		}
@@ -615,8 +694,8 @@ int function::do_if_else(int i)
 	int found = 0;
 	std::vector<code_element*>lcb;	//logic control blocks
 	std::vector<code_element*>ecb;	//executing control blocks
-	code_element *end_b = NULL;	//end block
-	code_element *helse = NULL;	//the executing block for the else statement
+	code_element *end_b = 0;	//end block
+	code_element *helse = 0;	//the executing block for the else statement
 	lcb.push_back(pieces[i]);
 	while (!done)
 	{
@@ -714,7 +793,7 @@ int function::do_if_else(int i)
 				else
 				{
 					temp->set_next(helse->ga());
-					helse->ga()->dins(ecb.size());
+					//helse->ga()->dins(ecb.size());
 				}
 				replace_references(pieces[i], temp);
 				xblocks.push_back(temp);
@@ -727,45 +806,11 @@ int function::do_if_else(int i)
 			 (done == 1) && 
 		     (ecb.size() > 0) )
 		{
-/*			printf("if with no else at %x?\n", pieces[i]->gets());
-			unsigned int q;
-			printf("\tLCB(%d):", lcb.size());
-			for (q = 0; q < lcb.size(); q++)
-			{
-				printf(" %x(", lcb[q]->gets());
-				if (lcb[q]->ga() != 0)
-					printf("%x,", lcb[q]->ga()->gets());
-				if (lcb[q]->gb() != 0)
-					printf("%x,", lcb[q]->gb()->gets());
-				printf(")");
-			}
-			printf("\n");
-			printf("\tECB(%d):", ecb.size());
-			for (q = 0; q < ecb.size(); q++)
-			{
-				printf(" %x(", ecb[q]->gets());
-				if (ecb[q]->ga() != 0)
-					printf("%x,", ecb[q]->ga()->gets());
-				if (ecb[q]->gb() != 0)
-					printf("%x,", ecb[q]->gb()->gets());
-				printf(")");
-			}
-			printf("\n\tEND %x\n", end_b->gets());
-			if (lcb.back()->ga()->is_cbranch() != 1)
-			{
-				printf("Maybe still a no else (lcb a) (%x %x)\n",
-					lcb.back()->ga()->ga()->gets(), lcb.back()->gb()->gets()); 
-				if (lcb.back()->ga()->ga() == lcb.back()->gb())
-				{
-					printf("Still a no else (lcb a)\n");
-				}
-			}
-*/			if (lcb.back()->gb()->is_cbranch() != 1)
+			if (lcb.back()->gb()->is_cbranch() != 1)
 			{
 				if (lcb.back()->gb()->ga() == lcb.back()->ga())
 				{
 					ecb.push_back(lcb.back()->gb());
-					printf("Still a no else (lcb b)\n");
 					code_if_else *temp;
 					temp = new code_if_else;
 					unsigned int j;
@@ -799,7 +844,34 @@ int function::do_if_else(int i)
 			{
 				if (lcb.back()->ga()->ga() == lcb.back()->gb())
 				{
-					printf("Still a no else (lcb a)\n");
+					ecb.push_back(lcb.back()->ga());
+					code_if_else *temp;
+					temp = new code_if_else;
+					unsigned int j;
+					for (j = 0; j < lcb.size(); j++)
+					{
+						temp->add_lcb(lcb[j]);
+						if (j != 0)
+							remove_piece(lcb[j]);
+					}
+					for (j = 0; j < ecb.size(); j++)
+					{
+						temp->add_ecb(ecb[j]);
+						remove_piece(ecb[j]);
+					}
+					if (end_b->gins() == (ecb.size()+1))
+					{
+						temp->set_last(end_b);
+						remove_piece(end_b);
+					}
+					else
+					{
+						temp->set_next(end_b);
+					}
+					replace_references(pieces[i], temp);
+					xblocks.push_back(temp);
+					found++;
+					done = 1;
 				}
 			}
 		}

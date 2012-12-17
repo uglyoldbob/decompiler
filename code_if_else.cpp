@@ -42,6 +42,7 @@ void code_if_else::set_next(code_element *n)
 	a = n;
 	unsigned int i;
 	a->dins(lcb.size());
+//	printf("Ins of %x is now %d\n", a->gets(), a->gins());
 	b = 0;
 }
 

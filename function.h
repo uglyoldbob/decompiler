@@ -19,7 +19,10 @@ class function
 		void create_pieces();
 		void simplify();
 		void fprint();
+		void set_name(const char *to);
+		const char *get_name();
 	private:
+		char *name;
 		FILE *input, *output;
 		struct line_info *da_lines;	//all the lines of code for the function (delete these when done)
 		int num_lines;

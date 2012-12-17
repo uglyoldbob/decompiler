@@ -7,15 +7,22 @@
 #include "code_element.h"
 #include "code_if_else.h"
 #include "code_multi_if.h"
+#include "executable.h"
 #include "function.h"
 
 int main(int argc, char *argv[])
 {
-	if (argc < 3)
+	executable program;
+	if (argc < 2)
 	{
-		printf("Not enough arguments");
-		return -1;
+		program.load(argv[0]);
 	}
+	else if (argc >= 2)
+	{
+		program.load(argv[1]);
+	}
+	
+	return 0;
 	
 	function analyze;
 

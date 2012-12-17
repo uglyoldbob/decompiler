@@ -76,6 +76,6 @@ void code_element::sb(code_element *bb)
 
 void code_element::dins(int by)	//decrease ins
 {
-	printf("Reduce ins of %x by %d\n", s, by);
+	//printf("Reduce ins of %x (%d) by %d\n", s, ins, by);
 	ins -= by;
 }

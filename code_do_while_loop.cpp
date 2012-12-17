@@ -4,6 +4,7 @@ code_do_while_loop::code_do_while_loop(code_element *f)
 {
 	theloop = f;
 	s = f->gets();
+	ins = f->gins()-1;
 	b = 0;
 	if (f->ga() == f)
 		a = f->gb();
@@ -21,8 +22,7 @@ void code_do_while_loop::fprint(FILE *dest, int depth)
 	fprintf(dest, "do\n");
 	begin_line(dest, depth);
 	fprintf(dest, "{\n");
-	begin_line(dest, depth);
 	theloop->fprint(dest, depth+1);
 	begin_line(dest, depth);
-	fprintf(dest, "} while (?)\n");
+	fprintf(dest, "} while (?);\n");
 }

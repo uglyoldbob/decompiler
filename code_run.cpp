@@ -27,10 +27,8 @@ void code_run::done()
 void code_run::fprint(FILE *dest, int depth)
 {
 	unsigned int i;
-	fprintf(dest, "start of a run %d\n", els.size());
 	for (i = 0; i < els.size(); i++)
 	{
-		fprintf(dest, "run %d of %d\n", i+1, els.size());
 		els[i]->fprint(dest, depth);
 	}
 }
