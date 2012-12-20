@@ -9,7 +9,7 @@
 #include "code_run.h"
 #include "ce_block.h"
 
-void increase_dest_count(struct line_info* array, int num_elements, void* addr)
+void increase_dest_count(struct line_info* array, int num_elements, address addr)
 {
 	int i;
 	for (i = 0; i < num_elements; i++)
@@ -22,7 +22,7 @@ void increase_dest_count(struct line_info* array, int num_elements, void* addr)
 	}
 }
 
-struct ce_block * find_block(ce_block *blocks, int num_blocks, void* addr)
+struct ce_block * find_block(ce_block *blocks, int num_blocks, address addr)
 {	//find a block that starts with addr (-1 if not found)
 	int k;
 	for (k = 0; k < num_blocks; k++)
@@ -51,7 +51,7 @@ int find_stuff(struct code_block* c, int num_blocks, int j)
 	return found;
 }
 
-function::function(void *addr, const char *n)
+function::function(address addr, const char *n)
 {
 	s = addr;
 	num_lines = 0;
@@ -74,7 +74,7 @@ function::~function()
 		delete xblocks[i];
 }
 
-void *function::gets()
+address function::gets()
 {
 	return s;
 }
@@ -176,8 +176,8 @@ void function::use_input_otool_ppc()
 		da_lines[i].ins = 0;
 		da_lines[i].is_cbranch = 0;
 		da_lines[i].line_num = i;
-		da_lines[i].destaddra = NULL;
-		da_lines[i].destaddrb = NULL;
+		da_lines[i].destaddra = 0;
+		da_lines[i].destaddrb = 0;
 	}
 	da_lines[0].ins = 1;	//the first block always is the entry point
 
@@ -197,7 +197,7 @@ void function::compute_branching_ppc()
 	int i;
 	for (i = 0; i < num_lines; i++)
 	{
-		void *dest;
+		address dest;
 		if (da_lines[i].opcode[0] == 'b')
 		{
 			if (strcmp(da_lines[i].opcode, "bl") == 0)
@@ -212,16 +212,16 @@ void function::compute_branching_ppc()
 			}
 			else if (strcmp(da_lines[i].opcode, "b") == 0)
 			{
-				sscanf(da_lines[i].options, "0x%x", (int*)&dest);
+				sscanf(da_lines[i].options, "0x%x", &dest);
 				da_lines[i].destaddra = dest;
-				da_lines[i].destaddrb = NULL;
+				da_lines[i].destaddrb = 0;
 				increase_dest_count(da_lines, num_lines, dest);
 				da_lines[i].is_cbranch = -1;
 			}
 			else if (strcmp(da_lines[i].opcode, "bcl") == 0)
 			{
 				int a, b;
-				sscanf(da_lines[i].options, "%d,%d,0x%x", &a, &b, (int*)&dest);
+				sscanf(da_lines[i].options, "%d,%d,0x%x", &a, &b, &dest);
 				da_lines[i].destaddra = dest;
 				if ((i+1) < num_lines)
 				{
@@ -229,7 +229,7 @@ void function::compute_branching_ppc()
 				}
 				else
 				{
-					da_lines[i].destaddrb = NULL;
+					da_lines[i].destaddrb = 0;
 				}
 				if (da_lines[i].destaddra != da_lines[i].destaddrb)
 				{
@@ -240,7 +240,7 @@ void function::compute_branching_ppc()
 				}
 				else
 				{
-					da_lines[i].destaddra = NULL;
+					da_lines[i].destaddra = 0;
 				}
 			}
 			else
@@ -262,7 +262,7 @@ void function::compute_branching_ppc()
 				}
 				else
 				{
-					da_lines[i].destaddrb = NULL;
+					da_lines[i].destaddrb = 0;
 				}
 				increase_dest_count(da_lines, num_lines, dest);
 				if ((i+1) < num_lines)
@@ -304,7 +304,7 @@ void function::create_blocks()
 	{
 		int nlcb = 0;
 		int found_end = 0;
-		c_blocks[i].ss((void*)da_lines[j].addr);
+		c_blocks[i].ss(da_lines[j].addr);
 		c_blocks[i].sa(NULL);
 		c_blocks[i].sb(NULL);
 		do

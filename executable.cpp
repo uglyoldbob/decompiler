@@ -125,7 +125,7 @@ int executable::load(char *bin_name)
 	}
 
 	function *themain;
-	themain = new function((void*)exe_object->entry_addr(), exe_object->entry_name());
+	themain = new function(exe_object->entry_addr(), exe_object->entry_name());
 	funcs.push_back(themain);
 
 	printf("Created entry point function %s at address %x\n", funcs[0]->get_name(), funcs[0]->gets());
@@ -139,13 +139,13 @@ int executable::load(char *bin_name)
 void executable::handle_function(int i)
 {
 	printf("STUB Add lines of code to function %x\n", funcs[i]->gets());
-	std::vector<uint32_t> blocks;	//indicates the starting point of blocks
+	std::vector<address> blocks;	//indicates the starting point of blocks
 	blocks.push_back((uint32_t)funcs[i]->gets());
 	while (blocks.size() > 0)
 	{
 		printf("Working on block starting at %x\n", blocks[0]);
 		//does this block already exist?
-		exe_object->get_disasm()->get_instruction((void*)blocks[0]);	//gather an instruction
+		exe_object->get_disasm()->get_instruction(blocks[0]);	//gather an instruction
 		//add it to the block
 		//if the next instruction does not belong to this block, move to another block
 		blocks.erase(blocks.begin());

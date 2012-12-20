@@ -1,7 +1,7 @@
 #include "executable.h"
 #include "exe_macho.h"
 
-#include "disass_x86_32.h"
+#include "disass_x86.h"
 
 exe_macho::exe_macho()
 {
@@ -117,12 +117,12 @@ int exe_macho::process(FILE *me)	//do basic processing
 	return -1;
 }
 
-int exe_macho::goto_address(uint32_t addr)
+int exe_macho::goto_address(address addr)
 {
 	return 0;
 }
 
-uint32_t exe_macho::entry_addr()
+address exe_macho::entry_addr()
 {
 	return 0;
 }

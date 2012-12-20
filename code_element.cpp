@@ -54,12 +54,12 @@ void code_element::fprint(FILE *dest, int depth)
 	printf("Dummy print\n");
 }
 
-void code_element::ss(void* ss)
+void code_element::ss(address ss)
 {
 	s = ss;
 }
 
-void *code_element::gets()
+address code_element::gets()
 {
 	return s;
 }

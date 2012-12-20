@@ -5,12 +5,13 @@
 #include <vector>
 
 #include "code_element.h"
+#include "config.h"
 #include "ce_block.h"
 
 class function
 {
 	public:
-		function(void *addr, const char *n);
+		function(address addr, const char *n);
 		~function();
 		int setio(char *in, char *out);
 		void use_input_otool_ppc();
@@ -21,10 +22,10 @@ class function
 		void fprint();
 		void set_name(const char *to);
 		const char *get_name();
-		void *gets();
+		address gets();
 	private:
 		char *name;
-		void *s;
+		address s;
 		FILE *input, *output;
 		struct line_info *da_lines;	//all the lines of code for the function (delete these when done)
 		int num_lines;

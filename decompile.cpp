@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,14 +8,15 @@
 #include "code_element.h"
 #include "code_if_else.h"
 #include "code_multi_if.h"
+#include "config.h"
 #include "executable.h"
 #include "function.h"
 
-void reverse(unsigned int *in, int rbo)
+void reverse(uint32_t *in, int rbo)
 {
 	if (rbo)
 	{
-		unsigned int temp;
+		uint32_t temp;
 		temp = ( (((*in)&0xFF000000)>>24) |
 				 (((*in)&0x00FF0000)>>8) | 
 				 (((*in)&0x0000FF00)<<8) |
@@ -23,11 +25,11 @@ void reverse(unsigned int *in, int rbo)
 	}
 }
 
-void reverse(unsigned short *in, int rbo)
+void reverse(uint16_t *in, int rbo)
 {
 	if (rbo)
 	{
-		unsigned short temp;
+		uint16_t temp;
 		temp = (*in>>8) | ((*in&0xFF)<<8);
 		*in = temp;
 	}
@@ -35,6 +37,13 @@ void reverse(unsigned short *in, int rbo)
 
 int main(int argc, char *argv[])
 {
+#if TARGET32
+	printf("Targeting 32-bit executables\n");
+#elif TARGET64
+	printf("Targeting 64-bit executables\n");
+#else
+#error "Unknown Target"
+#endif
 	executable program;
 	if (argc < 2)
 	{

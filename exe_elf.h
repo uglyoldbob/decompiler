@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "config.h"
 #include "exe_loader.h"
 
 #define EI_NIDENT 16
@@ -26,7 +27,7 @@
 
 #define EM_386 3
 
-struct exe_elf_header32
+struct exe_elf_header
 {
 	uint8_t e_ident[EI_NIDENT];
 	uint16_t e_type;
@@ -52,7 +53,8 @@ struct exe_elf_header32
 #define SHN_COMMON 0xFFF1
 #define SHN_RESERVE 0xFFFF
 
-struct exe_elf_section_header32
+#if TARGET32
+struct exe_elf_section_header
 {
 	uint32_t sh_name;
 	uint32_t sh_type;
@@ -65,6 +67,9 @@ struct exe_elf_section_header32
 	uint32_t sh_addralign;
 	uint32_t sh_entsize;
 };
+#elif TARGET64
+#error "64-bit target not supported"
+#endif
 
 #define PT_NULL 0
 #define PT_LOAD 1
@@ -77,7 +82,7 @@ struct exe_elf_section_header32
 #define PT_HIPROC 0x7FFFFFFF
 
 
-struct exe_elf_program_header32
+struct exe_elf_program_header
 {
 	uint32_t p_type;
 	uint32_t p_offset;
@@ -97,13 +102,13 @@ class exe_elf : public exe_loader
 		static int check(FILE *me);
 		int process(FILE *me);	//do basic processing
 		const char *entry_name();
-		uint32_t entry_addr();
-		int goto_address(uint32_t addr);
+		address entry_addr();
+		int goto_address(address addr);
 		void read_memory(void *dest, int len);
 	private:
-		exe_elf_header32 header;
-		exe_elf_section_header32 *sheaders;
-		exe_elf_program_header32 *pheaders;
+		exe_elf_header header;
+		exe_elf_section_header *sheaders;
+		exe_elf_program_header *pheaders;
 		char *string_table;
 
 		void print_program_header(int i);

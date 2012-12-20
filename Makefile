@@ -1,38 +1,60 @@
 
-all: decompile
+all: decompile32 decompile64
+
+TEST_DIR="./test"
 
 DECOMPILE_OBJS = ce_block.o code_element.o code_if_else.o decompile.o function.o \
 	code_multi_if.o code_run.o code_do_while_loop.o code_while_loop.o executable.o \
-	exe_loader.o exe_elf.o exe_macho.o disassembler.o disass_x86_32.o
+	exe_loader.o exe_elf.o exe_macho.o disassembler.o disass_x86.o
 
-DECOMPILE_DEPS := $(DECOMPILE_OBJS:.o=.d)
+DECOMPILE32_OBJS = $(DECOMPILE_OBJS:%.o=%32.o)
+DECOMPILE64_OBJS = $(DECOMPILE_OBJS:%.o=%64.o)
 
--include $(DECOMPILE_DEPS)
+DECOMPILE32_DEPS := $(DECOMPILE32_OBJS:.o=.d)
+DECOMPILE64_DEPS := $(DECOMPILE64_OBJS:.o=.d)
 
-POWERPC_EXEC=Lin
-WINDOWS_EXEC=LINEAGE.EXE
+-include $(DECOMPILE32_DEPS)
+-include $(DECOMPILE64_DEPS)
 
 CC=g++
 
 EXTRA_FLAGS=-g
-CFLAGS =-c -Wall
+32_CFLAGS =-c -Wall -D TARGET32
+64_CFLAGS =-c -Wall -D TARGET64
 
-decompile: $(DECOMPILE_OBJS)
-	$(CC) $(EXTRA_FLAGS) $(DECOMPILE_OBJS) $(LFLAGS) $(LDADD) -o decompile
+decompile32: $(DECOMPILE32_OBJS)
+	$(CC) $(EXTRA_FLAGS) $(DECOMPILE32_OBJS) $(LFLAGS) $(LDADD) -o decompile32
+
+decompile64: $(DECOMPILE64_OBJS)
+	$(CC) $(EXTRA_FLAGS) $(DECOMPILE64_OBJS) $(LFLAGS) $(LDADD) -o decompile64
 
 clean:
-	rm -f *.o *.d decompile
+	rm -f *.o *.d decompile32 decompile64
 
-test: decompile
+$(TEST_DIR)/decompile32: decompile32
+	cp decompile32 $(TEST_DIR)/decompile32
+
+$(TEST_DIR)/decompile64: decompile64
+	cp decompile64 $(TEST_DIR)/decompile64
+
+testobjs: $(TEST_DIR)/decompile32
+
+test: decompile32 testobjs
 	echo "Running test routine"
-	./decompile
-	./decompile $(POWERPC_EXEC)
-	./decompile $(WINDOWS_EXEC)
+	for file in $(TEST_DIR)/*; do ./decompile32 $$file ; done
 
-.cpp.o:
+%32.o: %.cpp
 	@if [ ! -d $(@D) ]; then\
 		echo mkdir $(@D);\
 		mkdir $(@D);\
 	fi
-	$(CC) $(EXTRA_FLAGS) $(CFLAGS) $(INCLUDE)$(@D) $< -o $@
-	$(CC) $(EXTRA_FLAGS) $(CFLAGS) $(INCLUDE)$(@D) $< -MM -MF $(@D)/$(*F).d
+	$(CC) $(EXTRA_FLAGS) $(CFLAGS) $(32_CFLAGS) $(INCLUDE)$(@D) $< -o $@
+	$(CC) $(EXTRA_FLAGS) $(CFLAGS) $(32_CFLAGS) $(INCLUDE)$(@D) $< -MM -MF $(@D)/$(*F)32.d
+
+%64.o: %.cpp
+	@if [ ! -d $(@D) ]; then\
+		echo mkdir $(@D);\
+		mkdir $(@D);\
+	fi
+	$(CC) $(EXTRA_FLAGS) $(CFLAGS) $(64_CFLAGS) $(INCLUDE)$(@D) $< -o $@
+	$(CC) $(EXTRA_FLAGS) $(CFLAGS) $(64_CFLAGS) $(INCLUDE)$(@D) $< -MM -MF $(@D)/$(*F)64.d

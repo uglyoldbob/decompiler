@@ -25,8 +25,8 @@ enum ARCHITECTURE_TYPE
 	ARCH_PPC
 };
 
-extern void reverse(unsigned int *in, int rbo);
-extern void reverse(unsigned short *in, int rbo);
+extern void reverse(uint32_t *in, int rbo);
+extern void reverse(uint16_t *in, int rbo);
 
 class executable
 {

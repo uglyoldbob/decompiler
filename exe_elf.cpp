@@ -1,6 +1,6 @@
 #include "exe_elf.h"
 
-#include "disass_x86_32.h"
+#include "disass_x86.h"
 
 exe_elf::exe_elf()
 {
@@ -86,14 +86,14 @@ int exe_elf::process(FILE *me)	//do basic processing
 	switch (header.e_machine)
 	{
 		case EM_386:
-			disasm = new disass_x86_32(this);
+			disasm = new disass_x86(this);
 			break;
 		default:
 			printf("Unsupported architecture\n");
 			return -1;
 			break;
 	}
-	if (sizeof(exe_elf_program_header32) > header.e_phentsize)
+	if (sizeof(exe_elf_program_header) > header.e_phentsize)
 	{
 		printf("Error: structure is larger than the ELF executable calls for\n");
 		return -1;
@@ -102,29 +102,29 @@ int exe_elf::process(FILE *me)	//do basic processing
 	if (header.e_phoff != 0)
 	{	//load program header table
 		printf("Allocating for %d program header entries\n", header.e_phnum);
-		pheaders = new exe_elf_program_header32[header.e_phnum];
+		pheaders = new exe_elf_program_header[header.e_phnum];
 		for (int i = 0; i < header.e_phnum; i++)
 		{	//seek to the correct location
 			fseek(exe, header.e_phoff + i * header.e_phentsize, SEEK_SET);
 			//now read the data
-			fread(&pheaders[i], sizeof(exe_elf_program_header32), 1, exe);
+			fread(&pheaders[i], sizeof(exe_elf_program_header), 1, exe);
  			print_program_header(i);
 		}
 	}
 	if (header.e_shoff != 0)
 	{	//load section header table
 		printf("Allocating for %d sections\n", header.e_shnum);
-		sheaders = new exe_elf_section_header32[header.e_shnum];
+		sheaders = new exe_elf_section_header[header.e_shnum];
 		for (int i = 0; i < header.e_shnum; i++)
 		{
 			fseek(exe, header.e_shoff + i * header.e_shentsize, SEEK_SET);
-			fread(&sheaders[i], sizeof(exe_elf_section_header32), 1, exe);
+			fread(&sheaders[i], sizeof(exe_elf_section_header), 1, exe);
 		}
 	}
 	return 0;
 }
 
-int exe_elf::goto_address(uint32_t addr)
+int exe_elf::goto_address(address addr)
 {
 	for (int i = 0; i < header.e_phnum; i++)
 	{
@@ -139,7 +139,7 @@ int exe_elf::goto_address(uint32_t addr)
 	return 0;
 }
 
-uint32_t exe_elf::entry_addr()
+address exe_elf::entry_addr()
 {
 	return header.e_entry;
 }
