@@ -8,6 +8,7 @@ class disass_x86_32 : public disassembler
 	public:
 		disass_x86_32(exe_loader *own);
 		~disass_x86_32();
+		instr *get_instruction(void *addr);
 	private:
 };
 

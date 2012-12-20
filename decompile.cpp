@@ -10,6 +10,29 @@
 #include "executable.h"
 #include "function.h"
 
+void reverse(unsigned int *in, int rbo)
+{
+	if (rbo)
+	{
+		unsigned int temp;
+		temp = ( (((*in)&0xFF000000)>>24) |
+				 (((*in)&0x00FF0000)>>8) | 
+				 (((*in)&0x0000FF00)<<8) |
+				 (((*in)&0x000000FF)<<24) );
+		*in = temp;
+	}
+}
+
+void reverse(unsigned short *in, int rbo)
+{
+	if (rbo)
+	{
+		unsigned short temp;
+		temp = (*in>>8) | ((*in&0xFF)<<8);
+		*in = temp;
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	executable program;
@@ -24,7 +47,7 @@ int main(int argc, char *argv[])
 	
 	return 0;
 	
-	function analyze;
+	function analyze(0, "test");
 
 	if (analyze.setio(argv[1], argv[2]) == -1)
 		return -1;

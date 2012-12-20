@@ -3,12 +3,14 @@ all: decompile
 
 DECOMPILE_OBJS = ce_block.o code_element.o code_if_else.o decompile.o function.o \
 	code_multi_if.o code_run.o code_do_while_loop.o code_while_loop.o executable.o \
-	exe_loader.o exe_elf.o disassembler.o disass_x86_32.o
+	exe_loader.o exe_elf.o exe_macho.o disassembler.o disass_x86_32.o
 
 DECOMPILE_DEPS := $(DECOMPILE_OBJS:.o=.d)
 
 -include $(DECOMPILE_DEPS)
 
+POWERPC_EXEC=Lin
+WINDOWS_EXEC=LINEAGE.EXE
 
 CC=g++
 
@@ -24,6 +26,8 @@ clean:
 test: decompile
 	echo "Running test routine"
 	./decompile
+	./decompile $(POWERPC_EXEC)
+	./decompile $(WINDOWS_EXEC)
 
 .cpp.o:
 	@if [ ! -d $(@D) ]; then\

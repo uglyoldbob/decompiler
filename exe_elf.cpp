@@ -136,6 +136,7 @@ int exe_elf::goto_address(uint32_t addr)
 			fseek(exe, pheaders[i].p_offset + addr - pheaders[i].p_vaddr, SEEK_SET);
 		}
 	}
+	return 0;
 }
 
 uint32_t exe_elf::entry_addr()

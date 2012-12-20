@@ -51,10 +51,12 @@ int find_stuff(struct code_block* c, int num_blocks, int j)
 	return found;
 }
 
-function::function()
+function::function(void *addr, const char *n)
 {
+	s = addr;
 	num_lines = 0;
-	name = 0;
+	name = new char[strlen(n)+1];
+	strcpy(name, n);
 }
 
 function::~function()
@@ -70,6 +72,11 @@ function::~function()
 		delete [] da_lines;
 	for (i = 0; i < xblocks.size(); i++)
 		delete xblocks[i];
+}
+
+void *function::gets()
+{
+	return s;
 }
 
 void function::set_name(const char *to)

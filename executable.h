@@ -25,6 +25,9 @@ enum ARCHITECTURE_TYPE
 	ARCH_PPC
 };
 
+extern void reverse(unsigned int *in, int rbo);
+extern void reverse(unsigned short *in, int rbo);
+
 class executable
 {
 	public:
@@ -37,15 +40,14 @@ class executable
 		int check_macho32(FILE *me);
 		int check_macho64(FILE *me);
 		int rbo;	//used to signal reversed byte order
-		
-		void reverse(unsigned int *in);
-		void reverse(unsigned short *in);
 		FILE *m;
 		EXECUTABLE_TYPE exe_type;
 		exe_loader *exe_object;
 		
 		//TODO: create objects to break up code into multiple source files
 		std::vector<function*> funcs;	//all the functions of the program
+		
+		void handle_function(int i);
 };
 
 #endif

@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
+extern void reverse(unsigned int *in, int rbo);
+extern void reverse(unsigned short *in, int rbo);
+
 class disassembler;
 
 class exe_loader
@@ -16,9 +19,11 @@ class exe_loader
 		virtual uint32_t entry_addr() = 0;
 		virtual int goto_address(uint32_t addr) = 0;
 		virtual void read_memory(void *dest, int len) = 0;
+		disassembler *get_disasm();
 	protected:
 		FILE *exe;
 		disassembler *disasm;
+		int rbo;
 };
 
 #endif

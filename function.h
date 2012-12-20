@@ -10,7 +10,7 @@
 class function
 {
 	public:
-		function();
+		function(void *addr, const char *n);
 		~function();
 		int setio(char *in, char *out);
 		void use_input_otool_ppc();
@@ -21,8 +21,10 @@ class function
 		void fprint();
 		void set_name(const char *to);
 		const char *get_name();
+		void *gets();
 	private:
 		char *name;
+		void *s;
 		FILE *input, *output;
 		struct line_info *da_lines;	//all the lines of code for the function (delete these when done)
 		int num_lines;
