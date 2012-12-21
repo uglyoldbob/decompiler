@@ -11,4 +11,8 @@
 #error "Unknown Target"
 #endif
 
+void reverse(uint64_t *in, int rbo);
+void reverse(uint32_t *in, int rbo);
+void reverse(uint16_t *in, int rbo);
+
 #endif

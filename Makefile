@@ -39,9 +39,10 @@ $(TEST_DIR)/decompile64: decompile64
 
 testobjs: $(TEST_DIR)/decompile32
 
-test: decompile32 testobjs
+test: decompile32 decompile64 testobjs
 	echo "Running test routine"
-	for file in $(TEST_DIR)/*; do ./decompile32 $$file ; done
+	-for file in $(TEST_DIR)/*; do echo "\n$$file\n\n" && ./decompile32 $$file ; done
+	-for file in $(TEST_DIR)/*; do echo "\n$$file\n\n" && ./decompile64 $$file ; done
 
 %32.o: %.cpp
 	@if [ ! -d $(@D) ]; then\
@@ -50,6 +51,7 @@ test: decompile32 testobjs
 	fi
 	$(CC) $(EXTRA_FLAGS) $(CFLAGS) $(32_CFLAGS) $(INCLUDE)$(@D) $< -o $@
 	$(CC) $(EXTRA_FLAGS) $(CFLAGS) $(32_CFLAGS) $(INCLUDE)$(@D) $< -MM -MF $(@D)/$(*F)32.d
+	sed -i -e's/$(*F)\.o/$(*F)32\.o/g' $(@D)/$(*F)32.d
 
 %64.o: %.cpp
 	@if [ ! -d $(@D) ]; then\
@@ -58,3 +60,4 @@ test: decompile32 testobjs
 	fi
 	$(CC) $(EXTRA_FLAGS) $(CFLAGS) $(64_CFLAGS) $(INCLUDE)$(@D) $< -o $@
 	$(CC) $(EXTRA_FLAGS) $(CFLAGS) $(64_CFLAGS) $(INCLUDE)$(@D) $< -MM -MF $(@D)/$(*F)64.d
+	sed -i -e's/$(*F)\.o/$(*F)64\.o/g' $(@D)/$(*F)64.d

@@ -3,3 +3,8 @@
 *~
 *.txt
 *.dia
+test/*
+*.pdf
+decompile32
+decompile64
+stupid.c

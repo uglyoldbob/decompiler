@@ -25,9 +25,6 @@ enum ARCHITECTURE_TYPE
 	ARCH_PPC
 };
 
-extern void reverse(uint32_t *in, int rbo);
-extern void reverse(uint16_t *in, int rbo);
-
 class executable
 {
 	public:
@@ -36,9 +33,6 @@ class executable
 		int load(char *bin_name);
 	private:
 		int check_pe(FILE *me);
-		int check_elf(FILE *me);
-		int check_macho32(FILE *me);
-		int check_macho64(FILE *me);
 		int rbo;	//used to signal reversed byte order
 		FILE *m;
 		EXECUTABLE_TYPE exe_type;

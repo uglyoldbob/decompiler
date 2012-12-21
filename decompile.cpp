@@ -12,6 +12,23 @@
 #include "executable.h"
 #include "function.h"
 
+void reverse(uint64_t *in, int rbo)
+{
+	if (rbo)
+	{
+		uint64_t temp;
+		temp = ( (((*in)&0xFF00000000000000)>>56) |
+				 (((*in)&0x00FF000000000000)>>40) |
+				 (((*in)&0x0000FF0000000000)>>24) | 
+				 (((*in)&0x000000FF00000000)>>8) |
+				 (((*in)&0x00000000FF000000)<<8) |
+				 (((*in)&0x0000000000FF0000)<<24) | 
+				 (((*in)&0x000000000000FF00)<<40) |
+				 (((*in)&0x00000000000000FF)<<56) );
+		*in = temp;
+	}
+}
+
 void reverse(uint32_t *in, int rbo)
 {
 	if (rbo)
@@ -38,23 +55,22 @@ void reverse(uint16_t *in, int rbo)
 int main(int argc, char *argv[])
 {
 #if TARGET32
-	printf("Targeting 32-bit executables\n");
 #elif TARGET64
-	printf("Targeting 64-bit executables\n");
 #else
 #error "Unknown Target"
 #endif
 	executable program;
+	int retval = -1;
 	if (argc < 2)
 	{
-		program.load(argv[0]);
+		retval = program.load(argv[0]);
 	}
 	else if (argc >= 2)
 	{
-		program.load(argv[1]);
+		retval = program.load(argv[1]);
 	}
 	
-	return 0;
+	return retval;
 	
 	function analyze(0, "test");
 

@@ -16,32 +16,6 @@ executable::~executable()
 		delete exe_object;
 }
 
-int executable::check_macho64(FILE *me)
-{
-	unsigned int signature;
-	signature = 0;
-	fseek(me, 0, SEEK_SET);
-	if (ferror(me) == 0)
-	{
-		fread(&signature, 4, 1, me);
-		if (signature == 0xFEEDFACF)
-		{
-			printf("64-bit MACH-O executable detected\n");
-			exe_type = EXEC_TYPE_MACHO64;
-			return 1;
-		}
-		else if (signature == 0xCFFAEDFE)
-		{
-			printf("BACKWARDS 64-bit MACH-O executable detected\n");
-			exe_type = EXEC_TYPE_MACHO64;
-			rbo = 1;
-			return 1;
-		}
-	}
-
-	return 0;
-}
-
 int executable::check_pe(FILE *me)
 {
 	unsigned int signature;
@@ -78,11 +52,7 @@ int executable::load(char *bin_name)
 {
 	int processed = 0;
 	m = fopen(bin_name, "rb");
-	if (m != NULL)
-	{
-		printf("Loaded file %s\n", bin_name);
-	}
-	else
+	if (m == NULL)
 	{
 		printf("Failed to open executable %s\n", bin_name);
 		return -1;
@@ -107,11 +77,13 @@ int executable::load(char *bin_name)
 	if (exe_type == EXEC_TYPE_UNKNOWN)
 	{
 		printf("Unknown executable format\n");
+		fclose(m);
 		return -1;
 	}
 
 	if (exe_object == 0)
 	{
+		fclose(m);
 		return -1;
 	}
 	if (exe_object->process(m) == 0)
@@ -120,7 +92,7 @@ int executable::load(char *bin_name)
 	}
 	else
 	{
-		printf("There was a problem processing the executable\n");
+		fclose(m);
 		return -1;
 	}
 

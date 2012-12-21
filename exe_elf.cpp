@@ -29,12 +29,10 @@ int exe_elf::check(FILE *me)
 		fread(&signature, 4, 1, me);
 		if (signature == 0x464C457F)
 		{
-			printf("ELF executable detected\n");
 			return 1;
 		}
 		else if (signature == 0x7F454C46)
 		{
-			printf("BACKWARDS? ELF executable detected\n");
 			return -1;
 		}
 	}
@@ -72,24 +70,30 @@ void exe_elf::print_program_header(int i)
 int exe_elf::process(FILE *me)	//do basic processing
 {
 	exe = me;
-	printf("Doing processing for an ELF executable\n");
 	fseek(exe, 0, SEEK_SET);
 	fread(&header, sizeof(header), 1, exe);
 	if (header.e_version != 1)
 		return -1;
 	if (header.e_type != ET_EXEC)
 		return -1;
-	if (header.e_ident[EI_CLASS] != ELFCLASS32)
+	if (header.e_ident[EI_CLASS] != ELFCLASS)
+	{
+#if TARGET32
+		printf("ELF Not a 32-bit exeutable\n");
+#elif TARGET64
+		printf("ELF Not a 64-bit executable\n");
+#endif
 		return -1;
+	}
 	if (header.e_ident[EI_DATA] != ELFDATA2LSB)
 		return -1;
 	switch (header.e_machine)
 	{
-		case EM_386:
+		case EM_X86:
 			disasm = new disass_x86(this);
 			break;
 		default:
-			printf("Unsupported architecture\n");
+			printf("Unsupported architecture %d\n", header.e_machine);
 			return -1;
 			break;
 	}
@@ -98,7 +102,6 @@ int exe_elf::process(FILE *me)	//do basic processing
 		printf("Error: structure is larger than the ELF executable calls for\n");
 		return -1;
 	}
-	printf("Executable type is supported\n");
 	if (header.e_phoff != 0)
 	{	//load program header table
 		printf("Allocating for %d program header entries\n", header.e_phnum);
@@ -108,7 +111,7 @@ int exe_elf::process(FILE *me)	//do basic processing
 			fseek(exe, header.e_phoff + i * header.e_phentsize, SEEK_SET);
 			//now read the data
 			fread(&pheaders[i], sizeof(exe_elf_program_header), 1, exe);
- 			print_program_header(i);
+//			print_program_header(i);
 		}
 	}
 	if (header.e_shoff != 0)

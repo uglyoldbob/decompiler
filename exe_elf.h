@@ -13,6 +13,11 @@
 
 #define ELFCLASS32 1
 #define ELFCLASS64 2
+#if TARGET32
+	#define ELFCLASS ELFCLASS32
+#elif TARGET64
+	#define ELFCLASS ELFCLASS64
+#endif
 
 #define ELFDATA2LSB 1
 
@@ -25,8 +30,16 @@
 #define ET_LOPROC 0xFF00
 #define ET_HIPROC 0xFFFF
 
-#define EM_386 3
+#define EM_X86_32 3
+#define EM_X86_64 62
 
+#if TARGET32
+	#define EM_X86 EM_X86_32
+#elif TARGET64
+	#define EM_X86 EM_X86_64
+#endif
+
+#if TARGET32
 struct exe_elf_header
 {
 	uint8_t e_ident[EI_NIDENT];
@@ -44,6 +57,25 @@ struct exe_elf_header
 	uint16_t e_shnum;
 	uint16_t e_shstrndx;
 };
+#elif TARGET64
+struct exe_elf_header
+{
+	uint8_t e_ident[EI_NIDENT];
+	uint16_t e_type;
+	uint16_t e_machine;
+	uint32_t e_version;
+	uint64_t e_entry;
+	uint64_t e_phoff;
+	uint64_t e_shoff;
+	uint32_t e_flags;
+	uint16_t e_ehsize;
+	uint16_t e_phentsize;
+	uint16_t e_phnum;
+	uint16_t e_shentsize;
+	uint16_t e_shnum;
+	uint16_t e_shstrndx;
+};
+#endif
 
 #define SHN_UNDEF 0
 #define SHN_LORESERVE 0xFF00
@@ -68,7 +100,19 @@ struct exe_elf_section_header
 	uint32_t sh_entsize;
 };
 #elif TARGET64
-#error "64-bit target not supported"
+struct exe_elf_section_header
+{
+	uint32_t sh_name;
+	uint32_t sh_type;
+	uint64_t sh_flags;
+	uint64_t sh_addr;
+	uint64_t sh_offset;
+	uint64_t sh_size;
+	uint32_t sh_link;
+	uint32_t sh_info;
+	uint64_t sh_addralign;
+	uint64_t sh_entsize;
+};
 #endif
 
 #define PT_NULL 0
@@ -82,6 +126,7 @@ struct exe_elf_section_header
 #define PT_HIPROC 0x7FFFFFFF
 
 
+#if TARGET32
 struct exe_elf_program_header
 {
 	uint32_t p_type;
@@ -93,6 +138,19 @@ struct exe_elf_program_header
 	uint32_t p_flags;
 	uint32_t p_align;
 };
+#elif TARGET64
+struct exe_elf_program_header
+{
+	uint32_t p_type;
+	uint32_t p_offset;
+	uint64_t p_vaddr;
+	uint64_t p_paddr;
+	uint64_t p_filesz;
+	uint64_t p_memsz;
+	uint64_t p_flags;
+	uint64_t p_align;
+};
+#endif
 
 class exe_elf : public exe_loader
 {
