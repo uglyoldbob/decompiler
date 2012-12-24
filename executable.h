@@ -1,8 +1,9 @@
 #ifndef __EXECUTABLE_H__
 #define __EXECUTABLE_H__
 
-#include <stdint.h>
-#include <stdio.h>
+#include <cstdint>
+#include <iostream>
+#include <fstream>
 #include <vector>
 
 #include "exe_loader.h"
@@ -32,9 +33,9 @@ class executable
 		~executable();
 		int load(char *bin_name);
 	private:
-		int check_pe(FILE *me);
+		int check_pe(std::istream *me);
 		int rbo;	//used to signal reversed byte order
-		FILE *m;
+		std::ifstream *exe_file;
 		EXECUTABLE_TYPE exe_type;
 		exe_loader *exe_object;
 		

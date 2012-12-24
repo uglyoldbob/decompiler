@@ -44,41 +44,41 @@ void code_multi_if::common(code_element *c)
 	}*/
 }
 
-void code_multi_if::fprint(FILE *dest, int depth)
+void code_multi_if::fprint(std::ostream *dest, int depth)
 {
 	unsigned int i;
 	ifs[0]->fprint(dest, depth);
 	begin_line(dest, depth);
-	fprintf(dest, "if ( (?)");
+	*dest << "if ( (?)";
 	if (form == AND_NO_ELSE)
 	{
 		for (i = 1; i < ifs.size(); i++)
 		{
-			fprintf(dest, " && (?)");
+			*dest << " && (?)";
 		}
 	}
 	else
 	{
 		for (i = 1; i < ifs.size(); i++)
 		{
-			fprintf(dest, " || (?)");
+			*dest << " || (?)";
 		}
 	}
-	fprintf(dest, " )\n");
+	*dest << " )\n";
 	begin_line(dest, depth);
-	fprintf(dest, "{\n");
+	*dest << "{\n";
 	common_block->fprint(dest, depth+1);
 	begin_line(dest, depth);
-	fprintf(dest, "}\n");
+	*dest << "}\n";
 	if (helse != 0)
 	{
 		begin_line(dest, depth);
-		fprintf(dest, "else\n");
+		*dest << "else\n";
 		begin_line(dest, depth);
-		fprintf(dest, "{\n");
+		*dest << "{\n";
 		helse->fprint(dest, depth+1);
 		begin_line(dest, depth);
-		fprintf(dest, "}\n");
+		*dest << "}\n";
 	}
 	
 	if (thefinal != 0)

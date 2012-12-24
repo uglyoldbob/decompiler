@@ -13,30 +13,29 @@ exe_macho::~exe_macho()
 {
 	if (lcmds != 0)
 	{
-		for (int i = 0; i < header.ncmds; i++)
+		for (uint32_t i = 0; i < header.ncmds; i++)
 		{
 			switch (lcmds[i].cmd)
 			{
 				case EXE_MACHO_CMD_SEGMENT:
-					if (lcmds[i].data.seg.sections != 0)
-						delete [] lcmds[i].data.seg.sections;
+					delete [] lcmds[i].data.seg.sections;
 					break;
 				default:
 					break;
 			}
 		}
-		delete [] lcmds;
 	}
+	delete [] lcmds;
 }
 
-int exe_macho::check(FILE *me)
+int exe_macho::check(std::istream *me)
 {
 	unsigned int signature;
 	signature = 0;
-	fseek(me, 0, SEEK_SET);
-	if (ferror(me) == 0)
+	me->seekg(0, std::ios::beg);
+	if (me->good())
 	{
-		fread(&signature, 4, 1, me);
+		me->read((char*)&signature, 4);
 		if (signature == EXE_MACHO_MAGIC_32)
 		{
 			return 1;
@@ -62,13 +61,13 @@ const char *exe_macho::entry_name()
 	return "main";
 }
 
-int exe_macho::process(FILE *me)	//do basic processing
+int exe_macho::process(std::istream *me)	//do basic processing
 {
 	exe = me;
-	fseek(exe, 0, SEEK_SET);
-	if (ferror(exe) == 0)
+	exe->seekg(0, std::ios::beg);
+	if (exe->good())
 	{
-		fread(&header, sizeof(header), 1, exe);
+		exe->read((char*)&header, sizeof(header));
 		if (header.magic == EXE_MACHO_CIGAM)
 		{
 			rbo = 1;
@@ -82,24 +81,24 @@ int exe_macho::process(FILE *me)	//do basic processing
 		else if (header.magic != EXE_MACHO_MAGIC)
 		{
 #if TARGET32
-			printf("Mach-O Not a 32 bit executable\n");
+			std::cout << "Mach-O Not a 32 bit executable\n";
 #elif TARGET64
-			printf("Mach-O Not a 64 bit executable\n");
+			std::cout << "Mach-O Not a 64 bit executable\n";
 #endif
 			return -1;
 		}
 	}
-	printf("STUB Doing processing for a ");
+	std::cout << "STUB Doing processing for a ";
 	if (rbo == 1)
-		printf("(reverse) ");
-	printf("MACHO executable\n");
+		std::cout << "(reverse) ";
+	std::cout << "MACHO executable\n";
 	switch (header.cputype)
 	{
 		case EXE_MACHO_CPU_PPC:
 			break;
 		case EXE_MACHO_CPU_X86:
 		default:
-			printf("Unsupported cpu type 0x%x\n", header.cputype);
+			std::cout << "Unsupported cpu type 0x" << std::hex << header.cputype << "\n";
 			return -1;
 	}
 
@@ -109,28 +108,31 @@ int exe_macho::process(FILE *me)	//do basic processing
 
 	if (header.filetype != EXE_MACHO_FILETYPE_EXE)
 	{
-		printf("Unsupported filetype 0x%x\n", header.filetype);
+		std::cout << "Unsupported filetype 0x" << std::hex << header.filetype << "\n";
 	}
 
-	printf("Flags is %08x\n", header.flags);
+	std::cout << "Flags is 0x" << std::hex << header.flags << "\n";
 
-	printf("There are %d commands of size 0x%x\n", header.ncmds, header.sizeofcmds);
+	std::cout << "There are " << std::dec << header.ncmds << " commands of size 0x" 
+			  << std::hex << header.sizeofcmds << "\n";
 	lcmds = new exe_macho_lc[header.ncmds];
-	for (int i = 0; i < header.ncmds; i++)
+	for (uint32_t i = 0; i < header.ncmds; i++)
 	{
-		fread(&lcmds[i].cmd, sizeof(uint32_t), 1, exe);
-		fread(&lcmds[i].cmdsize, sizeof(uint32_t), 1, exe);
+		exe->read((char*)&lcmds[i].cmd, sizeof(uint32_t));
+		exe->read((char*)&lcmds[i].cmdsize, sizeof(uint32_t));
 		reverse(&lcmds[i].cmd, rbo);
 		reverse(&lcmds[i].cmdsize, rbo);
+		std::cout << "LC " << std::dec << i 
+				  << "(" << lcmds[i].cmd << ") is " 
+				  << lcmds[i].cmdsize << " bytes long\n";
 		if (lcmds[i].cmdsize > 8)
 		{
-			printf("LC %d @ %d 0x%08x, len %d, 0x%08x 0x%08x\n", rbo, lcmds[i].cmd, lcmds[i].cmd,
-				   lcmds[i].cmdsize, lcmds[i].cmdsize, sizeof(exe_macho_lc_segment));
 			switch (lcmds[i].cmd)
 			{
 				case EXE_MACHO_CMD_SEGMENT:
-					fseek(exe, -8, SEEK_CUR);
-					fread(&lcmds[i].data.seg, sizeof(exe_macho_lc_segment), 1, exe);
+					std::cout << "\tWorking on EXE_MACHO_CMD_SEGMENT\n";
+					exe->seekg(-8, std::ios::cur);
+					exe->read((char*)&lcmds[i].data.seg, sizeof(exe_macho_lc_segment));
 					reverse(&lcmds[i].data.seg.vmaddr, rbo);
 					reverse(&lcmds[i].data.seg.vmsize, rbo);
 					reverse(&lcmds[i].data.seg.fileoff, rbo);
@@ -139,17 +141,14 @@ int exe_macho::process(FILE *me)	//do basic processing
 					reverse(&lcmds[i].data.seg.initprot, rbo);
 					reverse(&lcmds[i].data.seg.nsects, rbo);
 					reverse(&lcmds[i].data.seg.flags, rbo);
-					fseek(exe, -sizeof(exe_macho_lc_section *), SEEK_CUR);
-					if ((lcmds[i].cmdsize - sizeof(exe_macho_lc_segment) + sizeof(exe_macho_lc_section *)) > 0)
+					exe->seekg((int)(-sizeof(void*)), std::ios::cur);
+					std::cout << "There are " << std::dec << lcmds[i].data.seg.nsects << " sections\n";
+					if (lcmds[i].data.seg.nsects > 0)
 					{
-						printf("\t%d sections of size %d (%d)\n", lcmds[i].data.seg.nsects,
-							4 + lcmds[i].cmdsize - sizeof(exe_macho_lc_segment),
-							(4 + lcmds[i].cmdsize - sizeof(exe_macho_lc_segment)) / lcmds[i].data.seg.nsects
-							);
 						lcmds[i].data.seg.sections = new exe_macho_lc_section[lcmds[i].data.seg.nsects];
-						for (int j = 0; j < lcmds[i].data.seg.nsects; j++)
+						for (uint32_t j = 0; j < lcmds[i].data.seg.nsects; j++)
 						{
-							fread(&lcmds[i].data.seg.sections[j], sizeof(exe_macho_lc_section), 1, exe);
+							exe->read((char*)&lcmds[i].data.seg.sections[j], sizeof(exe_macho_lc_section));
 							reverse(&lcmds[i].data.seg.sections[j].addr, rbo);
 							reverse(&lcmds[i].data.seg.sections[j].size, rbo);
 							reverse(&lcmds[i].data.seg.sections[j].offset, rbo);
@@ -166,16 +165,48 @@ int exe_macho::process(FILE *me)	//do basic processing
 						lcmds[i].data.seg.sections = 0;
 					}
 					break;
+				case EXE_MACHO_CMD_THREAD:
+				case EXE_MACHO_CMD_UNIXTHREAD:
+					std::cout << "Thread status command size " << lcmds[i].cmdsize << "\n";
+					exe->seekg(-8, std::ios::cur);
+					switch (header.cputype)
+					{	//thread status depends on architecture
+						case EXE_MACHO_CPU_PPC:
+							
+							break;
+						case EXE_MACHO_CPU_X86:
+						default:
+							std::cout << "Architecture " << header.cputype << " not supported\n";
+							break;
+					}
+					exe->seekg(lcmds[i].cmdsize, std::ios::cur);
+					break;
 				default:
-					fseek(exe, -8, SEEK_CUR);
-					fseek(exe, lcmds[i].cmdsize, SEEK_CUR);
+					exe->seekg(-8, std::ios::cur);	//cmd and cmdsize variables
+					exe->seekg(lcmds[i].cmdsize, std::ios::cur);
 					break;
 			}
 		}
 	}
-	printf("Load commands are loaded\n");
-
-	printf("Not quite done with the MACHO processing\n");
+	std::cout << "Load commands are loaded\n";
+	for (uint32_t i = 0; i < header.ncmds; i++)
+	{
+		switch (lcmds[i].cmd)
+		{
+			case EXE_MACHO_CMD_SEGMENT:
+				if (lcmds[i].data.seg.nsects > 0)
+				{
+					for (uint32_t j = 0; j < lcmds[i].data.seg.nsects; j++)
+					{
+						//exe->seekg(lcmds[i].data.seg.sections[j].offset, std::ios::cur);
+					}
+				}
+				break;
+			default:
+				break;
+		}
+	}
+	std::cout << "Not quite done with the MACHO processing " << exe->tellg() << "\n";
 	return -1;
 }
 
@@ -191,5 +222,5 @@ address exe_macho::entry_addr()
 
 void exe_macho::read_memory(void *dest, int len)
 {
-	fread(dest, len, 1, exe);
+	exe->read((char*)dest, len);
 }

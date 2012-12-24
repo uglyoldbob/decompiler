@@ -1,6 +1,6 @@
 #include "function.h"
 
-#include <string.h>
+#include <cstring>
 
 #include "code_if_else.h"
 #include "code_do_while_loop.h"
@@ -43,11 +43,9 @@ int find_stuff(struct code_block* c, int num_blocks, int j)
 	{
 		if (c[i].in[0]->ins == j)
 		{
-//			printf("%d input block %d\n", j, i);
 			found++;
 		}
 	}
-	printf("There are %d %d input blocks\n", found, j);
 	return found;
 }
 
@@ -62,14 +60,11 @@ function::function(address addr, const char *n)
 function::~function()
 {
 	unsigned int i;
-	if (name != 0)
-		delete [] name;
+	delete [] name;
 	if (output != 0)
-		fclose(output);
-	if (c_blocks != 0)
-		delete [] c_blocks;
-	if (da_lines != 0)
-		delete [] da_lines;
+		output->close();
+	delete [] c_blocks;
+	delete [] da_lines;
 	for (i = 0; i < xblocks.size(); i++)
 		delete xblocks[i];
 }
@@ -96,19 +91,16 @@ const char *function::get_name()
 
 void function::remove_piece(code_element *rmv)
 {
-//	printf("Remove element %x....\n", rmv->gets());
 	unsigned int i;
 	int removed = 0;
 	for (i = 0; i < pieces.size(); i++)
 	{
 		if (pieces[i] == rmv)
 		{
-//			printf(" removing %x", pieces[i]->gets());
 			removed++;
 			pieces.erase(pieces.begin() + i);
 		}
 	}
-//	printf("removed %d elements\n", removed);
 }
 
 void function::replace_references(code_element *old, code_element *nw)
@@ -141,16 +133,16 @@ void function::replace_references(code_element *old, code_element *nw)
 
 int function::setio(char *in, char *out)
 {
-	input = fopen(in, "r");
-	output = fopen(out, "w");
-	if (input == NULL)
+	input = new std::ifstream(in);
+	output = new std::ofstream(out, std::ofstream::trunc);
+	if (input->fail())
 	{
-		printf("Failed to open %s\n", in);
+		std::cout << "Failed to open " << in << "\n";
 		return -1;
 	}
-	if (output == NULL)
+	if (output->fail())
 	{
-		printf("Failed to open %s\n", out);
+		std::cout << "Failed to open " << out << "\n";
 		return -1;
 	}
 	return 0;
@@ -161,13 +153,13 @@ void function::use_input_otool_ppc()
 	char single_line[500];
 	int i;
 //count the number of lines
-	while (feof(input) == 0)
+	while (input->good())
 	{
-		fgets(single_line, 499, input);
+		input->getline(single_line, 499);
 		num_lines++;
 	}
-	fseek(input, 0, SEEK_SET);
-	printf("There are %d lines\n", num_lines);
+	input->seekg(0, std::ios::beg);
+	std::cout << "There are " << num_lines << " lines\n";
 
 //allocate and initialize memory for all the lines of code
 	da_lines = new line_info[num_lines];
@@ -184,12 +176,13 @@ void function::use_input_otool_ppc()
 //read in all of the lines of code
 	for (i = 0; i < num_lines; i++)
 	{
-		fgets(single_line, 499, input);
-		sscanf(single_line, "%x\t%s%s%[^\n]", 
-			   (int*)&da_lines[i].addr, da_lines[i].opcode, 
-			   da_lines[i].options, da_lines[i].comment);
+		input->getline(single_line, 499);
+		*input  >> std::hex >> da_lines[i].addr
+				>> da_lines[i].opcode
+				>> da_lines[i].options
+				>> da_lines[i].comment;
 	}
-	fclose(input);
+	input->close();
 }
 
 void function::compute_branching_ppc()
@@ -293,7 +286,7 @@ void function::create_blocks()
 			}
 		}
 	}
-	printf("There are %d code blocks\n", ++num_blocks);
+	std::cout << "There are " << ++num_blocks << " code blocks\n";
 //allocate memory for code blocks
 	c_blocks = new ce_block[num_blocks];
 
@@ -336,7 +329,7 @@ void function::create_blocks()
 			break;
 	}
 	actual_num_blocks = i + 1;
-	printf("There were only %d blocks of code\n", actual_num_blocks);
+	std::cout << "There were only " << actual_num_blocks << " blocks of code\n";
 
 //copy line references to each code block
 //set next_block variables for each block
@@ -364,38 +357,39 @@ void function::simplify()
 		reduced += find_loop();
 		reduced += find_runs();
 //		find_stuff(c_blocks, actual_num_blocks, 1);
-//		printf("End of stage %d %d\n", ++stage, reduced);
 	} while (reduced > 0);
 	if (pieces.size() > 1)
 	{
-		printf("Failed to simplify enough (%d/%d)\n", pieces.size(), actual_num_blocks);
+		std::cout << "Failed to simplify enough (" << pieces.size() << "/" << actual_num_blocks << ")\n";
 	}
 	else
 	{
-		printf("Logic fully reduced\n");
+		std::cout << "Logic fully reduced\n";
 	}
 }
 
 void function::fprint()
 {	//print the code to the output for examination
 	unsigned int i;
-	fprintf(output, "//There are %d blocks\n", pieces.size());
+	*output << "//There are " << pieces.size() << " blocks\n";
 	if (name != 0)
-		fprintf(output, "int %s(int argc, char *argv[])\n{\n", name);
+		*output << "int " << name << "(int argc, char *argv[])\n{\n";
 	else
-		fprintf(output, "int unknown()\n{\n");
+		*output << "int unknown()\n{\n";
 	for (i = 0; i < pieces.size(); i++)
 	{
-		fprintf(output, "\t****~~~~ %x %d inputs ", (int)pieces[i]->gets(), pieces[i]->gins());
+		*output << "\t****~~~~ " << (int)pieces[i]->gets() << " " << pieces[i]->gins() << " inputs ";
 		if (pieces[i]->ga() != 0)
-			fprintf(output, "%x (%d) ", (int)pieces[i]->ga()->gets(), pieces[i]->ga()->gins());
+			*output << std::hex << (int)pieces[i]->ga()->gets()
+					<< pieces[i]->ga()->gins();
 		if (pieces[i]->gb() != 0)
-			fprintf(output, "%x (%d) ", (int)pieces[i]->gb()->gets(), pieces[i]->gb()->gins());
-		fprintf(output, "\n");
+			*output << std::hex << (int)pieces[i]->gb()->gets()
+					<< pieces[i]->gb()->gins();
+		*output << "\n";
 		pieces[i]->fprint(output, 1);
-		fprintf(output, "\t~~~~**** \n");
+		*output << "\t~~~~**** \n";
 	}
-	fprintf(output, "}\n");
+	*output << "}\n";
 }
 
 void function::create_pieces()
@@ -437,7 +431,6 @@ int function::find_runs()
 					temp->done();
 					replace_references(pieces[i], temp);
 					found++;
-					//printf("Spotted start of run at block %x\n", (int)pieces[i]->gets());
 				}
 			}
 		}
@@ -453,7 +446,6 @@ int function::find_loop()
 	{
 		if ( (pieces[i]->ga() == pieces[i]) || (pieces[i]->gb() == pieces[i]) )
 		{
-//			printf("Do while loop at block %x\n", pieces[i]->gets());
 			code_do_while_loop *temp;
 			temp = new code_do_while_loop(pieces[i]);
 			xblocks.push_back(temp);
@@ -466,9 +458,6 @@ int function::find_loop()
 				  ( (pieces[i]->ga()->ga() == pieces[i]) ||
 					(pieces[i]->ga()->gb() == pieces[i])  ) )
 		{
-//			printf("While loop at block %x (%d ins) %x (%d ins)\n", 
-//				   pieces[i]->ga()->gets(), pieces[i]->ga()->gins(),
-//				   pieces[i]->gets(), pieces[i]->gins());
 			code_while_loop *temp;
 			temp = new code_while_loop(pieces[i]->ga(), pieces[i]);
 			xblocks.push_back(temp);
@@ -503,7 +492,6 @@ int function::do_simple_if(code_element *a, code_element *b, int i)
 		xblocks.push_back(temp);
 		remove_piece(a);
 		replace_references(pieces[i], temp);
-//		printf("Block %d replaced with if ()\n", 	i);
 		return 1;
 	}
 	return 0;
@@ -566,11 +554,9 @@ int function::do_multi_if(int i)
 			{
 				if (list.back()->is_cbranch() != 1)
 				{	//possibly a combination of AND without an ELSE block
-					printf("Something found %x\n", (int)list.back()->gets());
 					if ( (common->is_cbranch() != 1) &&
 						 ( (common->ga() == list.back()->ga()) || (common->ga() == list.back()->gb()) ) )
 					{//AND without an ELSE block
-//						printf("Multiple conditions AND-ed with no ELSE statement at %x\n", (int)pieces[i]->gets());
 						code_multi_if *temp;
 						temp = new code_multi_if;
 						unsigned int q = 0;
@@ -593,7 +579,6 @@ int function::do_multi_if(int i)
 					if ((common->is_cbranch() != 1) &&
 						( (common->ga() == list.back()->ga()) || (common->ga() == list.back()->gb()) ) )
 					{
-//						printf("Multiple conditions OR-ed with no else statement at %x\n", (int)pieces[i]->gets());
 						code_multi_if *temp;
 						temp = new code_multi_if;
 						unsigned int q = 0;
@@ -609,12 +594,10 @@ int function::do_multi_if(int i)
 						remove_piece(common);
 						if (common->ga()->gins() > 1)
 						{
-//							printf("reducing ins of %x\n", common->ga()->gets());
 							common->ga()->dins(1);
 						}
 						else if (common->ga()->gins() == 1)
 						{
-//							printf("removing %x\n", common->ga()->gets());
 							remove_piece(common->ga());
 						}
 						replace_references(pieces[i], temp);
@@ -625,8 +608,6 @@ int function::do_multi_if(int i)
 							(list.back()->ga()->ga() == list.back()->gb()->ga()) &&
 							(common != list.back()->gb()) )
 					{	//AND or OR with an ELSE block
-//						printf("Multiple conditions ANDed or ORed with ELSE block at %x, last %x, common %x\n", 
-//							   (int)pieces[i]->gets(), (int)list.back()->gets(), (int)common->gets());
 						code_multi_if *temp;
 						temp = new code_multi_if;
 						unsigned int q = 0;
@@ -658,8 +639,6 @@ int function::do_multi_if(int i)
 							(list.back()->gb()->ga() == list.back()->ga()->ga()) &&
 							(common != list.back()->ga()) )
 					{	//AND or OR with an ELSE block
-//						printf("Multiple conditions ANDed or ORed with ELSE block at %x, last %x, common %x\n", 
-//							   (int)pieces[i]->gets(), (int)list.back()->gets(), (int)common->gets());
 						code_multi_if *temp;
 						temp = new code_multi_if;
 						unsigned int q = 0;
@@ -691,7 +670,6 @@ int function::do_multi_if(int i)
 			}
 		}
 	} while ((!done) && (found == 0));
-//	printf("end multi-if\n");
 	return found;
 }
 

@@ -1,19 +1,19 @@
 #include "code_element.h"
 
-void begin_line(FILE *b, int a)
+void begin_line(std::ostream *b, int a)
 {
 	for (int xyz = 0; xyz < a; xyz++)
 	{
-		fprintf(b, "\t");
+		*b << "\t";
 	}
 }
 
 code_element::code_element()
 {
 	ins = 0;
-	s = NULL;
-	a = NULL;
-	b = NULL;
+	s = 0;
+	a = 0;
+	b = 0;
 }
 
 code_element::~code_element()
@@ -49,9 +49,9 @@ code_element *code_element::gb()
 		return b;
 }
 
-void code_element::fprint(FILE *dest, int depth)
+void code_element::fprint(std::ostream *dest, int depth)
 {
-	printf("Dummy print\n");
+	*dest << "Dummy print\n";
 }
 
 void code_element::ss(address ss)
@@ -76,6 +76,6 @@ void code_element::sb(code_element *bb)
 
 void code_element::dins(int by)	//decrease ins
 {
-	//printf("Reduce ins of %x (%d) by %d\n", s, ins, by);
+	//cout << "Reduce ins of " << std::hex << s << " (" << ins << ") by " << by << "\n";
 	ins -= by;
 }

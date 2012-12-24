@@ -42,40 +42,39 @@ void code_if_else::set_next(code_element *n)
 	a = n;
 	unsigned int i;
 	a->dins(lcb.size());
-//	printf("Ins of %x is now %d\n", a->gets(), a->gins());
 	b = 0;
 }
 
-void code_if_else::fprint(FILE *dest, int depth)
+void code_if_else::fprint(std::ostream *dest, int depth)
 {
 	unsigned int i;
 	lcb[0]->fprint(dest, depth);
 	begin_line(dest, depth);
-	fprintf(dest, "if (?)\n");
+	*dest << "if (?)\n";
 	begin_line(dest, depth);
-	fprintf(dest, "{\n");
+	*dest << "{\n";
 	ecb[0]->fprint(dest, depth+1);
 	begin_line(dest, depth);
-	fprintf(dest, "}\n");
+	*dest << "}\n";
 	for (i = 1; i < lcb.size(); i++)
 	{
 		begin_line(dest, depth);
-		fprintf(dest, "else if (?)\n");
+		*dest << "else if (?)\n";
 		begin_line(dest, depth);
-		fprintf(dest, "{\n");
+		*dest << "{\n";
 		ecb[i]->fprint(dest, depth+1);
 		begin_line(dest, depth);
-		fprintf(dest, "}\n");
+		*dest << "}\n";
 	}
 	if (helse != 0)
 	{
 		begin_line(dest, depth);
-		fprintf(dest, "else\n");
+		*dest << "else\n";
 		begin_line(dest, depth);
-		fprintf(dest, "{\n");
+		*dest << "{\n";
 		helse->fprint(dest, depth+1);
 		begin_line(dest, depth);
-		fprintf(dest, "}\n");
+		*dest << "}\n";
 	}
 	if (next != 0)
 	{

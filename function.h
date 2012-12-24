@@ -1,7 +1,8 @@
 #ifndef __FUNCTION_H__
 #define __FUNCTION_H__
 
-#include <stdio.h>
+#include <fstream>
+#include <iostream>
 #include <vector>
 
 #include "code_element.h"
@@ -26,7 +27,8 @@ class function
 	private:
 		char *name;
 		address s;
-		FILE *input, *output;
+		std::ifstream *input;
+		std::ofstream *output;
 		struct line_info *da_lines;	//all the lines of code for the function (delete these when done)
 		int num_lines;
 		int actual_num_blocks;

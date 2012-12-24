@@ -1,8 +1,8 @@
 #ifndef __EXE_MACHO_H__
 #define __EXE_MACHO_H__
 
-#include <stdint.h>
-#include <stdio.h>
+#include <cstdint>
+#include <iostream>
 
 #include "config.h"
 #include "exe_loader.h"
@@ -138,6 +138,35 @@ struct exe_macho_lc_segment
 };
 #endif
 
+#if TARGET32
+struct exe_macho_ppc_threadstate
+{
+	uint32_t flavor;
+	uint32_t count;	//size of coming data, in number of uint32_t's
+	uint32_t srr[2];
+	uint32_t r[32];
+	uint32_t cr;	//condition register
+	uint32_t xer;	//user exception register
+	uint32_t lr;	//link register
+	uint32_t ctr;	//counter register
+	uint32_t mq;	//mq register?
+	uint32_t vrsave;//vector save register
+};
+#elif TARGET64
+struct exe_macho_ppc_threadstate
+{
+	uint32_t flavor;
+	uint32_t count;	//size of coming data, in number of uint32_t's
+	uint64_t srr[2];
+	uint64_t r[32];
+	uint32_t cr;	//condition register
+	uint64_t xer;	//user exception register
+	uint64_t lr;	//link register
+	uint64_t ctr;	//counter register
+	uint32_t vrsave;//vector save register
+};
+#endif
+
 union exe_macho_lc_data
 {
 	exe_macho_lc_segment seg;
@@ -155,8 +184,8 @@ class exe_macho : public exe_loader
 	public:
 		exe_macho();
 		~exe_macho();
-		static int check(FILE *me);
-		int process(FILE *me);	//do basic processing
+		static int check(std::istream *me);
+		int process(std::istream *me);	//do basic processing
 		const char *entry_name();
 		address entry_addr();
 		int goto_address(address addr);

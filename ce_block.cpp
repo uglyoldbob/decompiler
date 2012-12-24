@@ -1,4 +1,5 @@
 #include "ce_block.h"
+#include "code_element.h"
 
 ce_block::ce_block()
 {
@@ -8,34 +9,35 @@ ce_block::ce_block()
 
 ce_block::~ce_block()
 {
-	if (line != NULL)
-		delete [] line;
+	delete [] line;
 }
 
-void ce_block::fprint(FILE *dest, int depth)
+void ce_block::fprint(std::ostream *dest, int depth)
 {
 	int i;
-	for (i = 0; i < depth; i++) { fprintf(dest, "\t");}
-	fprintf(dest, "/------");
+	begin_line(dest, depth);
+	*dest << "/------";
 	if (depth == 0)
-		fprintf(dest, "%x (%d input)", s, line[0]->ins);
-	fprintf(dest, "\n");	
+		*dest << std::hex << s << " (" << line[0]->ins << "input)";
+	*dest << "\n";	
 	int k;
 	for (k = 0; k < num_lines; k++)
 	{
-		for (i = 0; i < depth; i++) { fprintf(dest, "\t");}
-		fprintf(dest, "|%x %s %s %s\n", line[k]->addr, line[k]->opcode, line[k]->options, line[k]->comment);
+		begin_line(dest, depth);
+		*dest << "|"
+			  << std::hex << line[k]->addr << " "
+			  << line[k]->opcode << " " << line[k]->options << " " << line[k]->comment << "\n";
 	}
-	for (i = 0; i < depth; i++) { fprintf(dest, "\t");}
-	fprintf(dest, "\\------ ");
+	begin_line(dest, depth);
+	*dest << "\\------ ";
 	if (depth == 0)
 	{
 		if (a != 0)
-			fprintf(dest, "%x ", a->gets());
+			*dest << std::hex << a->gets() << " ";
 		if (b != 0)
-			fprintf(dest, "%x ", b->gets());
+			*dest << std::hex << b->gets() << " ";
 	}
-	fprintf(dest, "\n");
+	*dest << "\n";
 }
 
 void ce_block::setnline(int num)

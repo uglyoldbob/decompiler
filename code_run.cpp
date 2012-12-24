@@ -24,7 +24,7 @@ void code_run::done()
 	b = els.back()->gb();
 }
 
-void code_run::fprint(FILE *dest, int depth)
+void code_run::fprint(std::ostream *dest, int depth)
 {
 	unsigned int i;
 	for (i = 0; i < els.size(); i++)

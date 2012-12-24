@@ -6,39 +6,41 @@
 executable::executable()
 {
 	rbo = 0;
+	exe_file = new std::ifstream;
 	exe_type = EXEC_TYPE_UNKNOWN;
 	exe_object = 0;
 }
 
 executable::~executable()
 {
-	if (exe_object != 0)
-		delete exe_object;
+	delete exe_object;
+	delete exe_file;
 }
 
-int executable::check_pe(FILE *me)
+int executable::check_pe(std::istream *me)
 {
 	unsigned int signature;
 	signature = 0;
-	fseek(me, 0x3C, SEEK_SET);
-	if (fread(&signature, 4, 1, me) != 1)
+	me->seekg(0x3C, std::ios::beg);
+	me->read((char*)&signature, 4);
+	if (me->fail())
 	{
-		printf("error reading offset location\n");
+		std::cout << "error reading offset location\n";
 		return -1;
 	}
-	fseek(me, signature, SEEK_SET);
-	if (ferror(me) == 0)
+	me->seekg(signature, std::ios::beg);
+	if (me->good())
 	{
-		fread(&signature, 4, 1, me);
+		me->read((char*)&signature, 4);
 		if (signature == 0x4550)
 		{
-			printf("PE executable detected\n");
+			std::cout << "PE executable detected\n";
 			exe_type = EXEC_TYPE_PE;
 			return 1;
 		}
 		else if (signature == 0x00004550)
 		{
-			printf("BACKWARDS? PE executable detected\n");
+			std::cout << "BACKWARDS? PE executable detected\n";
 			exe_type = EXEC_TYPE_PE;
 			rbo = 1;
 			return 1;
@@ -51,22 +53,22 @@ int executable::check_pe(FILE *me)
 int executable::load(char *bin_name)
 {
 	int processed = 0;
-	m = fopen(bin_name, "rb");
-	if (m == NULL)
+	exe_file->open(bin_name, std::ios::binary);
+	if (!exe_file->is_open())
 	{
-		printf("Failed to open executable %s\n", bin_name);
+		std::cout << "Failed to open executable " << bin_name << "\n";
 		return -1;
 	}
 
 	int reverse;
-	if ((reverse = exe_elf::check(m)) != 0)
+	if ((reverse = exe_elf::check(exe_file)) != 0)
 	{
 		exe_type = EXEC_TYPE_ELF;
 		exe_object = new exe_elf();
 		if (reverse < 0)
 			rbo = 1;
 	}
-	if ((reverse = exe_macho::check(m)) != 0)
+	if ((reverse = exe_macho::check(exe_file)) != 0)
 	{
 		exe_type = EXEC_TYPE_MACHO32;
 		exe_object = new exe_macho();
@@ -76,23 +78,23 @@ int executable::load(char *bin_name)
 
 	if (exe_type == EXEC_TYPE_UNKNOWN)
 	{
-		printf("Unknown executable format\n");
-		fclose(m);
+		std::cout << "Unknown executable format\n";
+		exe_file->close();
 		return -1;
 	}
 
 	if (exe_object == 0)
 	{
-		fclose(m);
+		exe_file->close();
 		return -1;
 	}
-	if (exe_object->process(m) == 0)
+	if (exe_object->process(exe_file) == 0)
 	{
-		printf("Successfully processed the executable\n");
+		std::cout << "Successfully processed the executable\n";
 	}
 	else
 	{
-		fclose(m);
+		exe_file->close();
 		return -1;
 	}
 
@@ -100,22 +102,23 @@ int executable::load(char *bin_name)
 	themain = new function(exe_object->entry_addr(), exe_object->entry_name());
 	funcs.push_back(themain);
 
-	printf("Created entry point function %s at address %x\n", funcs[0]->get_name(), funcs[0]->gets());
+	std::cout << "Created entry point function " << funcs[0]->get_name()
+		 << " at address " << std::hex << funcs[0]->gets() << "\n";
 
 	handle_function(0);
 
-	fclose(m);
+	exe_file->close();
 	return processed;
 }
 
 void executable::handle_function(int i)
 {
-	printf("STUB Add lines of code to function %x\n", funcs[i]->gets());
+	std::cout << "STUB Add lines of code to function " << std::hex << funcs[i]->gets() << "\n";
 	std::vector<address> blocks;	//indicates the starting point of blocks
 	blocks.push_back((uint32_t)funcs[i]->gets());
 	while (blocks.size() > 0)
 	{
-		printf("Working on block starting at %x\n", blocks[0]);
+		std::cout << "Working on block starting at " << std::hex << blocks[0] << "\n";
 		//does this block already exist?
 		exe_object->get_disasm()->get_instruction(blocks[0]);	//gather an instruction
 		//add it to the block

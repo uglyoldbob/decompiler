@@ -1,8 +1,8 @@
 #ifndef __EXE_ELF_H__
 #define __EXE_ELF_H__
 
-#include <stdint.h>
-#include <stdio.h>
+#include <cstdint>
+#include <iostream>
 
 #include "config.h"
 #include "exe_loader.h"
@@ -157,8 +157,8 @@ class exe_elf : public exe_loader
 	public:
 		exe_elf();
 		~exe_elf();
-		static int check(FILE *me);
-		int process(FILE *me);	//do basic processing
+		static int check(std::istream *me);
+		int process(std::istream *me);	//do basic processing
 		const char *entry_name();
 		address entry_addr();
 		int goto_address(address addr);

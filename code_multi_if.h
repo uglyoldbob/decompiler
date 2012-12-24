@@ -1,6 +1,7 @@
 #ifndef __CODE_MULTI_IF_H__
 #define __CODE_MULTI_IF_H__
 
+#include <iostream>
 #include <vector>
 #include "code_element.h"
 
@@ -24,7 +25,7 @@ class code_multi_if : public code_element
 		void finish_and_no_else();
 		void finish_or_no_else();
 		void finish_with_else();
-		void fprint(FILE *dest, int depth);
+		void fprint(std::ostream *dest, int depth);
 	private:
 		code_multi_type form;	//what form of the structure is this?
 		std::vector<code_element*> ifs;	//the list if conditions that could lead to a common block
