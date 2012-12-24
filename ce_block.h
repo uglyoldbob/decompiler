@@ -14,7 +14,7 @@ class ce_block : public code_element
 		int getnline();
 		void setline(line_info *a);
 		line_info *getline(int num);	//-1 means get last line
-		void fprint(std::ostream *dest, int depth);
+		void fprint(std::ostream &dest, int depth);
 	private:
 		struct line_info **line;
 		int num_lines;

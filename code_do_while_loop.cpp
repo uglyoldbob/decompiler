@@ -16,13 +16,13 @@ code_do_while_loop::~code_do_while_loop()
 {
 }
 
-void code_do_while_loop::fprint(std::ostream *dest, int depth)
+void code_do_while_loop::fprint(std::ostream &dest, int depth)
 {
 	begin_line(dest, depth);
-	*dest << "do\n";
+	dest << "do\n";
 	begin_line(dest, depth);
-	*dest << "{\n";
+	dest << "{\n";
 	theloop->fprint(dest, depth+1);
 	begin_line(dest, depth);
-	*dest << "} while (?);\n";
+	dest << "} while (?);\n";
 }

@@ -1,10 +1,10 @@
 #include "code_element.h"
 
-void begin_line(std::ostream *b, int a)
+void begin_line(std::ostream &b, int a)
 {
 	for (int xyz = 0; xyz < a; xyz++)
 	{
-		*b << "\t";
+		b << "\t";
 	}
 }
 
@@ -49,9 +49,9 @@ code_element *code_element::gb()
 		return b;
 }
 
-void code_element::fprint(std::ostream *dest, int depth)
+void code_element::fprint(std::ostream &dest, int depth)
 {
-	*dest << "Dummy print\n";
+	dest << "Dummy print\n";
 }
 
 void code_element::ss(address ss)

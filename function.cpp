@@ -61,8 +61,6 @@ function::~function()
 {
 	unsigned int i;
 	delete [] name;
-	if (output != 0)
-		output->close();
 	delete [] c_blocks;
 	delete [] da_lines;
 	for (i = 0; i < xblocks.size(); i++)
@@ -131,18 +129,12 @@ void function::replace_references(code_element *old, code_element *nw)
 	}
 }
 
-int function::setio(char *in, char *out)
+int function::setin(char *in)
 {
-	input = new std::ifstream(in);
-	output = new std::ofstream(out, std::ofstream::trunc);
-	if (input->fail())
+	input.open(in);
+	if (input.fail())
 	{
 		std::cout << "Failed to open " << in << "\n";
-		return -1;
-	}
-	if (output->fail())
-	{
-		std::cout << "Failed to open " << out << "\n";
 		return -1;
 	}
 	return 0;
@@ -153,12 +145,12 @@ void function::use_input_otool_ppc()
 	char single_line[500];
 	int i;
 //count the number of lines
-	while (input->good())
+	while (input.good())
 	{
-		input->getline(single_line, 499);
+		input.getline(single_line, 499);
 		num_lines++;
 	}
-	input->seekg(0, std::ios::beg);
+	input.seekg(0, std::ios::beg);
 	std::cout << "There are " << num_lines << " lines\n";
 
 //allocate and initialize memory for all the lines of code
@@ -176,13 +168,13 @@ void function::use_input_otool_ppc()
 //read in all of the lines of code
 	for (i = 0; i < num_lines; i++)
 	{
-		input->getline(single_line, 499);
-		*input  >> std::hex >> da_lines[i].addr
+		input.getline(single_line, 499);
+		input  >> std::hex >> da_lines[i].addr
 				>> da_lines[i].opcode
 				>> da_lines[i].options
 				>> da_lines[i].comment;
 	}
-	input->close();
+	input.close();
 }
 
 void function::compute_branching_ppc()
@@ -368,28 +360,34 @@ void function::simplify()
 	}
 }
 
-void function::fprint()
+inline std::ostream& operator << (std::ostream& output, function &me)
+{
+	me.fprint(output);
+	return output;
+}
+
+void function::fprint(std::ostream &output)
 {	//print the code to the output for examination
 	unsigned int i;
-	*output << "//There are " << pieces.size() << " blocks\n";
+	output << "//There are " << pieces.size() << " blocks\n";
 	if (name != 0)
-		*output << "int " << name << "(int argc, char *argv[])\n{\n";
+		output << "int " << name << "(int argc, char *argv[])\n{\n";
 	else
-		*output << "int unknown()\n{\n";
+		output << "int unknown()\n{\n";
 	for (i = 0; i < pieces.size(); i++)
 	{
-		*output << "\t****~~~~ " << (int)pieces[i]->gets() << " " << pieces[i]->gins() << " inputs ";
+		output << "\t****~~~~ " << (int)pieces[i]->gets() << " " << pieces[i]->gins() << " inputs ";
 		if (pieces[i]->ga() != 0)
-			*output << std::hex << (int)pieces[i]->ga()->gets()
+			output << std::hex << (int)pieces[i]->ga()->gets()
 					<< pieces[i]->ga()->gins();
 		if (pieces[i]->gb() != 0)
-			*output << std::hex << (int)pieces[i]->gb()->gets()
+			output << std::hex << (int)pieces[i]->gb()->gets()
 					<< pieces[i]->gb()->gins();
-		*output << "\n";
+		output << "\n";
 		pieces[i]->fprint(output, 1);
-		*output << "\t~~~~**** \n";
+		output << "\t~~~~**** \n";
 	}
-	*output << "}\n";
+	output << "}\n";
 }
 
 void function::create_pieces()

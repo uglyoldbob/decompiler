@@ -4,7 +4,7 @@
 #include "config.h"
 #include <iostream>
 
-void begin_line(std::ostream *b, int a);
+void begin_line(std::ostream &b, int a);
 
 struct line_info
 {
@@ -42,7 +42,7 @@ class code_element
 		code_element *ga();
 		void sb(code_element *bb);	//sets b
 		code_element *gb();
-		virtual void fprint(std::ostream *dest, int depth);
+		virtual void fprint(std::ostream &dest, int depth);
 		int gins();	//get ins
 		void dins(int by);	//decrease ins
 		int is_cbranch();	//does this element have a conditional branch at the end

@@ -74,7 +74,10 @@ int main(int argc, char *argv[])
 	
 	function analyze(0, "test");
 
-	if (analyze.setio(argv[1], argv[2]) == -1)
+	std::ofstream output;
+	output.open(argv[2], std::ofstream::trunc);
+
+	if (analyze.setin(argv[1]) == -1)
 		return -1;
 
 	analyze.use_input_otool_ppc();
@@ -84,7 +87,8 @@ int main(int argc, char *argv[])
 
 	analyze.simplify();
 
-	analyze.fprint();
+	output << analyze;
+	output.close();
 
 	return 0;
 }

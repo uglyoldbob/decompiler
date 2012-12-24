@@ -12,32 +12,32 @@ ce_block::~ce_block()
 	delete [] line;
 }
 
-void ce_block::fprint(std::ostream *dest, int depth)
+void ce_block::fprint(std::ostream &dest, int depth)
 {
 	int i;
 	begin_line(dest, depth);
-	*dest << "/------";
+	dest << "/------";
 	if (depth == 0)
-		*dest << std::hex << s << " (" << line[0]->ins << "input)";
-	*dest << "\n";	
+		dest << std::hex << s << " (" << line[0]->ins << "input)";
+	dest << "\n";	
 	int k;
 	for (k = 0; k < num_lines; k++)
 	{
 		begin_line(dest, depth);
-		*dest << "|"
-			  << std::hex << line[k]->addr << " "
-			  << line[k]->opcode << " " << line[k]->options << " " << line[k]->comment << "\n";
+		dest << "|"
+			 << std::hex << line[k]->addr << " "
+			 << line[k]->opcode << " " << line[k]->options << " " << line[k]->comment << "\n";
 	}
 	begin_line(dest, depth);
-	*dest << "\\------ ";
+	dest << "\\------ ";
 	if (depth == 0)
 	{
 		if (a != 0)
-			*dest << std::hex << a->gets() << " ";
+			dest << std::hex << a->gets() << " ";
 		if (b != 0)
-			*dest << std::hex << b->gets() << " ";
+			dest << std::hex << b->gets() << " ";
 	}
-	*dest << "\n";
+	dest << "\n";
 }
 
 void ce_block::setnline(int num)

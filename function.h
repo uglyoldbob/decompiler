@@ -14,21 +14,20 @@ class function
 	public:
 		function(address addr, const char *n);
 		~function();
-		int setio(char *in, char *out);
+		int setin(char *in);
 		void use_input_otool_ppc();
 		void compute_branching_ppc();
 		void create_blocks();
 		void create_pieces();
 		void simplify();
-		void fprint();
 		void set_name(const char *to);
 		const char *get_name();
 		address gets();
+		friend std::ostream& operator << (std::ostream& output, function &me);
 	private:
 		char *name;
 		address s;
-		std::ifstream *input;
-		std::ofstream *output;
+		std::ifstream input;
 		struct line_info *da_lines;	//all the lines of code for the function (delete these when done)
 		int num_lines;
 		int actual_num_blocks;
@@ -44,6 +43,7 @@ class function
 		int do_if_else(int i);
 		int find_loop();
 		int find_runs();
+		void fprint(std::ostream& output);
 };
 
 #endif
