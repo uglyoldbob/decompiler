@@ -1,6 +1,7 @@
 #include "exe_elf.h"
 
 #include "disass_x86.h"
+#include "exceptions.h"
 #include <iostream>
 
 exe_elf::exe_elf()
@@ -127,14 +128,18 @@ int exe_elf::process(std::istream *me)	//do basic processing
 
 int exe_elf::goto_address(address addr)
 {
+	int bad = 1;
 	for (int i = 0; i < header.e_phnum; i++)
 	{
 		if ( (addr >= pheaders[i].p_vaddr) &&
 			 (addr < (pheaders[i].p_vaddr + pheaders[i].p_memsz)) )
 		{
 			exe->seekg(pheaders[i].p_offset + addr - pheaders[i].p_vaddr, std::ios::beg);
+			bad = 0;
 		}
 	}
+	if (bad)
+		throw address_not_present(addr);
 	return 0;
 }
 

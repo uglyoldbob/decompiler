@@ -109,8 +109,6 @@ struct exe_macho_lc_section
 #ifdef TARGET32
 struct exe_macho_lc_segment
 {
-	uint32_t cmd;
-	uint32_t cmdsize;
 	char segname[16];
 	uint32_t vmaddr;
 	uint32_t vmsize;
@@ -170,6 +168,7 @@ struct exe_macho_ppc_threadstate
 union exe_macho_lc_data
 {
 	exe_macho_lc_segment seg;
+	exe_macho_ppc_threadstate ppc_thread;
 };
 
 struct exe_macho_lc
@@ -193,6 +192,7 @@ class exe_macho : public exe_loader
 	private:
 		exe_macho_header header;
 		exe_macho_lc *lcmds;
+		address starting;
 };
 
 #endif

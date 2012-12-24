@@ -1,6 +1,8 @@
 #include "exe_macho.h"
 
+#include "disass_ppc.h"
 #include "disass_x86.h"
+#include "exceptions.h"
 #include "executable.h"
 
 exe_macho::exe_macho()
@@ -131,7 +133,6 @@ int exe_macho::process(std::istream *me)	//do basic processing
 			{
 				case EXE_MACHO_CMD_SEGMENT:
 					std::cout << "\tWorking on EXE_MACHO_CMD_SEGMENT\n";
-					exe->seekg(-8, std::ios::cur);
 					exe->read((char*)&lcmds[i].data.seg, sizeof(exe_macho_lc_segment));
 					reverse(&lcmds[i].data.seg.vmaddr, rbo);
 					reverse(&lcmds[i].data.seg.vmsize, rbo);
@@ -167,12 +168,26 @@ int exe_macho::process(std::istream *me)	//do basic processing
 					break;
 				case EXE_MACHO_CMD_THREAD:
 				case EXE_MACHO_CMD_UNIXTHREAD:
-					std::cout << "Thread status command size " << lcmds[i].cmdsize << "\n";
-					exe->seekg(-8, std::ios::cur);
+					std::cout << "Thread status command size " << lcmds[i].cmdsize << " "
+							  << sizeof(exe_macho_ppc_threadstate) << "\n";
 					switch (header.cputype)
 					{	//thread status depends on architecture
 						case EXE_MACHO_CPU_PPC:
-							
+							exe->read((char*)&lcmds[i].data.ppc_thread, sizeof(exe_macho_ppc_threadstate));
+							reverse(&lcmds[i].data.ppc_thread.flavor, rbo);
+							reverse(&lcmds[i].data.ppc_thread.count, rbo);
+							reverse(&lcmds[i].data.ppc_thread.cr, rbo);
+							reverse(&lcmds[i].data.ppc_thread.xer, rbo);
+							reverse(&lcmds[i].data.ppc_thread.lr, rbo);
+							reverse(&lcmds[i].data.ppc_thread.ctr, rbo);
+							//don't bother with mq register?
+							reverse(&lcmds[i].data.ppc_thread.vrsave, rbo);
+							for (int k = 0; k < 32; k++)
+								reverse(&lcmds[i].data.ppc_thread.r[k], rbo);
+							reverse(&lcmds[i].data.ppc_thread.srr[0], rbo);
+							reverse(&lcmds[i].data.ppc_thread.srr[1], rbo);
+							starting = lcmds[i].data.ppc_thread.srr[0];
+							disasm = new disass_ppc(this);
 							break;
 						case EXE_MACHO_CPU_X86:
 						default:
@@ -198,7 +213,7 @@ int exe_macho::process(std::istream *me)	//do basic processing
 				{
 					for (uint32_t j = 0; j < lcmds[i].data.seg.nsects; j++)
 					{
-						//exe->seekg(lcmds[i].data.seg.sections[j].offset, std::ios::cur);
+						exe->seekg(lcmds[i].data.seg.sections[j].offset, std::ios::beg);
 					}
 				}
 				break;
@@ -206,18 +221,35 @@ int exe_macho::process(std::istream *me)	//do basic processing
 				break;
 		}
 	}
-	std::cout << "Not quite done with the MACHO processing " << exe->tellg() << "\n";
-	return -1;
+	return 0;
 }
 
 int exe_macho::goto_address(address addr)
 {
+	int bad = 1;
+	for (uint32_t i = 0; i < header.ncmds; i++)
+	{
+		if (lcmds[i].cmd == EXE_MACHO_CMD_SEGMENT)
+		{
+			for (uint32_t j = 0; j < lcmds[i].data.seg.nsects; j++)
+			{
+				if ( (addr >= lcmds[i].data.seg.sections[j].addr) &&
+					 (addr < (lcmds[i].data.seg.sections[j].addr + lcmds[i].data.seg.sections[j].size)) )
+				{
+					exe->seekg(lcmds[i].data.seg.sections[j].offset + addr - lcmds[i].data.seg.sections[j].addr, std::ios::beg);
+					bad = 0;
+				}
+			}
+		}
+	}
+	if (bad)
+		throw address_not_present(addr);
 	return 0;
 }
 
 address exe_macho::entry_addr()
 {
-	return 0;
+	return starting;
 }
 
 void exe_macho::read_memory(void *dest, int len)

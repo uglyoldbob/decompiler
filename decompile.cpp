@@ -9,6 +9,7 @@
 #include "code_if_else.h"
 #include "code_multi_if.h"
 #include "config.h"
+#include "exceptions.h"
 #include "executable.h"
 #include "function.h"
 
@@ -60,14 +61,36 @@ int main(int argc, char *argv[])
 #error "Unknown Target"
 #endif
 	executable program;
-	int retval = -1;
-	if (argc < 2)
+	int retval = 0;
+	try
 	{
-		retval = program.load(argv[0]);
+		if (argc < 2)
+		{
+			program.load(argv[0]);
+		}
+		else if (argc >= 2)
+		{
+			program.load(argv[1]);
+		}
 	}
-	else if (argc >= 2)
+	catch (address_not_present &e)
 	{
-		retval = program.load(argv[1]);
+		std::cout << "Address 0x" << std::hex << e.what() << std::dec << " not found in executable\n";
+		retval = -1;
+	}
+	catch (unknown_exe_format &e)
+	{
+		std::cout << "Unknown exe format " << e.what() << std::endl;
+		retval = -1;
+	}
+	catch (invalid_instruction &e)
+	{
+		std::cout << "Invalid instruction at 0x" << std::hex << e.what() << std::dec << "\n";
+	}
+	catch (...)
+	{
+		std::cout << "Unexpected exception\n";
+		retval = -1;
 	}
 	
 	return retval;

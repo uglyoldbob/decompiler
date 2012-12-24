@@ -26,7 +26,7 @@ class disassembler
 		virtual ~disassembler();
 		
 		virtual instr *get_instruction(address addr) = 0;
-	private:
+	protected:
 		exe_loader *owner;
 };
 

@@ -1,4 +1,5 @@
 #include "disassembler.h"
+#include "exceptions.h"
 #include "executable.h"
 #include "exe_elf.h"
 #include "exe_macho.h"
@@ -57,7 +58,7 @@ int executable::load(char *bin_name)
 	if (!exe_file->is_open())
 	{
 		std::cout << "Failed to open executable " << bin_name << "\n";
-		return -1;
+		throw file_open_failed(bin_name);
 	}
 
 	int reverse;
@@ -78,15 +79,14 @@ int executable::load(char *bin_name)
 
 	if (exe_type == EXEC_TYPE_UNKNOWN)
 	{
-		std::cout << "Unknown executable format\n";
 		exe_file->close();
-		return -1;
+		throw unknown_exe_format(bin_name);
 	}
 
 	if (exe_object == 0)
 	{
 		exe_file->close();
-		return -1;
+		throw unknown_exe_format(bin_name);
 	}
 	if (exe_object->process(exe_file) == 0)
 	{
@@ -95,7 +95,7 @@ int executable::load(char *bin_name)
 	else
 	{
 		exe_file->close();
-		return -1;
+		throw unknown_exe_format(bin_name);
 	}
 
 	function *themain;
@@ -103,7 +103,7 @@ int executable::load(char *bin_name)
 	funcs.push_back(themain);
 
 	std::cout << "Created entry point function " << funcs[0]->get_name()
-		 << " at address " << std::hex << funcs[0]->gets() << "\n";
+			  << " at address " << std::hex << funcs[0]->gets() << std::dec << "\n";
 
 	handle_function(0);
 

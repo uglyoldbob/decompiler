@@ -25,7 +25,7 @@ void ce_block::fprint(std::ostream &dest, int depth)
 	{
 		begin_line(dest, depth);
 		dest << "|"
-			 << std::hex << line[k]->addr << " "
+			 << std::hex << line[k]->addr << std::dec << " "
 			 << line[k]->opcode << " " << line[k]->options << " " << line[k]->comment << "\n";
 	}
 	begin_line(dest, depth);
@@ -33,9 +33,9 @@ void ce_block::fprint(std::ostream &dest, int depth)
 	if (depth == 0)
 	{
 		if (a != 0)
-			dest << std::hex << a->gets() << " ";
+			dest << std::hex << a->gets() << std::dec << " ";
 		if (b != 0)
-			dest << std::hex << b->gets() << " ";
+			dest << std::hex << b->gets() << std::dec << " ";
 	}
 	dest << "\n";
 }
