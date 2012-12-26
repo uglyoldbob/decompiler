@@ -76,6 +76,6 @@ void code_element::sb(code_element *bb)
 
 void code_element::dins(int by)	//decrease ins
 {
-	//cout << "Reduce ins of " << std::hex << s << " (" << ins << ") by " << by << "\n";
+	//cout << "Reduce ins of " << std::hex << s << std::dec << " (" << ins << ") by " << by << "\n";
 	ins -= by;
 }

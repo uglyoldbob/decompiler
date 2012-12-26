@@ -59,7 +59,7 @@ void exe_elf::print_program_header(int i)
 			std::cout << "Program Header " << i << "\n\tLoadable segment\n"
 					  << "\tVirtual Address " << std::hex <<pheaders[i].p_vaddr << "\n"
 					  << "\tSize " << std::hex << pheaders[i].p_memsz << "\n"
-					  << "\tSize on disk " << std::hex << pheaders[i].p_filesz << "\n";
+					  << "\tSize on disk " << std::hex << pheaders[i].p_filesz << std::dec << "\n";
 			break;
 		default:
 			break;

@@ -113,12 +113,12 @@ int executable::load(char *bin_name)
 
 void executable::handle_function(int i)
 {
-	std::cout << "STUB Add lines of code to function " << std::hex << funcs[i]->gets() << "\n";
+	std::cout << "STUB Add lines of code to function " << std::hex << funcs[i]->gets() << std::dec << "\n";
 	std::vector<address> blocks;	//indicates the starting point of blocks
 	blocks.push_back((uint32_t)funcs[i]->gets());
 	while (blocks.size() > 0)
 	{
-		std::cout << "Working on block starting at " << std::hex << blocks[0] << "\n";
+		std::cout << "Working on block starting at " << std::hex << blocks[0] << std::dec << "\n";
 		//does this block already exist?
 		exe_object->get_disasm()->get_instruction(blocks[0]);	//gather an instruction
 		//add it to the block

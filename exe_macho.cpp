@@ -100,7 +100,7 @@ int exe_macho::process(std::istream *me)	//do basic processing
 			break;
 		case EXE_MACHO_CPU_X86:
 		default:
-			std::cout << "Unsupported cpu type 0x" << std::hex << header.cputype << "\n";
+			std::cout << "Unsupported cpu type 0x" << std::hex << header.cputype << std::dec << "\n";
 			return -1;
 	}
 
@@ -110,13 +110,13 @@ int exe_macho::process(std::istream *me)	//do basic processing
 
 	if (header.filetype != EXE_MACHO_FILETYPE_EXE)
 	{
-		std::cout << "Unsupported filetype 0x" << std::hex << header.filetype << "\n";
+		std::cout << "Unsupported filetype 0x" << std::hex << header.filetype << std::dec << "\n";
 	}
 
-	std::cout << "Flags is 0x" << std::hex << header.flags << "\n";
+	std::cout << "Flags is 0x" << std::hex << header.flags << std::dec << "\n";
 
-	std::cout << "There are " << std::dec << header.ncmds << " commands of size 0x" 
-			  << std::hex << header.sizeofcmds << "\n";
+	std::cout << "There are " << header.ncmds << " commands of size 0x" 
+			  << std::hex << header.sizeofcmds << std::dec << "\n";
 	lcmds = new exe_macho_lc[header.ncmds];
 	for (uint32_t i = 0; i < header.ncmds; i++)
 	{

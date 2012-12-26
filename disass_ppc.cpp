@@ -22,7 +22,7 @@ instr* disass_ppc::get_instruction(address addr)
 	address opcode;
 	owner->read_memory((void*)&opcode, sizeof(address));
 
-	std::cout << "STUB Get instruction at " << std::hex << addr << "\n";
+	std::cout << "STUB Get instruction at " << std::hex << addr << std::dec << "\n";
 
 	PPCD_CB temp;
     
@@ -437,6 +437,7 @@ void disass_ppc::bcx(int Disp, int L)
 
     o->operands[0] = '\0';
     o->targeta = 0;
+	o->targetb = o->pc+4;
     o->iclass |= PPC_DISA_BRANCH;
 
     // Calculate displacement and target address
@@ -508,6 +509,7 @@ void disass_ppc::bx(void)
     uint64_t bd = Instr & 0x03fffffc;
     if(bd & 0x02000000) bd |= 0xfffffffffc000000;
     o->targeta = (AA ? 0 : DIS_PC) + bd;
+	o->targetb = 0;
  
     o->iclass |= PPC_DISA_BRANCH;
     sprintf(o->mnemonic, "b%s", b_opt[AALK]);
@@ -1158,6 +1160,7 @@ void disass_ppc::PPCDisasm(PPCD_CB *discb)
     o->r[0] = o->r[1] = o->r[2] = o->r[3] = 0;
     o->immed = 0;
     o->targeta = 0;
+	o->targetb = 0;
     o->mnemonic[0] = o->operands[0] = '\0';
 
     // Lets go!

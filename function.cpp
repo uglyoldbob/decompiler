@@ -169,7 +169,7 @@ void function::use_input_otool_ppc()
 	for (i = 0; i < num_lines; i++)
 	{
 		input.getline(single_line, 499);
-		input  >> std::hex >> da_lines[i].addr
+		input  >> std::hex >> da_lines[i].addr >> std::dec
 				>> da_lines[i].opcode
 				>> da_lines[i].options
 				>> da_lines[i].comment;
@@ -378,10 +378,10 @@ void function::fprint(std::ostream &output)
 	{
 		output << "\t****~~~~ " << (int)pieces[i]->gets() << " " << pieces[i]->gins() << " inputs ";
 		if (pieces[i]->ga() != 0)
-			output << std::hex << (int)pieces[i]->ga()->gets()
+			output << std::hex << (int)pieces[i]->ga()->gets() << std::dec
 					<< pieces[i]->ga()->gins();
 		if (pieces[i]->gb() != 0)
-			output << std::hex << (int)pieces[i]->gb()->gets()
+			output << std::hex << (int)pieces[i]->gb()->gets() << std::dec
 					<< pieces[i]->gb()->gins();
 		output << "\n";
 		pieces[i]->fprint(output, 1);

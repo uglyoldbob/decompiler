@@ -18,7 +18,7 @@ void ce_block::fprint(std::ostream &dest, int depth)
 	begin_line(dest, depth);
 	dest << "/------";
 	if (depth == 0)
-		dest << std::hex << s << " (" << line[0]->ins << "input)";
+		dest << std::hex << s << std::dec << " (" << line[0]->ins << "input)";
 	dest << "\n";	
 	int k;
 	for (k = 0; k < num_lines; k++)
