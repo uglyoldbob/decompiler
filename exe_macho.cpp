@@ -255,4 +255,18 @@ address exe_macho::entry_addr()
 void exe_macho::read_memory(void *dest, int len)
 {
 	exe->read((char*)dest, len);
+	switch (len)
+	{
+		case sizeof(uint16_t):
+			reverse((uint16_t*)dest, rbo);
+			break;
+		case sizeof(uint32_t):
+			reverse((uint32_t*)dest, rbo);
+			break;
+		case sizeof(uint64_t):
+			reverse((uint64_t*)dest, rbo);
+			break;
+		default:
+			break;
+	}
 }

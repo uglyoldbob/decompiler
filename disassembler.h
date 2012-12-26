@@ -2,13 +2,14 @@
 #define __DISASSEMBLER_H__
 
 #include "config.h"
+#include <string>
 
 struct instr
 {
 	address addr;
-	char *opcode;
-	char *options;
-	char *comment;
+	std::string opcode;
+	std::string options;
+	std::string comment;
 	unsigned char length;
 	int ins;	//increase when control is branched to here
 	int is_cbranch;	//set when it is a conditional branch statement
