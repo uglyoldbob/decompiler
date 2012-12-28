@@ -2,30 +2,18 @@
 #define __CODE_ELEMENT_H__
 
 #include "config.h"
+#include "disassembler.h"
 #include <iostream>
+#include <vector>
 
 void begin_line(std::ostream &b, int a);
-
-struct line_info
-{
-	address addr;
-	char opcode[10];
-	char options[300];
-	char comment[300];
-	int ins;	//increase when control is branched to here
-	int is_cbranch;	//set when it is a conditional branch statement
-	address destaddra;	//stores the dest of the conditional branch statement
-	address destaddrb;	//stores the other dest
-	int line_num;	//makes it easier for a code block to find the first line of the next block
-};
 
 struct code_block
 {	//a code block starts in multiple cases
 	//the first line of code
 	//after any branch instruction
 	address s;	//the starting address
-	struct line_info **in;
-	int num_lines;
+	std::vector<instr*> lines;
 	struct code_block *a;	//0 means last block
 	struct code_block *b;	//0 means there is not one
 };

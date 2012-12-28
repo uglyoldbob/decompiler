@@ -12,37 +12,38 @@
 class function
 {
 	public:
-		function(address addr, const char *n);
+		function(address addr, const char *n, disassembler &disas);
+		function(address addr, disassembler &disas);
 		~function();
-		int setin(char *in);
-		void use_input_otool_ppc();
-		void compute_branching_ppc();
-		void create_blocks();
-		void create_pieces();
+		std::vector<address> get_calls();	//get a list of addresses called as functions
 		void simplify();
 		void set_name(const char *to);
-		const char *get_name();
+		std::string get_name();
 		address gets();
 		friend std::ostream& operator << (std::ostream& output, function &me);
 	private:
-		char *name;
+		std::string name;
 		address s;
-		std::ifstream input;
-		struct line_info *da_lines;	//all the lines of code for the function (delete these when done)
-		int num_lines;
-		int actual_num_blocks;
-		ce_block *c_blocks;	//the basic blocks of instructions (delete these when done)
+		std::vector<instr*> da_lines;	//all the lines of code for the function (delete these when done)
+		std::vector<ce_block *> c_blocks;	//the basic blocks of instructions (delete these when done)
 		std::vector<code_element *> xblocks; //extra blocks created to simplify logic (delete these when done)
 		std::vector<code_element *> pieces;
 		void remove_piece(code_element *rmv);	//removes a piece
 		void replace_references(code_element *old, code_element *nw);
+
+		//constructor helpers
+		void work_on_block(address addr);
+		void add_line(instr *addme);	//add a line of code to the function
+		void finish_block(address addr);
 		
+		//used for simplification
 		int find_if_else();
 		int do_simple_if(code_element *a, code_element *b, int i);
 		int do_multi_if(int i);
 		int do_if_else(int i);
 		int find_loop();
 		int find_runs();
+		//used for output
 		void fprint(std::ostream& output);
 };
 

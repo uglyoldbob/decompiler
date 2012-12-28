@@ -8,61 +8,64 @@
 #include "code_while_loop.h"
 #include "code_run.h"
 #include "ce_block.h"
+#include "exceptions.h"
 
-void increase_dest_count(struct line_info* array, int num_elements, address addr)
-{
-	int i;
-	for (i = 0; i < num_elements; i++)
-	{
-		if (array[i].addr == addr)
-		{
-			array[i].ins++;
-			return;
-		}
-	}
-}
-
-struct ce_block * find_block(ce_block *blocks, int num_blocks, address addr)
-{	//find a block that starts with addr (-1 if not found)
-	int k;
-	for (k = 0; k < num_blocks; k++)
-	{
-		if (blocks[k].gets() == addr)
-		{
-			return &blocks[k];
-		}
-	}
-	return NULL;
-}
-
-int find_stuff(struct code_block* c, int num_blocks, int j)
-{
-	int found = 0;
-	int i;
-	for (i = 0; i < num_blocks; i++)
-	{
-		if (c[i].in[0]->ins == j)
-		{
-			found++;
-		}
-	}
-	return found;
-}
-
-function::function(address addr, const char *n)
+function::function(address addr, const char *n, disassembler &disas)
+	: name(n)
 {
 	s = addr;
-	num_lines = 0;
-	name = new char[strlen(n)+1];
-	strcpy(name, n);
+	std::cout << "Function " << name
+			  << " at address 0x" << std::hex << s << std::dec << "\n";
+	std::vector<address> blocks;	//indicates the starting point of blocks
+	blocks.push_back(s);
+	address offset = 0;
+	while (blocks.size() > 0)
+	{
+		try
+		{
+			work_on_block(blocks[0]);
+			instr *temp;
+			temp = disas.get_instruction(blocks[0]+offset);	//gather an instruction
+			add_line(temp);
+			offset += temp->length;
+			std::cout << "0x" << std::hex << temp->addr << ": " << temp->opcode
+					  << " " << temp->options
+					  << "(" << temp->destaddra << ", " << temp->destaddrb << std::dec << ")\n";
+			//if the next instruction does not belong to this block, move to another block
+			if ( (temp->destaddra != 0) && (temp->destaddrb != 0) )
+			{
+				blocks.push_back(temp->destaddra);
+				blocks.push_back(temp->destaddrb);
+				finish_block(blocks[0]);
+				blocks.erase(blocks.begin());
+			}
+			else if ( (temp->destaddra == 0) && (temp->destaddrb == 0) )
+			{
+				finish_block(blocks[0]);
+				blocks.erase(blocks.begin());
+			}
+		}
+		catch (block_already_done &e)
+		{	//don't work on the block if it is already done
+			std::cout << "Block already done\n";
+			blocks.erase(blocks.begin());
+		}
+	}
+	std::cout << "Done with function " << name << " ?\n";
+}
+
+function::function(address addr, disassembler &disas)
+{
+	function(addr, "unknown", disas);
 }
 
 function::~function()
 {
 	unsigned int i;
-	delete [] name;
-	delete [] c_blocks;
-	delete [] da_lines;
+	for (i = 0; i < c_blocks.size(); i++)
+		delete c_blocks[i];
+	for (i = 0; i < da_lines.size(); i++)
+		delete da_lines[i];
 	for (i = 0; i < xblocks.size(); i++)
 		delete xblocks[i];
 }
@@ -72,17 +75,58 @@ address function::gets()
 	return s;
 }
 
-void function::set_name(const char *to)
+std::vector<address> function::get_calls()	//get a list of addresses called as functions
 {
-	if (name != 0)
+	std::vector<address> temp;
+	for (unsigned int i = 0; i < da_lines.size(); i++)
 	{
-		delete [] name;
+		if (da_lines[i]->call != 0)
+			temp.push_back(da_lines[i]->call);
 	}
-	name = new char[strlen(to)+1];
-	strcpy(name, to);
+	return temp;
 }
 
-const char *function::get_name()
+void function::work_on_block(address addr)
+{	//start working on a block that start at addr
+	for (unsigned int i = 0; i < c_blocks.size(); i++)
+	{
+		try
+		{
+			c_blocks[i]->work(addr);
+		}
+		catch (block_already_done &e)
+		{
+			throw;	//pass the exception up
+		}
+		catch (block_should_be_split &e)
+		{	//split up the completed block
+			std::cout << "Split an existing block at 0x" << std::hex << addr << std::dec << "\n";
+			ce_block *a;
+			a = new ce_block(*c_blocks[i], c_blocks[i]->getline(0)->addr, e.what());
+			ce_block *b;
+			b = new ce_block(*c_blocks[i], e.what(), c_blocks[i]->getline(-1)->addr);
+			c_blocks[i] = a;
+			c_blocks.push_back(b);
+		}
+	}
+}
+
+void function::add_line(instr *addme)
+{
+	da_lines.push_back(addme);
+}
+
+void function::finish_block(address addr)
+{
+
+}
+
+void function::set_name(const char *to)
+{
+	name = to;
+}
+
+std::string function::get_name()
 {
 	return name;
 }
@@ -129,215 +173,6 @@ void function::replace_references(code_element *old, code_element *nw)
 	}
 }
 
-int function::setin(char *in)
-{
-	input.open(in);
-	if (input.fail())
-	{
-		std::cout << "Failed to open " << in << "\n";
-		return -1;
-	}
-	return 0;
-}
-
-void function::use_input_otool_ppc()
-{	//the input is the output of "otool -tV" powerpc
-	char single_line[500];
-	int i;
-//count the number of lines
-	while (input.good())
-	{
-		input.getline(single_line, 499);
-		num_lines++;
-	}
-	input.seekg(0, std::ios::beg);
-	std::cout << "There are " << num_lines << " lines\n";
-
-//allocate and initialize memory for all the lines of code
-	da_lines = new line_info[num_lines];
-	for (i = 0; i < num_lines; i++)
-	{
-		da_lines[i].ins = 0;
-		da_lines[i].is_cbranch = 0;
-		da_lines[i].line_num = i;
-		da_lines[i].destaddra = 0;
-		da_lines[i].destaddrb = 0;
-	}
-	da_lines[0].ins = 1;	//the first block always is the entry point
-
-//read in all of the lines of code
-	for (i = 0; i < num_lines; i++)
-	{
-		input.getline(single_line, 499);
-		input  >> std::hex >> da_lines[i].addr >> std::dec
-				>> da_lines[i].opcode
-				>> da_lines[i].options
-				>> da_lines[i].comment;
-	}
-	input.close();
-}
-
-void function::compute_branching_ppc()
-{	//calculate and insert branching data
-	int i;
-	for (i = 0; i < num_lines; i++)
-	{
-		address dest;
-		if (da_lines[i].opcode[0] == 'b')
-		{
-			if (strcmp(da_lines[i].opcode, "bl") == 0)
-			{	//another function call
-			}
-			else if (strcmp(da_lines[i].opcode, "blr") == 0)
-			{	//jump to the link register
-				da_lines[i].is_cbranch = -1;
-			}
-			else if (strcmp(da_lines[i].opcode, "bctrl") == 0)
-			{	//just a function call
-			}
-			else if (strcmp(da_lines[i].opcode, "b") == 0)
-			{
-				sscanf(da_lines[i].options, "0x%x", &dest);
-				da_lines[i].destaddra = dest;
-				da_lines[i].destaddrb = 0;
-				increase_dest_count(da_lines, num_lines, dest);
-				da_lines[i].is_cbranch = -1;
-			}
-			else if (strcmp(da_lines[i].opcode, "bcl") == 0)
-			{
-				int a, b;
-				sscanf(da_lines[i].options, "%d,%d,0x%x", &a, &b, &dest);
-				da_lines[i].destaddra = dest;
-				if ((i+1) < num_lines)
-				{
-					da_lines[i].destaddrb = da_lines[i+1].addr;
-				}
-				else
-				{
-					da_lines[i].destaddrb = 0;
-				}
-				if (da_lines[i].destaddra != da_lines[i].destaddrb)
-				{
-					increase_dest_count(da_lines, num_lines, dest);
-					if ((i+1) < num_lines)
-						increase_dest_count(da_lines, num_lines, da_lines[i+1].addr);
-					da_lines[i].is_cbranch = 1;
-				}
-				else
-				{
-					da_lines[i].destaddra = 0;
-				}
-			}
-			else
-			{
-				int dummy;
-				da_lines[i].is_cbranch = 1;
-				if (strncmp(da_lines[i].options, "cr", 2) == 0)
-				{
-					sscanf(da_lines[i].options, "cr%d,0x%x", &dummy, (int*)&dest);
-				}
-				else
-				{
-					sscanf(da_lines[i].options, "0x%x", (int*)&dest);
-				}
-				da_lines[i].destaddra = dest;
-				if ((i+1) < num_lines)
-				{
-					da_lines[i].destaddrb = da_lines[i+1].addr;
-				}
-				else
-				{
-					da_lines[i].destaddrb = 0;
-				}
-				increase_dest_count(da_lines, num_lines, dest);
-				if ((i+1) < num_lines)
-					increase_dest_count(da_lines, num_lines, da_lines[i+1].addr);
-				da_lines[i].is_cbranch = 1;
-			}
-		}
-	}
-}
-
-void function::create_blocks()
-{	//use branching data to compute number of blocks
-	//this will generate more than the actual number of blocks
-	int i;
-	int num_blocks = 0;
-	for (i = 0; i < num_lines; i++)
-	{
-		if (da_lines[i].ins > 0)
-		{
-			num_blocks++;
-			if (i > 0)
-			{
-				if (da_lines[i-1].is_cbranch == 0)
-				{	//tidy up the ends of blocks ending without a branch
-					da_lines[i].ins++;
-					da_lines[i-1].destaddra = da_lines[i].addr;
-				}
-			}
-		}
-	}
-	std::cout << "There are " << ++num_blocks << " code blocks\n";
-//allocate memory for code blocks
-	c_blocks = new ce_block[num_blocks];
-
-//determine how many blocks there really are
-//also perform some initialization of all real code blocks
-	int j = 0;
-	for (i = 0; i < num_blocks; i++)
-	{
-		int nlcb = 0;
-		int found_end = 0;
-		c_blocks[i].ss(da_lines[j].addr);
-		c_blocks[i].sa(NULL);
-		c_blocks[i].sb(NULL);
-		do
-		{
-			if ( (da_lines[j].ins > 0) && (nlcb > 0) )
-			{	//any line with a dest_count besides the first one is in the next block
-				found_end = 1;
-			}
-			else if (da_lines[j].is_cbranch != 0)
-			{	//any line with a conditional branch is the last line of a block
-				j++;
-				nlcb++;
-				found_end = 1;
-			}
-			else if ((j+1) >= num_lines)
-			{	//if this is the last line, it is also the last line of a block
-				found_end = 1;
-				j++;
-				nlcb++;
-			}
-			else
-			{	//anything else belongs to the block
-				nlcb++;
-				j++;
-			}
-		} while (found_end == 0);
-		c_blocks[i].setnline(nlcb);
-		if (j >= num_lines)
-			break;
-	}
-	actual_num_blocks = i + 1;
-	std::cout << "There were only " << actual_num_blocks << " blocks of code\n";
-
-//copy line references to each code block
-//set next_block variables for each block
-	j = 0;
-	for (i = 0; i < actual_num_blocks; i++)
-	{
-		c_blocks[i].setline(&da_lines[j]);
-		j += c_blocks[i].getnline();
-
-		c_blocks[i].sa(find_block(c_blocks, actual_num_blocks, 
-						c_blocks[i].getline(-1)->destaddra));
-		c_blocks[i].sb(find_block(c_blocks, actual_num_blocks, 
-						c_blocks[i].getline(-1)->destaddrb));
-	}
-}
-
 void function::simplify()
 {
 	int reduced = 0;
@@ -352,7 +187,7 @@ void function::simplify()
 	} while (reduced > 0);
 	if (pieces.size() > 1)
 	{
-		std::cout << "Failed to simplify enough (" << pieces.size() << "/" << actual_num_blocks << ")\n";
+		std::cout << "Failed to simplify enough (" << pieces.size() << "/" << c_blocks.size() << ")\n";
 	}
 	else
 	{
@@ -370,10 +205,7 @@ void function::fprint(std::ostream &output)
 {	//print the code to the output for examination
 	unsigned int i;
 	output << "//There are " << pieces.size() << " blocks\n";
-	if (name != 0)
-		output << "int " << name << "(int argc, char *argv[])\n{\n";
-	else
-		output << "int unknown()\n{\n";
+	output << "int " << name << "(int argc, char *argv[])\n{\n";
 	for (i = 0; i < pieces.size(); i++)
 	{
 		output << "\t****~~~~ " << (int)pieces[i]->gets() << " " << pieces[i]->gins() << " inputs ";
@@ -388,15 +220,6 @@ void function::fprint(std::ostream &output)
 		output << "\t~~~~**** \n";
 	}
 	output << "}\n";
-}
-
-void function::create_pieces()
-{	//create the list of pieces to be examined
-	int i;
-	for (i = 0; i < actual_num_blocks; i++)
-	{
-		pieces.push_back(&c_blocks[i]);
-	}
 }
 
 int function::find_runs()

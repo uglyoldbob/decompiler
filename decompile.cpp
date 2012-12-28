@@ -94,24 +94,4 @@ int main(int argc, char *argv[])
 	}
 	
 	return retval;
-	
-	function analyze(0, "test");
-
-	std::ofstream output;
-	output.open(argv[2], std::ofstream::trunc);
-
-	if (analyze.setin(argv[1]) == -1)
-		return -1;
-
-	analyze.use_input_otool_ppc();
-	analyze.compute_branching_ppc();
-	analyze.create_blocks();
-	analyze.create_pieces();
-
-	analyze.simplify();
-
-	output << analyze;
-	output.close();
-
-	return 0;
 }

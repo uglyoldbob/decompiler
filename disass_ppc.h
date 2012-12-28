@@ -29,8 +29,9 @@ struct PPCD_CB
 	char		operands[64];           // Instruction operands.
 	uint32_t	immed;                  // Immediate value (displacement for load/store, immediate operand for arithm./logic).
 	int			r[4];                   // Index value for operand registers and immediates.
-	uint64_t	targeta;                // Target address for branch instructions / Mask for RLWINM-like instructions
+	uint64_t	targeta;                // Target address for branch instructions
 	uint64_t	targetb;
+	address		call;					//a literal address called as a function
 	int     	iclass;                 // One or combination of PPC_DISA_* flags.
 };
 

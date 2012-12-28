@@ -10,11 +10,12 @@ struct instr
 	std::string opcode;
 	std::string options;
 	std::string comment;
-	unsigned char length;
+	unsigned char length;	//instruction length
 	int ins;	//increase when control is branched to here
 	int is_cbranch;	//set when it is a conditional branch statement
 	address destaddra;	//stores the dest of the conditional branch statement
 	address destaddrb;	//stores the other dest
+	address call;		//a literal value for a function call
 	int line_num;	//makes it easier for a code block to find the first line of the next block
 };
 

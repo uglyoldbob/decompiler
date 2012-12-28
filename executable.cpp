@@ -88,41 +88,24 @@ int executable::load(char *bin_name)
 		exe_file->close();
 		throw unknown_exe_format(bin_name);
 	}
-	if (exe_object->process(exe_file) == 0)
-	{
-		std::cout << "Successfully processed the executable\n";
-	}
-	else
+	if (exe_object->process(exe_file) != 0)
 	{
 		exe_file->close();
 		throw unknown_exe_format(bin_name);
 	}
 
 	function *themain;
-	themain = new function(exe_object->entry_addr(), exe_object->entry_name());
+	themain = new function(exe_object->entry_addr(), exe_object->entry_name(), *(exe_object->get_disasm()));
 	funcs.push_back(themain);
+	std::vector<address> temp = funcs[0]->get_calls();
 
-	std::cout << "Created entry point function " << funcs[0]->get_name()
-			  << " at address " << std::hex << funcs[0]->gets() << std::dec << "\n";
-
-	handle_function(0);
+	std::cout << std::hex;
+	for (unsigned int i = 0; i < temp.size(); i++)
+	{
+		std::cout << "\t0x" << temp[i] << std::endl;
+	}
+	std::cout << std::dec;
 
 	exe_file->close();
 	return processed;
-}
-
-void executable::handle_function(int i)
-{
-	std::cout << "STUB Add lines of code to function " << std::hex << funcs[i]->gets() << std::dec << "\n";
-	std::vector<address> blocks;	//indicates the starting point of blocks
-	blocks.push_back((uint32_t)funcs[i]->gets());
-	while (blocks.size() > 0)
-	{
-		std::cout << "Working on block starting at " << std::hex << blocks[0] << std::dec << "\n";
-		//does this block already exist?
-		exe_object->get_disasm()->get_instruction(blocks[0]);	//gather an instruction
-		//add it to the block
-		//if the next instruction does not belong to this block, move to another block
-		blocks.erase(blocks.begin());
-	}
 }

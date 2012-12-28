@@ -8,3 +8,8 @@ test/*
 decompile32
 decompile64
 stupid.c
+.cproject
+.directory
+.metadata/*
+.project
+

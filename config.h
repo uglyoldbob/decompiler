@@ -8,7 +8,8 @@
 #elif TARGET64
 	typedef uint64_t address;
 #else
-#error "Unknown Target"
+	#error "Unknown Target"
+	typedef void address;
 #endif
 
 void reverse(uint64_t *in, int rbo);

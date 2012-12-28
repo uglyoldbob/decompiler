@@ -60,4 +60,18 @@ class invalid_instruction : public exception_numerical<address>
 			: exception_numerical(addr) {}
 };
 
+class block_already_done : public exception_numerical<address>
+{
+	public:
+		block_already_done(const address addr)
+			: exception_numerical(addr) {};
+};
+
+class block_should_be_split : public exception_numerical<address>
+{
+	public:
+		block_should_be_split(const address addr)
+			: exception_numerical(addr) {};
+};
+
 #endif

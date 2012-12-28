@@ -22,28 +22,21 @@ instr* disass_ppc::get_instruction(address addr)
 	address opcode;
 	owner->read_memory((void*)&opcode, sizeof(address));
 
-	std::cout << "STUB Get instruction at " << std::hex << addr << std::dec << "\n";
-
 	PPCD_CB temp;
     
     temp.pc = addr;
     temp.instr = opcode;
-	temp.targetb = -1;
 
     PPCDisasm(&temp);
-	
-	if (temp.targetb == -1)
-	{
-		throw invalid_instruction(addr);
-	}
-	
+
 	ret = new instr;
 	ret->addr = addr;
 	ret->opcode = temp.mnemonic;
 	ret->options = temp.operands;
 	ret->ins = 0;
-	ret->length = sizeof(address);
+	ret->length = 4;
 	ret->is_cbranch = 0;
+	ret->call = temp.call;
 	ret->destaddra = temp.targeta;
 	ret->destaddrb = temp.targetb;
 
@@ -437,7 +430,6 @@ void disass_ppc::bcx(int Disp, int L)
 
     o->operands[0] = '\0';
     o->targeta = 0;
-	o->targetb = o->pc+4;
     o->iclass |= PPC_DISA_BRANCH;
 
     // Calculate displacement and target address
@@ -509,11 +501,15 @@ void disass_ppc::bx(void)
     uint64_t bd = Instr & 0x03fffffc;
     if(bd & 0x02000000) bd |= 0xfffffffffc000000;
     o->targeta = (AA ? 0 : DIS_PC) + bd;
-	o->targetb = 0;
  
     o->iclass |= PPC_DISA_BRANCH;
     sprintf(o->mnemonic, "b%s", b_opt[AALK]);
     place_target(o->operands, 0);
+    if (Instr & 1)
+    {
+    	o->call = o->targeta;
+      	o->targeta = 0;
+    }
 }
 
 // Move CR field
@@ -557,18 +553,6 @@ void disass_ppc::crop(const char *name, const char *simp="", int ddd=0, int daa=
     o->r[0] = crfD; o->r[1] = crfA; o->r[2] = crfB;
 }
 
-#define MASK32(b, e) \
-{ \
-    uint32_t mask = ((uint32_t)0xffffffff >> (b)) ^ (((e) >= 31) ? 0 : ((uint32_t)0xffffffff) >> ((e) + 1)); \
-    o->targeta = ((b) > (e)) ? (~mask) : (mask); \
-}
-
-#define MASK64(b, e) \
-{ \
-    uint64_t mask = ((uint64_t)0xffffffffffffffff >> (b)) ^ (((e) >= 63) ? 0 : ((uint64_t)0xffffffffffffffff) >> ((e) + 1)); \
-    o->targeta = ((b) > (e)) ? (~mask) : (mask); \
-}
-
 // Rotate left word.
 void disass_ppc::rlw(const char *name, int rb, int ins=0)
 {
@@ -579,12 +563,6 @@ void disass_ppc::rlw(const char *name, int rb, int ins=0)
     if(rb) ptr += sprintf(ptr, "%s" COMMA, REGB);
     else   ptr += sprintf(ptr, "%i" COMMA, DIS_RB);     // sh
     ptr += sprintf(ptr, "%i" COMMA "%i", mb, me);
-
-    // Put mask in target.
-    MASK32(mb, me);
-#ifdef POWERPC_64
-    MASK64(mb+32, me+32);
-#endif
 
     o->r[0] = DIS_RA;
     o->r[1] = DIS_RS;
@@ -1160,7 +1138,8 @@ void disass_ppc::PPCDisasm(PPCD_CB *discb)
     o->r[0] = o->r[1] = o->r[2] = o->r[3] = 0;
     o->immed = 0;
     o->targeta = 0;
-	o->targetb = 0;
+	o->targetb = o->pc + 4;
+	o->call = 0;
     o->mnemonic[0] = o->operands[0] = '\0';
 
     // Lets go!
@@ -1278,7 +1257,11 @@ void disass_ppc::PPCDisasm(PPCD_CB *discb)
         case 00000: cmp("", ""); break;                                     // cmp
         case 00010:                                                         // tw
 #ifdef SIMPLIFIED
-                    if(Instr == 0x7FE00008) put("trap", 0, 0, PPC_DISA_SIMPLIFIED);
+                    if(Instr == 0x7FE00008)
+                    {
+                    	put("trap", 0, 0, PPC_DISA_SIMPLIFIED);
+                    	o->targetb = 0;
+                    }
                     else
 #endif
                     trap(0, 0); break;

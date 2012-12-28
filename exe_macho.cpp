@@ -60,7 +60,7 @@ int exe_macho::check(std::istream *me)
 
 const char *exe_macho::entry_name()
 {
-	return "main";
+	return "_start";
 }
 
 int exe_macho::process(std::istream *me)	//do basic processing
@@ -90,10 +90,6 @@ int exe_macho::process(std::istream *me)	//do basic processing
 			return -1;
 		}
 	}
-	std::cout << "STUB Doing processing for a ";
-	if (rbo == 1)
-		std::cout << "(reverse) ";
-	std::cout << "MACHO executable\n";
 	switch (header.cputype)
 	{
 		case EXE_MACHO_CPU_PPC:
@@ -113,10 +109,6 @@ int exe_macho::process(std::istream *me)	//do basic processing
 		std::cout << "Unsupported filetype 0x" << std::hex << header.filetype << std::dec << "\n";
 	}
 
-	std::cout << "Flags is 0x" << std::hex << header.flags << std::dec << "\n";
-
-	std::cout << "There are " << header.ncmds << " commands of size 0x" 
-			  << std::hex << header.sizeofcmds << std::dec << "\n";
 	lcmds = new exe_macho_lc[header.ncmds];
 	for (uint32_t i = 0; i < header.ncmds; i++)
 	{
@@ -124,15 +116,11 @@ int exe_macho::process(std::istream *me)	//do basic processing
 		exe->read((char*)&lcmds[i].cmdsize, sizeof(uint32_t));
 		reverse(&lcmds[i].cmd, rbo);
 		reverse(&lcmds[i].cmdsize, rbo);
-		std::cout << "LC " << std::dec << i 
-				  << "(" << lcmds[i].cmd << ") is " 
-				  << lcmds[i].cmdsize << " bytes long\n";
 		if (lcmds[i].cmdsize > 8)
 		{
 			switch (lcmds[i].cmd)
 			{
 				case EXE_MACHO_CMD_SEGMENT:
-					std::cout << "\tWorking on EXE_MACHO_CMD_SEGMENT\n";
 					exe->read((char*)&lcmds[i].data.seg, sizeof(exe_macho_lc_segment));
 					reverse(&lcmds[i].data.seg.vmaddr, rbo);
 					reverse(&lcmds[i].data.seg.vmsize, rbo);
@@ -143,7 +131,6 @@ int exe_macho::process(std::istream *me)	//do basic processing
 					reverse(&lcmds[i].data.seg.nsects, rbo);
 					reverse(&lcmds[i].data.seg.flags, rbo);
 					exe->seekg((int)(-sizeof(void*)), std::ios::cur);
-					std::cout << "There are " << std::dec << lcmds[i].data.seg.nsects << " sections\n";
 					if (lcmds[i].data.seg.nsects > 0)
 					{
 						lcmds[i].data.seg.sections = new exe_macho_lc_section[lcmds[i].data.seg.nsects];
@@ -168,8 +155,6 @@ int exe_macho::process(std::istream *me)	//do basic processing
 					break;
 				case EXE_MACHO_CMD_THREAD:
 				case EXE_MACHO_CMD_UNIXTHREAD:
-					std::cout << "Thread status command size " << lcmds[i].cmdsize << " "
-							  << sizeof(exe_macho_ppc_threadstate) << "\n";
 					switch (header.cputype)
 					{	//thread status depends on architecture
 						case EXE_MACHO_CPU_PPC:
@@ -203,7 +188,6 @@ int exe_macho::process(std::istream *me)	//do basic processing
 			}
 		}
 	}
-	std::cout << "Load commands are loaded\n";
 	for (uint32_t i = 0; i < header.ncmds; i++)
 	{
 		switch (lcmds[i].cmd)

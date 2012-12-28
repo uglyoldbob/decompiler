@@ -41,7 +41,7 @@ int exe_elf::check(std::istream *me)
 
 const char *exe_elf::entry_name()
 {
-	return "main";
+	return "_start";
 }
 
 void exe_elf::print_program_header(int i)

@@ -40,7 +40,6 @@ void code_if_else::set_last(code_element *l)
 void code_if_else::set_next(code_element *n)
 {
 	a = n;
-	unsigned int i;
 	a->dins(lcb.size());
 	b = 0;
 }
