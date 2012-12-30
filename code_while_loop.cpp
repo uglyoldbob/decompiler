@@ -1,17 +1,19 @@
 #include "code_while_loop.h"
+#include "helpers.h"
 
 code_while_loop::code_while_loop(code_element *st, code_element *loo)
 {
 	theloop = loo;
 	condition = st;
 	s = st->gets();
-	ins = st->gins()-1;
+	copy_inputs(st);
+	remove_input(st);
 	b = 0;
 	if (st->ga() == loo)
 		a = st->gb();
 	else
 		a = st->ga();
-	st->dins(1);
+	//st->dins(1);
 }
 
 code_while_loop::~code_while_loop()

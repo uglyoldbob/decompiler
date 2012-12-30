@@ -1,6 +1,6 @@
 #include "ce_block.h"
-#include "code_element.h"
 #include "exceptions.h"
+#include "helpers.h"
 
 ce_block::ce_block()
 {
@@ -42,9 +42,7 @@ void ce_block::fprint(std::ostream &dest, int depth)
 	for (unsigned int k = 0; k < lines.size(); k++)
 	{
 		begin_line(dest, depth);
-		dest << "|"
-			 << std::hex << lines[k]->addr << std::dec << " "
-			 << lines[k]->opcode << " " << lines[k]->options << " " << lines[k]->comment << "\n";
+		dest << "|" << lines[k] << "\n";
 	}
 	begin_line(dest, depth);
 	dest << "\\------ ";
@@ -84,7 +82,7 @@ unsigned int ce_block::getnline()
 	return lines.size();
 }
 
-void ce_block::work(address addr)
+int ce_block::work(address addr)
 {
 	if (finished)
 	{
@@ -97,6 +95,20 @@ void ce_block::work(address addr)
 				throw block_should_be_split(lines[i-1]->addr);
 		}
 	}
+	else
+	{
+		for (unsigned int i = 0; i < lines.size(); i++)
+		{
+			if (lines[i]->addr == addr)
+				return 1;	//address was found in this block
+		}
+	}
+	return 0;	//address not found in this block
+}
+
+void ce_block::add_line(instr *addme)
+{
+	lines.push_back(addme);
 }
 
 int ce_block::is_done()

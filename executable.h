@@ -41,6 +41,8 @@ class executable
 		
 		//TODO: create objects to break up code into multiple source files
 		std::vector<function*> funcs;	//all the functions of the program
+
+		int check_func_list(address addr);
 };
 
 #endif

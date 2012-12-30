@@ -15,9 +15,10 @@ class ce_block : public code_element
 		instr *getline(int num);	//-1 means get last line
 		unsigned int getnline();
 		void fprint(std::ostream &dest, int depth);
-		void work(address addr);
+		int work(address addr);
 		void done();
 		int is_done();
+		void add_line(instr *addme);
 	private:
 		std:: vector<instr*> lines;
 		int finished;

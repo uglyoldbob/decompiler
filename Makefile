@@ -6,7 +6,7 @@ TEST_DIR="./test"
 DECOMPILE_OBJS = ce_block.o code_element.o code_if_else.o decompile.o function.o \
 	code_multi_if.o code_run.o code_do_while_loop.o code_while_loop.o executable.o \
 	exe_loader.o exe_elf.o exe_macho.o disassembler.o disass_x86.o disass_ppc.o \
-	exceptions.o
+	exceptions.o variable.o helpers.o
 
 DECOMPILE32_OBJS = $(DECOMPILE_OBJS:%.o=%32.o)
 DECOMPILE64_OBJS = $(DECOMPILE_OBJS:%.o=%64.o)

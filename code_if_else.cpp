@@ -1,4 +1,5 @@
 #include "code_if_else.h"
+#include "helpers.h"
 
 code_if_else::code_if_else()
 {
@@ -15,7 +16,7 @@ void code_if_else::add_lcb(code_element *add)
 	lcb.push_back(add);
 	if (lcb.size() == 1)
 	{
-		ins = add->gins();
+		copy_inputs(add);
 		s = add->gets();
 	}
 }
@@ -40,7 +41,8 @@ void code_if_else::set_last(code_element *l)
 void code_if_else::set_next(code_element *n)
 {
 	a = n;
-	a->dins(lcb.size());
+	for (unsigned int i = 0; i < lcb.size(); ++i)
+		a->remove_input(lcb[i]);
 	b = 0;
 }
 

@@ -1,6 +1,6 @@
 #include "function.h"
 
-#include <cstring>
+#include <string>
 
 #include "code_if_else.h"
 #include "code_do_while_loop.h"
@@ -16,41 +16,8 @@ function::function(address addr, const char *n, disassembler &disas)
 	s = addr;
 	std::cout << "Function " << name
 			  << " at address 0x" << std::hex << s << std::dec << "\n";
-	std::vector<address> blocks;	//indicates the starting point of blocks
-	blocks.push_back(s);
-	address offset = 0;
-	while (blocks.size() > 0)
-	{
-		try
-		{
-			work_on_block(blocks[0]);
-			instr *temp;
-			temp = disas.get_instruction(blocks[0]+offset);	//gather an instruction
-			add_line(temp);
-			offset += temp->length;
-			std::cout << "0x" << std::hex << temp->addr << ": " << temp->opcode
-					  << " " << temp->options
-					  << "(" << temp->destaddra << ", " << temp->destaddrb << std::dec << ")\n";
-			//if the next instruction does not belong to this block, move to another block
-			if ( (temp->destaddra != 0) && (temp->destaddrb != 0) )
-			{
-				blocks.push_back(temp->destaddra);
-				blocks.push_back(temp->destaddrb);
-				finish_block(blocks[0]);
-				blocks.erase(blocks.begin());
-			}
-			else if ( (temp->destaddra == 0) && (temp->destaddrb == 0) )
-			{
-				finish_block(blocks[0]);
-				blocks.erase(blocks.begin());
-			}
-		}
-		catch (block_already_done &e)
-		{	//don't work on the block if it is already done
-			std::cout << "Block already done\n";
-			blocks.erase(blocks.begin());
-		}
-	}
+	gather_instructions(disas);
+	check_dests();
 	std::cout << "Done with function " << name << " ?\n";
 }
 
@@ -86,13 +53,102 @@ std::vector<address> function::get_calls()	//get a list of addresses called as f
 	return temp;
 }
 
-void function::work_on_block(address addr)
+void function::gather_instructions(disassembler &disas)
+{
+	std::vector<address> blocks;	//indicates the starting point of blocks
+	blocks.push_back(s);
+	address offset = 0;
+	while (blocks.size() > 0)
+	{
+		try
+		{
+			ce_block * tblock = work_on_block(blocks[0]);
+			instr *temp;
+			int len;
+			len = disas.get_instruction(temp, blocks[0]+offset);	//gather an instruction
+			tblock->add_line(temp);
+			add_line(temp);
+			offset += len;
+			//if the next instruction does not belong to this block, move to another block
+			if (temp->trace_jump)
+			{
+				std::cout << "Must trace a jump destination\n";
+			}
+			if ( (temp->destaddra != 0) && (temp->destaddrb != 0) )
+			{
+				blocks.push_back(temp->destaddra);
+				blocks.push_back(temp->destaddrb);
+				tblock->done();
+				blocks.erase(blocks.begin());
+				offset = 0;
+			}
+			else if ( (temp->destaddra == 0) && (temp->destaddrb == 0) )
+			{
+				tblock->done();
+				blocks.erase(blocks.begin());
+				offset = 0;
+			}
+		}
+		catch (block_already_done &e)
+		{	//don't work on the block if it is already done
+			std::cout << "Block already done\n";
+			blocks.erase(blocks.begin());
+		}
+	}
+}
+
+void function::increase_ins(address addr)
+{
+	for (unsigned int i = 0; i < da_lines.size(); i++)
+	{
+		if (da_lines[i]->addr == addr)
+		{
+			da_lines[i]->ins++;
+			break;
+		}
+	}
+}
+
+void function::check_dests()
+{
+	for (unsigned int i = 0; i < da_lines.size(); i++)
+	{
+		da_lines[i]->ins = 0;
+	}
+	da_lines[0]->ins = 1;
+	for (unsigned int i = 0; i < da_lines.size(); i++)
+	{
+		if (da_lines[i]->is_cbranch == 1)
+		{
+			increase_ins(da_lines[i]->destaddra);
+			increase_ins(da_lines[i]->destaddrb);
+		}
+	}
+
+	int num_blocks = 0;
+	for (unsigned int i = 0; i < da_lines.size(); i++)
+	{
+		if (da_lines[i]->ins > 0)
+		{
+			ce_block *temp;
+			temp = new ce_block;
+			c_blocks.push_back(temp);
+			num_blocks++;
+		}
+	}
+	std::cout << "There are " << num_blocks << " blocks present in this function\n";
+}
+
+ce_block *function::work_on_block(address addr)
 {	//start working on a block that start at addr
 	for (unsigned int i = 0; i < c_blocks.size(); i++)
 	{
 		try
 		{
-			c_blocks[i]->work(addr);
+			if (c_blocks[i]->work(addr) == 1)
+			{
+				return c_blocks[i];
+			}
 		}
 		catch (block_already_done &e)
 		{
@@ -106,19 +162,16 @@ void function::work_on_block(address addr)
 			ce_block *b;
 			b = new ce_block(*c_blocks[i], e.what(), c_blocks[i]->getline(-1)->addr);
 			c_blocks[i] = a;
-			c_blocks.push_back(b);
+			c_blocks.insert(c_blocks.begin() + i + 1, b);
+			throw block_already_done(addr);
 		}
 	}
+	return new ce_block;
 }
 
 void function::add_line(instr *addme)
 {
 	da_lines.push_back(addme);
-}
-
-void function::finish_block(address addr)
-{
-
 }
 
 void function::set_name(const char *to)
@@ -150,26 +203,9 @@ void function::replace_references(code_element *old, code_element *nw)
 	unsigned int i;
 	for (i = 0; i < pieces.size(); i++)
 	{
-		if (pieces[i]->ga() == old)
-		{
-			pieces[i]->sa(nw);
-		}
-		if (pieces[i]->gb() == old)
-		{
-			pieces[i]->sb(nw);
-		}
 		if (pieces[i] == old)
-		{
 			pieces[i] = nw;
-			if (pieces[i]->ga() == old)
-			{
-				pieces[i]->sa(nw);
-			}
-			if (pieces[i]->gb() == old)
-			{
-				pieces[i]->sb(nw);
-			}
-		}
+		pieces[i]->replace_references(old, nw);
 	}
 }
 
@@ -415,7 +451,7 @@ int function::do_multi_if(int i)
 						remove_piece(common);
 						if (common->ga()->gins() > 1)
 						{
-							common->ga()->dins(1);
+							//common->ga()->dins(1);
 						}
 						else if (common->ga()->gins() == 1)
 						{
@@ -446,7 +482,7 @@ int function::do_multi_if(int i)
 						remove_piece(list.back()->gb());
 						if (common->ga()->gins() > 1)
 						{
-							common->ga()->dins(1);
+							//common->ga()->dins(1);
 						}
 						else if (common->ga()->gins() == 1)
 						{
@@ -477,7 +513,7 @@ int function::do_multi_if(int i)
 						remove_piece(list.back()->ga());
 						if (common->ga()->gins() > 1)
 						{
-							common->ga()->dins(1);
+							//common->ga()->dins(1);
 						}
 						else if (common->ga()->gins() == 1)
 						{

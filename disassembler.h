@@ -2,22 +2,30 @@
 #define __DISASSEMBLER_H__
 
 #include "config.h"
+#include <iostream>
 #include <string>
+#include <vector>
 
 struct instr
 {
 	address addr;
-	std::string opcode;
-	std::string options;
+	std::vector<std::string> statements;
 	std::string comment;
-	unsigned char length;	//instruction length
 	int ins;	//increase when control is branched to here
 	int is_cbranch;	//set when it is a conditional branch statement
 	address destaddra;	//stores the dest of the conditional branch statement
 	address destaddrb;	//stores the other dest
 	address call;		//a literal value for a function call
-	int line_num;	//makes it easier for a code block to find the first line of the next block
+	int trace_call;		//a function call whose address must be traced
+	int trace_jump;		//a jump address that must be traced
 };
+//only two possibilities for branching
+	//non-literal function calls are easier to trace values for becuase all the structure is present
+	//non-literal branches could refer to many things
+		//could branch to the calling function (return bla;)
+		//could branch to
+
+std::ostream& operator<< (std::ostream& out, instr &a);
 
 class exe_loader;
 
@@ -27,7 +35,7 @@ class disassembler
 		disassembler(exe_loader *own);
 		virtual ~disassembler();
 		
-		virtual instr *get_instruction(address addr) = 0;
+		virtual int get_instruction(instr* &get, address addr) = 0;
 	protected:
 		exe_loader *owner;
 };

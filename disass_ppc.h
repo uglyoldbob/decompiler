@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "disassembler.h"
+#include "helpers.h"
 
 // See some documentation in CPP file.
 
@@ -32,6 +33,7 @@ struct PPCD_CB
 	uint64_t	targeta;                // Target address for branch instructions
 	uint64_t	targetb;
 	address		call;					//a literal address called as a function
+	int			trace_call;				//a function call address that must be traced
 	int     	iclass;                 // One or combination of PPC_DISA_* flags.
 };
 
@@ -43,7 +45,7 @@ class disass_ppc : public disassembler
 	public:
 		disass_ppc(exe_loader *own);
 		~disass_ppc();
-		instr *get_instruction(address addr);
+		int get_instruction(instr* &get, address addr);
 	private:
 		int ppc_type;	//32, 64, gekko, broadway
 		static const char * t_cond[32];
@@ -99,6 +101,7 @@ class disass_ppc : public disassembler
 
 		void PPCDisasm(PPCD_CB *discb);
 		char *PPCDisasmSimple(uint64_t pc, uint32_t instr);
+		uint64_t make_mask(int mb, int me, int numbits);
 };
 
 #endif

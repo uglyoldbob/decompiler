@@ -1,4 +1,5 @@
 #include "code_multi_if.h"
+#include "helpers.h"
 
 code_multi_if::code_multi_if()
 {
@@ -17,7 +18,7 @@ void code_multi_if::add(code_element *ad)
 	ifs.push_back(ad);
 	if (ifs.size() == 1)
 	{
-		ins = ad->gins();
+		copy_inputs(ad);
 		s = ad->gets();
 	}
 }

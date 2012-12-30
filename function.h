@@ -32,9 +32,11 @@ class function
 		void replace_references(code_element *old, code_element *nw);
 
 		//constructor helpers
-		void work_on_block(address addr);
+		void gather_instructions(disassembler &disas);
+		void check_dests();
+		void increase_ins(address addr);
+		ce_block *work_on_block(address addr);
 		void add_line(instr *addme);	//add a line of code to the function
-		void finish_block(address addr);
 		
 		//used for simplification
 		int find_if_else();

@@ -13,7 +13,7 @@ void code_run::add_element(code_element *add)
 	els.push_back(add);
 	if (els.size() == 1)
 	{
-		ins = add->gins();
+		copy_inputs(add);
 		s = add->gets();
 	}
 }

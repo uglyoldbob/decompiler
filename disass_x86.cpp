@@ -13,11 +13,10 @@ disass_x86::~disass_x86()
 {
 }
 
-instr* disass_x86::get_instruction(address addr)
+int disass_x86::get_instruction(instr* &get, address addr)
 {
-	instr *ret = 0;
 	std::cout << "STUB Get instruction at " << std::hex << addr << std::dec << "\n";
 	throw invalid_instruction(addr);
 
-	return ret;
+	return 0;
 }

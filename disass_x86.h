@@ -9,7 +9,7 @@ class disass_x86 : public disassembler
 	public:
 		disass_x86(exe_loader *own);
 		~disass_x86();
-		instr *get_instruction(address addr);
+		int get_instruction(instr* &get, address addr);
 	private:
 };
 

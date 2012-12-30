@@ -94,18 +94,48 @@ int executable::load(char *bin_name)
 		throw unknown_exe_format(bin_name);
 	}
 
-	function *themain;
-	themain = new function(exe_object->entry_addr(), exe_object->entry_name(), *(exe_object->get_disasm()));
-	funcs.push_back(themain);
-	std::vector<address> temp = funcs[0]->get_calls();
-
+	function *start;
+	std::vector<address> function_addresses;	//a list of function start addresses
+	start = new function(exe_object->entry_addr(), exe_object->entry_name(), *(exe_object->get_disasm()));
+	funcs.push_back(start);
+	std::vector<address> temp = funcs.back()->get_calls();
 	std::cout << std::hex;
 	for (unsigned int i = 0; i < temp.size(); i++)
 	{
-		std::cout << "\t0x" << temp[i] << std::endl;
+		if (check_func_list(temp[i]))
+		{
+			std::cout << "\tNew function at 0x" << temp[i] << std::endl;
+			function_addresses.push_back(temp[i]);
+		}
 	}
 	std::cout << std::dec;
+	while (function_addresses.size() > 0)
+	{
+		function *tfunc = new function(function_addresses[0], *(exe_object->get_disasm()));
+		funcs.push_back(tfunc);
+		function_addresses.erase(function_addresses.begin());
+		std::vector<address> temp = funcs.back()->get_calls();
+		std::cout << std::hex;
+		for (unsigned int i = 0; i < temp.size(); i++)
+		{
+			if (check_func_list(temp[i]))
+			{
+				std::cout << "\tNew function at 0x" << temp[i] << std::endl;
+				function_addresses.push_back(temp[i]);
+			}
+		}
+	}
 
 	exe_file->close();
 	return processed;
+}
+
+int executable::check_func_list(address addr)
+{
+	for (unsigned int i = 0; i < funcs.size(); i++)
+	{
+		if (funcs[i]->gets() == addr)
+			return 0;
+	}
+	return 1;
 }

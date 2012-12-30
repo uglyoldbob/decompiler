@@ -1,10 +1,13 @@
 #include "disass_ppc.h"
 
 #include <iostream>
+#include <sstream>
+#include <string>
 
 #include "disassembler.h"
 #include "exe_loader.h"
 #include "exceptions.h"
+#include "helpers.h"
 
 disass_ppc::disass_ppc(exe_loader *own)
 	: disassembler(own)
@@ -15,9 +18,8 @@ disass_ppc::~disass_ppc()
 {
 }
 
-instr* disass_ppc::get_instruction(address addr)
+int disass_ppc::get_instruction(instr* &get, address addr)
 {
-	instr *ret = 0;
 	owner->goto_address(addr);
 	address opcode;
 	owner->read_memory((void*)&opcode, sizeof(address));
@@ -29,17 +31,149 @@ instr* disass_ppc::get_instruction(address addr)
 
     PPCDisasm(&temp);
 
-	ret = new instr;
-	ret->addr = addr;
-	ret->opcode = temp.mnemonic;
-	ret->options = temp.operands;
-	ret->ins = 0;
-	ret->length = 4;
-	ret->is_cbranch = 0;
-	ret->call = temp.call;
-	ret->destaddra = temp.targeta;
-	ret->destaddrb = temp.targetb;
+	get = new instr;
+	get->addr = addr;
+	get->ins = 0;
+	get->is_cbranch = 0;
+	get->call = temp.call;
+	get->trace_call = 0;
+	get->trace_jump = 0;
+	get->destaddra = temp.targeta;
+	get->destaddrb = temp.targetb;
+	if ( (get->destaddra != 0) &&
+		 (get->destaddrb != 0) &&
+		 (get->destaddra != get->destaddrb) )
+	{
+		get->is_cbranch = 1;
+	}
+	else
+	{
+		get->is_cbranch = 0;
+	}
 
+	std::string op(temp.mnemonic);
+	std::string arg(temp.operands);
+	std::string line;
+	std::string arg1, arg2, arg3, arg4, arg5, dummy;
+	std::stringstream argin(std::stringstream::in | std::stringstream::out);
+	argin << temp.operands;
+	get->comment = "\t//" + op + " " + arg;
+	if ((op == "or") || (op == "ori"))
+	{
+		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> arg3;
+		if (arg2 == arg3)
+		{
+			line = arg1 + " = " + arg2 + ";";
+		}
+		else
+		{
+			line = arg1 + " = " + arg2 + " | " + arg3 + ";";
+		}
+	}
+	else if ((op == "addi") || (op == "add"))
+	{
+		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> arg3;
+		line = arg1 + " = " + arg2 + " + " + arg3 + ";";
+	}
+	else if ((op == "subi") || (op == "add"))
+	{
+		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> arg3;
+		line = arg1 + " = " + arg2 + " - " + arg3 + ";";
+	}
+	else if (op == "rlwinm")
+	{
+		int shift, mb, me;
+		argin >> scanset("^,", arg1) >> dummy
+			  >> scanset("^,", arg2) >> dummy
+			  >> shift >> dummy
+			  >> mb >> dummy
+			  >> me;
+		if (shift == 0)
+		{
+			line = arg1 + " = " + arg2 + " & "
+					+ hstring(make_mask(mb, me, 32))
+					+ ";";
+		}
+		else if (((shift + me) == 31) && (mb == 0))
+		{
+			line = arg1 + " = " + arg2 + "<<" + string(shift) + ";";
+		}
+		else
+		{
+			line = arg1 + " " + arg2 + " " + string(shift) + " " + string(mb) + " " + string(me) + ";";
+		}
+	}
+	else if (op == "li")
+	{
+		argin >> scanset("^,", arg1) >> dummy >> arg2;
+		line = arg1 + " = " + arg2 + ";";
+	}
+	else if (op == "lis")
+	{
+		argin >> scanset("^,", arg1) >> dummy >> arg2;
+		line = arg1 + " = " + arg2 + "0000;";
+	}
+	else if (op == "mflr")
+	{
+		line = arg + " = lr;";
+	}
+	else if (op == "mtlr")
+	{
+		line = "lr = " + arg;
+	}
+	else if (op == "mtctr")
+	{
+		line = "ctr = " + arg + ";";
+	}
+	else if (op == "bctrl")
+	{
+		line = "(*ctr)();";
+		get->trace_call = 1;
+	}
+	else if (op == "bctr")
+	{
+		line = "goto (*ctr)";
+		get->trace_jump = 1;
+	}
+	else if (op == "blr")
+	{
+		line = "goto (*lr)";
+			get->trace_jump = 1;
+	}
+	else if (op == "bl")
+	{
+		line = "(*" + arg +")();";
+	}
+	else if (op == "stw")
+	{
+		int offset;
+		char paren;
+		argin >> scanset("^,", arg1) >> dummy >> hex(offset) >> paren >> scanset("^)", arg3);
+		if (offset == 0)
+		{
+			line = "*( (uint32_t *)(" + arg3 + ") ) = " + arg1 + ";";
+		}
+		else if (offset > 0)
+		{
+			line = "*( (uint32_t *)(" + arg3 + " + " + hstring(offset) + ") ) = " + arg1 + ";";
+		}
+		else if (offset < 0)
+		{
+			line = "*( (uint32_t *)(" + arg3 + " - " + hstring(-offset) + ") ) = " + arg1 + ";";
+		}
+	}
+	if (line != "")
+		get->statements.push_back(line);
+
+	std::cout << *get << std::endl;
+	return 4;
+}
+
+uint64_t disass_ppc::make_mask(int mb, int me, int numbits)
+{
+	uint64_t ret = 0;
+	for (int i = mb; i < me; i++)
+		ret |= (1<<(numbits-i-1));
 	return ret;
 }
 
@@ -1140,6 +1274,7 @@ void disass_ppc::PPCDisasm(PPCD_CB *discb)
     o->targeta = 0;
 	o->targetb = o->pc + 4;
 	o->call = 0;
+	o->trace_call = 0;
     o->mnemonic[0] = o->operands[0] = '\0';
 
     // Lets go!
