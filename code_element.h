@@ -9,6 +9,7 @@
 class code_element
 {
 	public:
+		code_element(address addr);
 		code_element();
 		virtual ~code_element();
 		
@@ -19,6 +20,7 @@ class code_element
 		virtual void fprint(std::ostream &dest, int depth);
 		int gins();	//get ins
 		void copy_inputs(code_element *src);
+		void add_input(code_element *ref);
 		void remove_input(code_element *me);	//remove input element
 		int is_cbranch();	//does this element have a conditional branch at the end
 	protected:

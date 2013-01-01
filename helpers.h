@@ -28,4 +28,13 @@ class scanset
 		std::string &r;
 };
 
+class tabs
+{
+	public:
+		tabs(int howmany);
+		friend std::ostream &operator<<(std::ostream&out, tabs a);
+	private:
+		int hm;
+};
+
 #endif

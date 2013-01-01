@@ -36,8 +36,6 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	get->ins = 0;
 	get->is_cbranch = 0;
 	get->call = temp.call;
-	get->trace_call = 0;
-	get->trace_jump = 0;
 	get->destaddra = temp.targeta;
 	get->destaddrb = temp.targetb;
 	if ( (get->destaddra != 0) &&
@@ -58,17 +56,21 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	std::stringstream argin(std::stringstream::in | std::stringstream::out);
 	argin << temp.operands;
 	get->comment = "\t//" + op + " " + arg;
-	if ((op == "or") || (op == "ori"))
+	if (op == "or")
 	{
 		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> arg3;
-		if (arg2 == arg3)
+		line = arg1 + " = " + arg2;
+		if (arg2 != arg3)
 		{
-			line = arg1 + " = " + arg2 + ";";
+			line +=  " | " + arg3;
 		}
-		else
-		{
-			line = arg1 + " = " + arg2 + " | " + arg3 + ";";
-		}
+		line += ";";
+	}
+	else if (op == "ori")
+	{
+		int rg3;
+		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> hex(rg3);
+		line = arg1 + " = " + arg2 + " | " + hstring(rg3) + ";";
 	}
 	else if ((op == "addi") || (op == "add"))
 	{
@@ -128,17 +130,17 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	else if (op == "bctrl")
 	{
 		line = "(*ctr)();";
-		get->trace_call = 1;
+		get->trace_call = "ctr";
 	}
 	else if (op == "bctr")
 	{
 		line = "goto (*ctr)";
-		get->trace_jump = 1;
+		get->trace_jump = "ctr";
 	}
 	else if (op == "blr")
 	{
 		line = "goto (*lr)";
-			get->trace_jump = 1;
+			get->trace_jump = "lr";
 	}
 	else if (op == "bl")
 	{
@@ -149,22 +151,96 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		int offset;
 		char paren;
 		argin >> scanset("^,", arg1) >> dummy >> hex(offset) >> paren >> scanset("^)", arg3);
+		line = "*( (uint32_t *)(" + arg3;
 		if (offset == 0)
 		{
-			line = "*( (uint32_t *)(" + arg3 + ") ) = " + arg1 + ";";
+			line += ") ) = " + arg1 + ";";
 		}
 		else if (offset > 0)
 		{
-			line = "*( (uint32_t *)(" + arg3 + " + " + hstring(offset) + ") ) = " + arg1 + ";";
+			line += " + " + hstring(offset) + ") ) = " + arg1 + ";";
 		}
 		else if (offset < 0)
 		{
-			line = "*( (uint32_t *)(" + arg3 + " - " + hstring(-offset) + ") ) = " + arg1 + ";";
+			line += " - " + hstring(-offset) + ") ) = " + arg1 + ";";
 		}
+	}
+	else if (op == "lwz")
+	{
+		int offset;
+		char paren;
+		argin >> scanset("^,", arg1) >> dummy >> hex(offset) >> paren >> scanset("^)", arg3);
+		line = arg1 + " = *( (uint32_t *)(" + arg3;
+		if (offset == 0)
+		{
+			line += ") );";
+		}
+		else if (offset > 0)
+		{
+			line += " + " + hstring(offset) + ") );";
+		}
+		else if (offset < 0)
+		{
+			line += " - " + hstring(-offset) + ") );";
+		}
+	}
+	else if (op == "lbz")
+	{
+		int offset;
+		char paren;
+		argin >> scanset("^,", arg1) >> dummy >> hex(offset) >> paren >> scanset("^)", arg3);
+		line = arg1 + " = *( (uint8_t *)(" + arg3;
+		if (offset == 0)
+		{
+			line += ") );";
+		}
+		else if (offset > 0)
+		{
+			line += " + " + hstring(offset) + ") );";
+		}
+		else if (offset < 0)
+		{
+			line += " - " + hstring(-offset) + ") );";
+		}
+	}
+	else if (op == "stwu")
+	{
+		int offset;
+		char paren;
+		argin >> scanset("^,", arg1) >> dummy >> hex(offset) >> paren >> scanset("^)", arg3);
+		line = "*( (uint32_t *)(" + arg3;
+		if (offset == 0)
+		{
+			line += ") ) = " + arg1 + ";";
+		}
+		else if (offset > 0)
+		{
+			line += " + " + hstring(offset) + ") ) = " + arg1 + ";";
+		}
+		else if (offset < 0)
+		{
+			line += " - " + hstring(-offset) + ") ) = " + arg1 + ";";
+		}
+		get->statements.push_back(line);
+		if (offset > 0)
+		{
+			line = arg3 + " = " + arg3 + " + " + hstring(offset) + ";";
+			get->statements.push_back(line);
+		}
+		else if (offset < 0)
+		{
+			line = arg3 + " = " + arg3 + " - " + hstring(-offset) + ";";
+			get->statements.push_back(line);
+		}
+		line = "";
+	}
+	else if (op == "extsb")
+	{
+		argin >> scanset("^,", arg1) >> dummy >> arg2;
+		line = arg1 + " = (int16_t)" + arg2 + ";";
 	}
 	if (line != "")
 		get->statements.push_back(line);
-
 	std::cout << *get << std::endl;
 	return 4;
 }
@@ -175,6 +251,11 @@ uint64_t disass_ppc::make_mask(int mb, int me, int numbits)
 	for (int i = mb; i < me; i++)
 		ret |= (1<<(numbits-i-1));
 	return ret;
+}
+
+std::string disass_ppc::trace_value(std::string &val)
+{
+	return "error";
 }
 
 // Very accurate PowerPC Architecture disassembler (both 32 and 64-bit instructions are supported)

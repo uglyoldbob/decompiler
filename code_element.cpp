@@ -1,8 +1,16 @@
 #include "code_element.h"
 
-code_element::code_element()
+code_element::code_element(address addr)
+	: s(addr)
 {
-	s = 0;
+	a = 0;
+	b = 0;
+	depth = 0;
+}
+
+code_element::code_element()
+	: s(0)
+{
 	a = 0;
 	b = 0;
 	depth = 0;
@@ -62,6 +70,21 @@ void code_element::fprint(std::ostream &dest, int depth)
 address code_element::gets()
 {
 	return s;
+}
+
+void code_element::add_input(code_element *ref)
+{
+	char add = 1;
+	for (unsigned int i = 0; i < inputs.size(); ++i)
+	{
+		if (inputs[i] == ref)
+		{
+			add = 0;
+			break;
+		}
+	}
+	if (add)
+		inputs.push_back(ref);
 }
 
 void code_element::remove_input(code_element *me)	//decrease ins

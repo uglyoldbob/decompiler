@@ -1,14 +1,6 @@
 #include "helpers.h"
 #include <sstream>
 
-void begin_line(std::ostream &b, int a)
-{
-	for (int xyz = 0; xyz < a; ++xyz)
-	{
-		b << "\t";
-	}
-}
-
 std::string string(int a)
 {
 	std::stringstream lineout(std::stringstream::in | std::stringstream::out);
@@ -91,7 +83,7 @@ std::istream &operator>>(std::istream &in, hex a)
 {
 	unsigned char temp = 0;
 	char negative = 0;
-
+	a.r = 0;
 	if (in.peek() == ' ')
 	{
 		while (in.peek() == ' ')
@@ -119,12 +111,28 @@ std::istream &operator>>(std::istream &in, hex a)
 			a.r = 0;
 		}
 	}
-	else if (isdigit(temp))
-	{
-		a.r = temp - '0';
+	else while (isdigit(temp))
+	{	//a decimal number
+		temp = in.get();
+		a.r = a.r * 10 + (temp - '0');
+		temp = in.peek();
 	}
 	if (negative)
 		a.r = -a.r;
 
 	return in;
+}
+
+tabs::tabs(int howmany)
+	: hm(howmany)
+{
+}
+
+std::ostream &operator<<(std::ostream&out, tabs a)
+{
+	for (int i = 0; i < a.hm; i++)
+	{
+		out << "\t";
+	}
+	return out;
 }

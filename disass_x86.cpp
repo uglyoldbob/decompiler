@@ -20,3 +20,8 @@ int disass_x86::get_instruction(instr* &get, address addr)
 
 	return 0;
 }
+
+std::string disass_x86::trace_value(std::string &val)
+{
+	return "";
+}

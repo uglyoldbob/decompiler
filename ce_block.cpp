@@ -2,29 +2,35 @@
 #include "exceptions.h"
 #include "helpers.h"
 
-ce_block::ce_block()
+ce_block::ce_block(address start)
+	: code_element(start)
 {
 	finished = 0;
 }
 
-ce_block::ce_block(const ce_block &src, address start, address end)
-{	//used to fragment a block
-	//find the starting line
-	unsigned int start_b = 0;
-	for (unsigned int i = 0; i < src.lines.size(); i++)
+ce_block::ce_block(ce_block* in, address start)
+	: code_element(start)
+{
+	finished = in->finished;
+	unsigned int i;
+	for (i = 0; i < in->lines.size(); ++i)
 	{
-		if (src.lines[i]->addr == start)
-		{
-			start_b = i;
-			break;
-		}
-	}
-	for (unsigned int i = start_b; i < src.lines.size(); i++)
-	{
-		lines.push_back(src.lines[i]);
-		if (src.lines[i]->addr == end)
+		if (in->lines[i]->addr == start)
 			break;
 	}
+	while (i < lines.size())
+	{	//copy all lines to this
+		//and delete them from in
+		lines.push_back(in->lines[i]);
+		in->lines.erase(in->lines.begin() + i);
+	}
+	//save the original destinations
+	a = in->a;
+	b = in->b;
+	//now overwrite them
+	in->a = this;
+	in->b = 0;
+	inputs.push_back(in);
 }
 
 ce_block::~ce_block()
@@ -32,20 +38,29 @@ ce_block::~ce_block()
 	//lines are managed by the function class
 }
 
+ce_block* ce_block::split(address addr)
+{
+	ce_block *ret;
+	ret = new ce_block(this, addr);
+
+	return ret;
+}
+
 void ce_block::fprint(std::ostream &dest, int depth)
 {
-	begin_line(dest, depth);
-	dest << "/------";
+	dest << tabs(depth) << "/------";
 	if (depth == 0)
 		dest << std::hex << s << std::dec << " (" << lines[0]->ins << "input)";
 	dest << "\n";	
 	for (unsigned int k = 0; k < lines.size(); k++)
 	{
-		begin_line(dest, depth);
-		dest << "|" << lines[k] << "\n";
+		std::stringstream temp;
+		temp << tabs(depth) << "|";
+		lines[k]->preprint = temp.str();
+		dest << *lines[k] << "\n";
+		lines[k]->preprint = "";
 	}
-	begin_line(dest, depth);
-	dest << "\\------ ";
+	dest << tabs(depth) << "\\------ ";
 	if (depth == 0)
 	{
 		if (a != 0)
@@ -80,6 +95,26 @@ instr *ce_block::getline(int num)
 unsigned int ce_block::getnline()
 {
 	return lines.size();
+}
+
+int ce_block::contains(address addr)
+{
+	if (lines.size() == 0)
+	{
+		if (s == addr)	//the block for this address has not had any lines added to it yet
+			return 1;	//but it does exist
+	}
+	else
+	{
+		if (lines[0]->addr == addr)
+			return 1;	//the block for this address already exists
+		for (unsigned int i = 1; i < lines.size(); ++i)
+		{
+			if (lines[i]->addr == addr)
+				return -1;	//the block starting at this address exists inside another block
+		}
+	}
+	return 0;
 }
 
 int ce_block::work(address addr)

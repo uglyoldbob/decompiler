@@ -49,8 +49,7 @@ void code_multi_if::fprint(std::ostream &dest, int depth)
 {
 	unsigned int i;
 	ifs[0]->fprint(dest, depth);
-	begin_line(dest, depth);
-	dest << "if ( (?)";
+	dest << tabs(depth) << "if ( (?)";
 	if (form == AND_NO_ELSE)
 	{
 		for (i = 1; i < ifs.size(); i++)
@@ -66,20 +65,15 @@ void code_multi_if::fprint(std::ostream &dest, int depth)
 		}
 	}
 	dest << " )\n";
-	begin_line(dest, depth);
-	dest << "{\n";
+	dest << tabs(depth) << "{\n";
 	common_block->fprint(dest, depth+1);
-	begin_line(dest, depth);
-	dest << "}\n";
+	dest << tabs(depth) << "}\n";
 	if (helse != 0)
 	{
-		begin_line(dest, depth);
-		dest << "else\n";
-		begin_line(dest, depth);
-		dest << "{\n";
+		dest << tabs(depth) << "else\n";
+		dest << tabs(depth) << "{\n";
 		helse->fprint(dest, depth+1);
-		begin_line(dest, depth);
-		dest << "}\n";
+		dest << tabs(depth) << "}\n";
 	}
 	
 	if (thefinal != 0)

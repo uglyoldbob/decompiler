@@ -33,10 +33,9 @@ class function
 
 		//constructor helpers
 		void gather_instructions(disassembler &disas);
-		void check_dests();
-		void increase_ins(address addr);
-		ce_block *work_on_block(address addr);
+		void create_pieces();
 		void add_line(instr *addme);	//add a line of code to the function
+		void add_block(address addr, code_element *ref);	//consider adding a block starting at address addr
 		
 		//used for simplification
 		int find_if_else();

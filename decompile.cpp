@@ -86,6 +86,7 @@ int main(int argc, char *argv[])
 	catch (invalid_instruction &e)
 	{
 		std::cout << "Invalid instruction at 0x" << std::hex << e.what() << std::dec << "\n";
+		retval = -1;
 	}
 	catch (...)
 	{

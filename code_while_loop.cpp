@@ -23,12 +23,8 @@ code_while_loop::~code_while_loop()
 void code_while_loop::fprint(std::ostream &dest, int depth)
 {
 	condition->fprint(dest, depth);
-	begin_line(dest, depth);
-	dest << "while (?)\n";
-	begin_line(dest, depth);
-	dest << "{\n";
-	begin_line(dest, depth);
+	dest << tabs(depth) << "while (?)\n";
+	dest << tabs(depth) << "{\n" << tabs(depth);
 	theloop->fprint(dest, depth+1);
-	begin_line(dest, depth);
-	dest << "}\n";
+	dest << tabs(depth) << "}\n";
 }

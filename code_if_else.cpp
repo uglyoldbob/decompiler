@@ -50,32 +50,23 @@ void code_if_else::fprint(std::ostream &dest, int depth)
 {
 	unsigned int i;
 	lcb[0]->fprint(dest, depth);
-	begin_line(dest, depth);
-	dest << "if (?)\n";
-	begin_line(dest, depth);
-	dest << "{\n";
+	dest << tabs(depth) << "if (?)\n";
+	dest << tabs(depth) << "{\n";
 	ecb[0]->fprint(dest, depth+1);
-	begin_line(dest, depth);
-	dest << "}\n";
+	dest << tabs(depth) << "}\n";
 	for (i = 1; i < lcb.size(); i++)
 	{
-		begin_line(dest, depth);
-		dest << "else if (?)\n";
-		begin_line(dest, depth);
-		dest << "{\n";
+		dest << tabs(depth) << "else if (?)\n";
+		dest << tabs(depth) << "{\n";
 		ecb[i]->fprint(dest, depth+1);
-		begin_line(dest, depth);
-		dest << "}\n";
+		dest << tabs(depth) << "}\n";
 	}
 	if (helse != 0)
 	{
-		begin_line(dest, depth);
-		dest << "else\n";
-		begin_line(dest, depth);
-		dest << "{\n";
+		dest << tabs(depth) << "else\n";
+		dest << tabs(depth) << "{\n";
 		helse->fprint(dest, depth+1);
-		begin_line(dest, depth);
-		dest << "}\n";
+		dest << tabs(depth) << "}\n";
 	}
 	if (next != 0)
 	{
