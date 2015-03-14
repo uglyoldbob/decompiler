@@ -4,6 +4,7 @@
 #include "config.h"
 
 #include <cstdint>
+#include <iostream>
 #include <string>
 
 //order of operations
@@ -81,18 +82,49 @@ delete, delete[]
 //17
 //,	comma	l2r
 
+//18
+//a plain variable
+
+enum oper_precedence
+{	//lower means more precedence - like golf scores
+	OPER_LVL0,
+	OPER_LVL1,
+	OPER_LVL2,
+	OPER_LVL3,
+	OPER_LVL4,
+	OPER_LVL5,
+	OPER_LVL6,
+	OPER_LVL7,
+	OPER_LVL8,
+	OPER_LVL9,
+	OPER_LVL10,
+	OPER_LVL11,
+	OPER_LVL12,
+	OPER_LVL13,
+	OPER_LVL14,
+	OPER_LVL15,
+	OPER_LVL16,
+	OPER_LVL17,
+	OPER_LVL18
+};
 
 class variable
 {
 	public:
 		variable();
+		variable(std::string &in);
 		virtual ~variable();
 		std::size_t mysize() { return thesize; }
+		friend std::ostream &operator<<(std::ostream &out, variable &o);
+		oper_precedence get_p();
 	protected:
+		virtual std::ostream &print(std::ostream &out);
+		oper_precedence p;
 	private:
 		char isconst;	//is the datatype constant?
 		char sign;	//is the datatype signed (-1), unsigned (1), or irrelevant (0)
 		std::string type;
+		std::string name;
 		int num_elements;	//for arrays of specific sizes
 		address addr;	//the address of the variable
 		char valid_address;	//not all variables have an address

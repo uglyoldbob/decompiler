@@ -8,6 +8,7 @@
 #include "exe_loader.h"
 #include "exceptions.h"
 #include "helpers.h"
+#include "operators_all.h"
 
 disass_ppc::disass_ppc(exe_loader *own)
 	: disassembler(own)
@@ -54,33 +55,44 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	std::string line;
 	std::string arg1, arg2, arg3, arg4, arg5, dummy;
 	std::stringstream argin(std::stringstream::in | std::stringstream::out);
+	variable *statement = 0;
 	argin << temp.operands;
 	get->comment = "\t//" + op + " " + arg;
 	if (op == "or")
 	{
 		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> arg3;
-		line = arg1 + " = " + arg2;
+		if (arg2 == arg3)
+		{
+			statement = new oper_assignment( new variable(arg1), new variable(arg2));
+		}
 		if (arg2 != arg3)
 		{
-			line +=  " | " + arg3;
+			statement = new oper_assignment( new variable(arg1), 
+							new oper_bitwise_or( new variable(arg2), new variable(arg3) ) );
 		}
-		line += ";";
 	}
 	else if (op == "ori")
 	{
 		int rg3;
-		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> hex(rg3);
-		line = arg1 + " = " + arg2 + " | " + hstring(rg3) + ";";
+		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> arg3;
+		statement = new oper_assignment( new variable(arg1), 
+							new oper_bitwise_or( new variable(arg2), new variable(arg3) ) );
 	}
 	else if ((op == "addi") || (op == "add"))
 	{
 		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> arg3;
-		line = arg1 + " = " + arg2 + " + " + arg3 + ";";
+		statement = new oper_assignment(new variable(arg1), 
+						new oper_add(
+							new variable(arg2),
+							new variable(arg3)));
 	}
 	else if ((op == "subi") || (op == "add"))
 	{
 		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> arg3;
-		line = arg1 + " = " + arg2 + " - " + arg3 + ";";
+		statement = new oper_assignment(new variable(arg1), 
+						new oper_sub(
+							new variable(arg2),
+							new variable(arg3)));
 	}
 	else if (op == "rlwinm")
 	{
@@ -108,24 +120,28 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	else if (op == "li")
 	{
 		argin >> scanset("^,", arg1) >> dummy >> arg2;
-		line = arg1 + " = " + arg2 + ";";
+		statement = new oper_assignment( new variable(arg1), new variable(arg2) );
 	}
 	else if (op == "lis")
 	{
 		argin >> scanset("^,", arg1) >> dummy >> arg2;
-		line = arg1 + " = " + arg2 + "0000;";
+		arg2 += "0000";
+		statement = new oper_assignment( new variable(arg1), new variable(arg2) );
 	}
 	else if (op == "mflr")
 	{
-		line = arg + " = lr;";
+		arg1 = "lr";
+		statement = new oper_assignment( new variable(arg), new variable(arg1));
 	}
 	else if (op == "mtlr")
 	{
-		line = "lr = " + arg;
+		arg1 = "lr";
+		statement = new oper_assignment( new variable(arg1), new variable(arg) );
 	}
 	else if (op == "mtctr")
 	{
-		line = "ctr = " + arg + ";";
+		arg1 = "ctr";
+		statement = new oper_assignment( new variable(arg1), new variable(arg) );
 	}
 	else if (op == "bctrl")
 	{
@@ -221,26 +237,26 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		{
 			line += " - " + hstring(-offset) + ") ) = " + arg1 + ";";
 		}
-		get->statements.push_back(line);
+		//get->statements.push_back(statement);
 		if (offset > 0)
 		{
 			line = arg3 + " = " + arg3 + " + " + hstring(offset) + ";";
-			get->statements.push_back(line);
+			//get->statements.push_back(statement);
 		}
 		else if (offset < 0)
 		{
 			line = arg3 + " = " + arg3 + " - " + hstring(-offset) + ";";
-			get->statements.push_back(line);
+			//get->statements.push_back(statement);
 		}
-		line = "";
+		statement = 0;
 	}
 	else if (op == "extsb")
 	{
 		argin >> scanset("^,", arg1) >> dummy >> arg2;
 		line = arg1 + " = (int16_t)" + arg2 + ";";
 	}
-	if (line != "")
-		get->statements.push_back(line);
+	if (statement != 0)
+		get->statements.push_back(statement);
 	std::cout << *get << std::endl;
 	return 4;
 }

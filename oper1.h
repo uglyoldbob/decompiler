@@ -7,9 +7,10 @@
 class oper1 : public variable
 {
 	public:
-		oper1();
+		oper1(variable *a);
+		virtual ~oper1();
 	protected:
-		variable arg;	//the only argument for the operator
+		variable *arg;	//the only argument for the operator
 };
 
 #endif

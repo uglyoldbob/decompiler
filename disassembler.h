@@ -2,6 +2,7 @@
 #define __DISASSEMBLER_H__
 
 #include "config.h"
+#include "variable.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -10,7 +11,7 @@ struct instr
 {
 	address addr;
 	std::string preprint;
-	std::vector<std::string> statements;
+	std::vector<variable *> statements;
 	std::string comment;
 	int ins;	//increase when control is branched to here
 	int is_cbranch;	//set when it is a conditional branch statement
