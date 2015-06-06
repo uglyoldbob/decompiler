@@ -8,7 +8,7 @@ OPERATOR_OBJS = variable.o oper1.o oper2.o oper_preincrement.o oper_add.o \
 
 DECOMPILE_OBJS = ce_block.o code_element.o code_if_else.o decompile.o function.o \
 	code_multi_if.o code_run.o code_do_while_loop.o code_while_loop.o executable.o \
-	exe_loader.o exe_elf.o exe_macho.o disassembler.o disass_x86.o disass_ppc.o \
+	exe_loader.o exe_elf.o exe_macho.o exe_pe.o disassembler.o disass_x86.o disass_ppc.o \
 	exceptions.o helpers.o $(OPERATOR_OBJS)
 	
 
@@ -21,9 +21,11 @@ DECOMPILE64_DEPS := $(DECOMPILE64_OBJS:.o=.d)
 -include $(DECOMPILE32_DEPS)
 -include $(DECOMPILE64_DEPS)
 
+LDADD := ./udis86-1.7.2/build/libudis86/.libs/libudis86.a
+
 CC=g++
 
-EXTRA_FLAGS=-g -std=c++0x
+EXTRA_FLAGS=-g -std=c++0x -I./udis86-1.7.2/
 32_CFLAGS =-c -Wall -D TARGET32
 64_CFLAGS =-c -Wall -D TARGET64
 

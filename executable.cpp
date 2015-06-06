@@ -3,6 +3,7 @@
 #include "executable.h"
 #include "exe_elf.h"
 #include "exe_macho.h"
+#include "exe_pe.h"
 
 executable::executable()
 {
@@ -73,6 +74,13 @@ int executable::load(char *bin_name)
 	{
 		exe_type = EXEC_TYPE_MACHO32;
 		exe_object = new exe_macho();
+		if (reverse < 0)
+			rbo = 1;
+	}
+	if ((reverse = exe_pe::check(exe_file)) != 0)
+	{
+		exe_type = EXEC_TYPE_PE;
+		exe_object = new exe_pe();
 		if (reverse < 0)
 			rbo = 1;
 	}
