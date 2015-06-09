@@ -56,20 +56,37 @@ int exe_pe::process(std::istream *me)	//do basic processing
 			}
 			printf("CS: 0x%x IP: 0x%x\n", header.cs, header.ip);
 			printf("SS: 0x%x SP:0x%x\n", header.ss, header.sp);
+			//ss should be adjusted by header.header_paragraphs
+			//cs should be adjusted by header.header_paragraphs
+			
+			header.cs += header.header_paragraphs;
+			header.ss += header.header_paragraphs;
+			printf("adjusted CS: 0x%x IP: 0x%x\n", header.cs, header.ip);
+			printf("adjusted SS: 0x%x SP:0x%x\n", header.ss, header.sp);
 			
 			printf("There are %d paragraphs\n", header.header_paragraphs);
 			printf("BSS Size %d to %d paragraphs\n", header.min_extra_paragraphs, header.max_extra_paragraphs);
-			printf("Program starts at 0x%x\n", header.header_paragraphs * 16);
+			printf("Header size is 0x%x\n", header.header_paragraphs * 16);
 			printf("Program size: 0x%x [0x%x, 0x%x]\n", size,
 				header.blocks_in_file, header.bytes_in_last_block);
+			printf("Number of relocations: %d\n", header.num_relocs);
+			printf("Relocation table offset: 0x%x\n", header.reloc_table_offset);
+			printf("Overlay number: 0x%x\n", header.overlay_number);
 			exe->seekg(header.reloc_table_offset, std::ios::beg);
-			for (int i = 0; i < header.header_paragraphs; i++)
+			for (int i = 0; i < header.num_relocs; i++)
 			{
 				exe_pe_reloc temp;
 				exe->read((char*)&temp, sizeof(temp));
 				printf("Relocation %d, offset 0x%x, segment 0x%x\n", i, temp.offset, temp.segment);
 			}
-			starting = header.header_paragraphs * 16;
+			if (header.cs == 0)
+			{
+				starting = header.ip + 0;
+			}
+			else
+			{
+				starting = header.ip + header.cs*0x10;
+			}
 			disasm = new disass_x86(this);
 			return 0;
 		}

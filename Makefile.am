@@ -1,12 +1,14 @@
+AUTOMAKE_OPTIONS = subdir-objects
+
 bin_PROGRAMS = decompile16 decompile32 decompile64
 
-decompile16_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}/src -I${top_srcdir}/include
-decompile32_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}/src -I${top_srcdir}/include
-decompile64_CFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}/src -I${top_srcdir}/include
+decompile16_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}
+decompile32_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}
+decompile64_CFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}
 
-decompile16_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}/src -I${top_srcdir}/include
-decompile32_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}/src -I${top_srcdir}/include
-decompile64_CPPFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}/src -I${top_srcdir}/include
+decompile16_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}
+decompile32_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}
+decompile64_CPPFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}
 
 if WINDOWS
 decompile16_LDFLAGS = -lmingw32
@@ -22,15 +24,15 @@ oper_add.cpp \
 oper_sub.cpp \
 oper_assignment.cpp \
 oper_bitwise_or.cpp \
-ce_block.cpp \
-code_element.cpp \
-code_if_else.cpp \
 decompile.cpp \
 function.cpp \
-code_multi_if.cpp \
-code_run.cpp \
-code_do_while_loop.cpp \
-code_while_loop.cpp \
+code_elements/ce_block.cpp \
+code_elements/code_element.cpp \
+code_elements/code_if_else.cpp \
+code_elements/code_multi_if.cpp \
+code_elements/code_run.cpp \
+code_elements/code_do_while_loop.cpp \
+code_elements/code_while_loop.cpp \
 executable.cpp \
 exe_loader.cpp \
 exe_elf.cpp \
@@ -52,15 +54,15 @@ oper_add.cpp \
 oper_sub.cpp \
 oper_assignment.cpp \
 oper_bitwise_or.cpp \
-ce_block.cpp \
-code_element.cpp \
-code_if_else.cpp \
 decompile.cpp \
 function.cpp \
-code_multi_if.cpp \
-code_run.cpp \
-code_do_while_loop.cpp \
-code_while_loop.cpp \
+code_elements/ce_block.cpp \
+code_elements/code_element.cpp \
+code_elements/code_if_else.cpp \
+code_elements/code_multi_if.cpp \
+code_elements/code_run.cpp \
+code_elements/code_do_while_loop.cpp \
+code_elements/code_while_loop.cpp \
 executable.cpp \
 exe_loader.cpp \
 exe_elf.cpp \
@@ -81,15 +83,15 @@ oper_add.cpp \
 oper_sub.cpp \
 oper_assignment.cpp \
 oper_bitwise_or.cpp \
-ce_block.cpp \
-code_element.cpp \
-code_if_else.cpp \
 decompile.cpp \
 function.cpp \
-code_multi_if.cpp \
-code_run.cpp \
-code_do_while_loop.cpp \
-code_while_loop.cpp \
+code_elements/ce_block.cpp \
+code_elements/code_element.cpp \
+code_elements/code_if_else.cpp \
+code_elements/code_multi_if.cpp \
+code_elements/code_run.cpp \
+code_elements/code_do_while_loop.cpp \
+code_elements/code_while_loop.cpp \
 executable.cpp \
 exe_loader.cpp \
 exe_elf.cpp \

@@ -5,9 +5,9 @@
 #include <iostream>
 #include <vector>
 
-#include "code_element.h"
+#include "code_elements/code_element.h"
+#include "code_elements/ce_block.h"
 #include "config.h"
-#include "ce_block.h"
 
 class function
 {

@@ -58,6 +58,7 @@ case $host_os in
   linux* )
 	BUILD_FOR="LINUX"
 	AC_DEFINE(LINUX, [1], [Enable code specific to linux])
+	AC_CHECK_LIB([udis86], [main], [], [AC_MSG_ERROR("udis86 Library not found")])
 	AC_MSG_NOTICE("Building for linux")
 	;;
   mingw32* | mingw32msvc* )
@@ -65,6 +66,7 @@ case $host_os in
 	AC_DEFINE(WINDOWS, [1], [Enable code specific to windows])
 	USE_DLLS="mingwm10.dll"	
 	AC_CHECK_LIB([ws2_32], [puts], [], [AC_MSG_ERROR("ws2_32 Library not found")])
+	AC_CHECK_LIB([udis86], [main], [], [AC_MSG_ERROR("udis86 Library not found")])
 	AC_MSG_NOTICE("Building for windows")
 	;;
   * )

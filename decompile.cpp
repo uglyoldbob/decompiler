@@ -4,10 +4,10 @@
 #include <cstring>
 #include <vector>
 
-#include "ce_block.h"
-#include "code_element.h"
-#include "code_if_else.h"
-#include "code_multi_if.h"
+#include "code_elements/ce_block.h"
+#include "code_elements/code_element.h"
+#include "code_elements/code_if_else.h"
+#include "code_elements/code_multi_if.h"
 #include "config.h"
 #include "exceptions.h"
 #include "executable.h"

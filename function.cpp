@@ -2,12 +2,12 @@
 
 #include <string>
 
-#include "code_if_else.h"
-#include "code_do_while_loop.h"
-#include "code_multi_if.h"
-#include "code_while_loop.h"
-#include "code_run.h"
-#include "ce_block.h"
+#include "code_elements/code_if_else.h"
+#include "code_elements/code_do_while_loop.h"
+#include "code_elements/code_multi_if.h"
+#include "code_elements/code_while_loop.h"
+#include "code_elements/code_run.h"
+#include "code_elements/ce_block.h"
 #include "exceptions.h"
 
 function::function(address addr, const char *n, disassembler &disas)
@@ -18,6 +18,7 @@ function::function(address addr, const char *n, disassembler &disas)
 			  << " at address 0x" << std::hex << s << std::dec << "\n";
 	gather_instructions(disas);
 	create_pieces();
+	simplify();
 	std::cout << "Done with function " << name << " ?\n";
 	std::cout << *this << std::endl;
 }
@@ -71,6 +72,7 @@ void function::gather_instructions(disassembler &disas)
 
 	for (unsigned int i = 0; i < c_blocks.size(); i++)
 	{
+		std::cout << "Block at addr 0x" << std::hex << c_blocks[i]->gets() << std::dec << std::endl;
 		while (c_blocks[i]->is_done() == 0)
 		{
 			try
@@ -89,6 +91,9 @@ void function::gather_instructions(disassembler &disas)
 				}
 				if ( (temp->destaddra != 0) && (temp->destaddrb != 0) )
 				{
+					std::cout << "Adding block at addr 0x" << std::hex << temp->destaddra << std::dec << std::endl;
+					std::cout << "Adding block at addr 0x" << std::hex << temp->destaddrb << std::dec << std::endl;
+					std::cout << "End block" << std::endl;
 					add_block(temp->destaddra, c_blocks[i]);
 					add_block(temp->destaddrb, c_blocks[i]);
 					c_blocks[i]->done();
@@ -96,6 +101,7 @@ void function::gather_instructions(disassembler &disas)
 				}
 				else if ( (temp->destaddra == 0) && (temp->destaddrb == 0) )
 				{
+					std::cout << "End block" << std::endl;
 					c_blocks[i]->done();
 					offset = 0;
 				}
@@ -187,7 +193,7 @@ void function::simplify()
 		reduced += find_if_else();
 		reduced += find_loop();
 		reduced += find_runs();
-//		find_stuff(c_blocks, actual_num_blocks, 1);
+		//find_stuff(c_blocks, actual_num_blocks, 1);
 	} while (reduced > 0);
 	if (pieces.size() > 1)
 	{
