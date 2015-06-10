@@ -7,7 +7,7 @@
 #include "code_elements/code_multi_if.h"
 #include "code_elements/code_while_loop.h"
 #include "code_elements/code_run.h"
-#include "code_elements/ce_block.h"
+#include "code_elements/code_element.h"
 #include "exceptions.h"
 
 function::function(address addr, const char *n, disassembler &disas)
@@ -18,6 +18,7 @@ function::function(address addr, const char *n, disassembler &disas)
 			  << " at address 0x" << std::hex << s << std::dec << "\n";
 	gather_instructions(disas);
 	create_pieces();
+	link_blocks();
 	simplify();
 	std::cout << "Done with function " << name << " ?\n";
 	std::cout << *this << std::endl;
@@ -66,52 +67,88 @@ std::vector<address> function::get_calls()	//get a list of addresses called as f
 void function::gather_instructions(disassembler &disas)
 {	//directly creates the blocks of code for the function based on a starting address
 	address offset = 0;
-	ce_block *first;
-	first = new ce_block(s);
+	code_element *first;
+	first = new code_element(s);
 	c_blocks.push_back(first);
 
 	for (unsigned int i = 0; i < c_blocks.size(); i++)
 	{
-		std::cout << "Block at addr 0x" << std::hex << c_blocks[i]->gets() << std::dec << std::endl;
-		while (c_blocks[i]->is_done() == 0)
+		std::cout << "Block " << i << " at addr 0x" << std::hex << c_blocks[i]->gets() << std::dec << std::endl;
+		if (check_block(c_blocks[i]))
 		{
-			try
+			for (int j = 0; j < c_blocks.size(); j++)
 			{
-				instr *temp;
-				int len;
-				len = disas.get_instruction(temp, c_blocks[i]->gets()+offset);	//gather an instruction
-				c_blocks[i]->add_line(temp);	//add it to the current block
-				add_line(temp);	//add the line to the list of all lines for the function
-				offset += len;	//adjust for the next instruction
-				//if the next instruction does not belong to this block, move to another block
-				if (temp->trace_jump != "")
+				if (c_blocks[j]->is_done() != 0)
 				{
-					std::cout << "Must trace a jump destination\n";
-					throw "Cannot trace a jump address";
+					std::cout << "Done Block " << j << " at addr 0x" << std::hex << c_blocks[j]->gets() << std::dec << std::endl;
 				}
-				if ( (temp->destaddra != 0) && (temp->destaddrb != 0) )
+				else
 				{
-					std::cout << "Adding block at addr 0x" << std::hex << temp->destaddra << std::dec << std::endl;
-					std::cout << "Adding block at addr 0x" << std::hex << temp->destaddrb << std::dec << std::endl;
-					std::cout << "End block" << std::endl;
-					add_block(temp->destaddra, c_blocks[i]);
-					add_block(temp->destaddrb, c_blocks[i]);
-					c_blocks[i]->done();
-					offset = 0;
-				}
-				else if ( (temp->destaddra == 0) && (temp->destaddrb == 0) )
-				{
-					std::cout << "End block" << std::endl;
-					c_blocks[i]->done();
-					offset = 0;
+					std::cout << "TODO Block " << j << " at addr 0x" << std::hex << c_blocks[j]->gets() << std::dec << std::endl;
 				}
 			}
-			catch (block_already_done &e)
-			{	//don't work on the block if it is already done
-				std::cout << "Block already done\n";
+			while (c_blocks[i]->is_done() == 0)
+			{
+				try
+				{
+					instr *temp;
+					int len;
+					len = disas.get_instruction(temp, c_blocks[i]->gets()+offset);	//gather an instruction
+					c_blocks[i]->add_line(temp);	//add it to the current block
+					add_line(temp);	//add the line to the list of all lines for the function
+					offset += len;	//adjust for the next instruction
+					//if the next instruction does not belong to this block, move to another block
+					if (temp->trace_jump != "")
+					{
+						std::cout << "Must trace a jump destination\n";
+						throw "Cannot trace a jump address";
+					}
+					if ( (temp->destaddra != 0) && (temp->destaddrb != 0) )
+					{
+						code_element *tmp = 0;
+						std::cout << "End block " << i << std::endl;
+						std::cout << "Adding block at addr 0x" << std::hex << temp->destaddra << std::dec << std::endl;
+						add_block(temp->destaddra, c_blocks[i]);
+						std::cout << "Installing pointer to next block\n";
+						tmp = find_block(temp->destaddra);
+						if (tmp != 0)
+							c_blocks[i]->set_a(tmp);
+						if (temp->destaddra != temp->destaddrb)
+						{
+							std::cout << "Adding block at addr 0x" << std::hex << temp->destaddrb << std::dec << std::endl;
+							add_block(temp->destaddrb, c_blocks[i]);
+						}
+						std::cout << "Installing pointer to next block\n";
+						tmp = find_block(temp->destaddrb);
+						if (tmp != 0)
+							c_blocks[i]->set_b(tmp);
+						c_blocks[i]->done();
+						offset = 0;
+					}
+					else if ( (temp->destaddra == 0) && (temp->destaddrb == 0) )
+					{
+						std::cout << "End block " << i << std::endl;
+						c_blocks[i]->done();
+						offset = 0;
+					}
+				}
+				catch (block_already_done &e)
+				{	//don't work on the block if it is already done
+					std::cout << "Block already done\n";
+				}
 			}
 		}
+		else
+		{
+			std::cout << "Removing block " << i << std::endl;
+			c_blocks.erase(c_blocks.begin()+i);
+			i--;
+		}
 	}
+}
+
+void function::link_blocks()
+{
 }
 
 void function::add_line(instr *addme)
@@ -119,8 +156,53 @@ void function::add_line(instr *addme)
 	da_lines.push_back(addme);
 }
 
+int function::check_block(code_element *ref)
+{
+	int add_it = 1;
+	
+	for (unsigned int i = 0; i < c_blocks.size(); ++i)
+	{
+		if (c_blocks[i] != ref)
+		{
+			int res = c_blocks[i]->contains(ref->gets());
+			if (res == -1)
+			{	//split the block
+				code_element *tmp;
+				code_element *temp;
+				temp = c_blocks[i]->split(ref->gets());
+				temp->add_input(ref);
+				tmp = find_block(temp->getline(-1)->destaddra);
+				if (tmp != 0)
+					temp->set_a(tmp);
+				tmp = find_block(temp->getline(-1)->destaddrb);
+				if (tmp != 0)
+					temp->set_b(tmp);
+				std::cout << "Adding new block at addr: 0x"
+						  << std::hex << temp->gets() << std::dec << std::endl;
+				c_blocks.push_back(temp);
+				temp->fprint(std::cout, 1);
+				add_it = 0;
+			}
+		}
+	}
+	std::cout << std::dec;
+	return add_it;
+}
+
+code_element *function::find_block(address start)
+{
+	for (unsigned int i = 0; i < c_blocks.size(); ++i)
+	{
+		if (c_blocks[i]->gets() == start)
+			return c_blocks[i];
+	}
+	return 0;
+}
+
 void function::add_block(address addr, code_element *ref)
 {	//consider adding a block starting at address addr
+	std::cout << "Adding new block at addr: 0x"
+			  << std::hex << addr << std::dec << std::endl;
 	int add_it = 1;
 	for (unsigned int i = 0; i < c_blocks.size(); ++i)
 	{
@@ -133,16 +215,26 @@ void function::add_block(address addr, code_element *ref)
 		}
 		else if (res == -1)
 		{	//split the block
-			ce_block *temp;
+			code_element *tmp;
+			code_element *temp;
 			temp = c_blocks[i]->split(addr);
 			temp->add_input(ref);
 			c_blocks.push_back(temp);
+			tmp = find_block(temp->getline(-1)->destaddra);
+			if (tmp != 0)
+				temp->set_a(tmp);
+			tmp = find_block(temp->getline(-1)->destaddrb);
+			if (tmp != 0)
+				temp->set_b(tmp);
+			std::cout << "Adding new block at addr: 0x"
+					  << std::hex << temp->gets() << std::dec << std::endl;
+			temp->fprint(std::cout, 1);
 			add_it = 0;
 		}
 	}
 	if (add_it)
 	{
-		ce_block *temp = new ce_block(addr);
+		code_element *temp = new code_element(addr);
 		temp->add_input(ref);
 		c_blocks.push_back(temp);
 	}
@@ -190,14 +282,26 @@ void function::simplify()
 	do
 	{
 		reduced = 0;
-		reduced += find_if_else();
-		reduced += find_loop();
-		reduced += find_runs();
+	//	reduced += find_if_else();
+	//	reduced += find_loop();
+	//	reduced += find_runs();
 		//find_stuff(c_blocks, actual_num_blocks, 1);
 	} while (reduced > 0);
 	if (pieces.size() > 1)
 	{
 		std::cout << "Failed to simplify enough (" << pieces.size() << "/" << c_blocks.size() << ")\n";
+		for (int i = 0; i < pieces.size(); i++)
+		{
+			address temp1 = 0;
+			if (pieces[i]->ga() != 0)
+				temp1 = pieces[i]->ga()->gets();
+			address temp2 = 0;
+			if (pieces[i]->gb() != 0)
+				temp2 = pieces[i]->gb()->gets();
+			std::cout << "Block " << i << ": 0x" << std::hex << pieces[i]->gets()
+					   << " flows to either 0x" << temp1 << " or 0x" 
+					   << temp2 << std::dec << std::endl;
+		}
 	}
 	else
 	{
@@ -221,11 +325,11 @@ void function::fprint(std::ostream &output)
 		output << "\t****~~~~ " << std::hex << (int)pieces[i]->gets() << std::dec
 			   << " " << pieces[i]->gins() << " inputs ";
 		if (pieces[i]->ga() != 0)
-			output << std::hex << (int)pieces[i]->ga()->gets() << std::dec
-					<< pieces[i]->ga()->gins();
+			output << std::hex << (int)pieces[i]->ga()->gets() << " " << std::dec
+					<< pieces[i]->ga()->gins() << " ";
 		if (pieces[i]->gb() != 0)
-			output << std::hex << (int)pieces[i]->gb()->gets() << std::dec
-					<< pieces[i]->gb()->gins();
+			output << std::hex << (int)pieces[i]->gb()->gets() << " " << std::dec
+					<< pieces[i]->gb()->gins() << " ";
 		output << "\n";
 		pieces[i]->fprint(output, 1);
 		output << "\t~~~~**** \n";

@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "code_elements/code_element.h"
-#include "code_elements/ce_block.h"
 #include "config.h"
 
 class function
@@ -25,7 +24,7 @@ class function
 		std::string name;
 		address s;
 		std::vector<instr*> da_lines;	//all the lines of code for the function (delete these when done)
-		std::vector<ce_block *> c_blocks;	//the basic blocks of instructions (delete these when done)
+		std::vector<code_element *> c_blocks;	//the basic blocks of instructions (delete these when done)
 		std::vector<code_element *> xblocks; //extra blocks created to simplify logic (delete these when done)
 		std::vector<code_element *> pieces;
 		void remove_piece(code_element *rmv);	//removes a piece
@@ -35,7 +34,10 @@ class function
 		void gather_instructions(disassembler &disas);
 		void create_pieces();
 		void add_line(instr *addme);	//add a line of code to the function
+		code_element* find_block(address start);
 		void add_block(address addr, code_element *ref);	//consider adding a block starting at address addr
+		int check_block(code_element *ref);
+		void link_blocks();
 		
 		//used for simplification
 		int find_if_else();

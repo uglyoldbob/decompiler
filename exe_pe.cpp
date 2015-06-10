@@ -59,11 +59,6 @@ int exe_pe::process(std::istream *me)	//do basic processing
 			//ss should be adjusted by header.header_paragraphs
 			//cs should be adjusted by header.header_paragraphs
 			
-			header.cs += header.header_paragraphs;
-			header.ss += header.header_paragraphs;
-			printf("adjusted CS: 0x%x IP: 0x%x\n", header.cs, header.ip);
-			printf("adjusted SS: 0x%x SP:0x%x\n", header.ss, header.sp);
-			
 			printf("There are %d paragraphs\n", header.header_paragraphs);
 			printf("BSS Size %d to %d paragraphs\n", header.min_extra_paragraphs, header.max_extra_paragraphs);
 			printf("Header size is 0x%x\n", header.header_paragraphs * 16);
@@ -77,16 +72,10 @@ int exe_pe::process(std::istream *me)	//do basic processing
 			{
 				exe_pe_reloc temp;
 				exe->read((char*)&temp, sizeof(temp));
-				printf("Relocation %d, offset 0x%x, segment 0x%x\n", i, temp.offset, temp.segment);
+				//printf("Relocation %d, offset 0x%x, segment 0x%x\n", i, temp.offset, temp.segment);
+				//add image start (0) to variable at temp.segment::temp.offset 
 			}
-			if (header.cs == 0)
-			{
-				starting = header.ip + 0;
-			}
-			else
-			{
-				starting = header.ip + header.cs*0x10;
-			}
+			starting = header.ip + header.cs*0x10;
 			disasm = new disass_x86(this);
 			return 0;
 		}
@@ -100,7 +89,7 @@ int exe_pe::goto_address(address addr)
 	if ((addr >= starting) && (addr <= (starting + size)))
 	{
 		bad = 0;
-		exe->seekg(addr, std::ios::beg);
+		exe->seekg(addr+header.header_paragraphs*16, std::ios::beg);
 	}
 	if (bad)
 		throw address_not_present(addr);

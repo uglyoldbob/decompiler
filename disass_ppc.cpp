@@ -86,7 +86,7 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 							new variable(arg2),
 							new variable(arg3)));
 	}
-	else if ((op == "subi") || (op == "add"))
+	else if ((op == "subi") || (op == "sub"))
 	{
 		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> arg3;
 		statement = new oper_assignment(new variable(arg1), 

@@ -23,6 +23,7 @@ int disass_x86::get_instruction(instr* &get, address addr)
 	owner->goto_address(addr);
 	owner->read_memory((void*)instr, 15);
 	ud_set_input_buffer(&u, instr, 15);
+	ud_set_pc(&u, addr);
 	ud_disassemble(&u);
 	
 	get = new class instr;
@@ -38,36 +39,38 @@ int disass_x86::get_instruction(instr* &get, address addr)
 	if (op[0] == 'j')
 	{
 		const ud_operand_t *jmp_addr = ud_insn_opr(&u, 0);
-		std::cout << "JUMP Operator is " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
-				  << std::endl;
+	//	std::cout << "JUMP Operator is " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
+	//			  << std::endl;
 		switch (jmp_addr->type)
 		{
 		case UD_OP_JIMM:
 			switch (jmp_addr->size)
 			{
 			case 8:
-				std::cout << "Jump to address8 " << std::hex << (jmp_addr->lval.sbyte + addr + ud_insn_len(&u)) << std::dec << std::endl;
+	//			std::cout << "Jump to address8 " << std::hex << (jmp_addr->lval.sbyte + addr + ud_insn_len(&u)) << std::dec << std::endl;
 				get->destaddrb = (jmp_addr->lval.sbyte + addr + ud_insn_len(&u));
 				break;
 			case 16:
-				std::cout << "Jump to address16 " << std::hex << (jmp_addr->lval.sword + addr + ud_insn_len(&u)) << std::dec << std::endl;
+	//			std::cout << "Jump to address16 " << std::hex << (jmp_addr->lval.sword + addr + ud_insn_len(&u)) << std::dec << std::endl;
 				get->destaddrb = (jmp_addr->lval.sword + addr + ud_insn_len(&u));
 				break;
 			case 32:
-				std::cout << "Jump to address32 " << std::hex << (jmp_addr->lval.sdword + addr + ud_insn_len(&u)) << std::dec << std::endl;
+	//			std::cout << "Jump to address32 " << std::hex << (jmp_addr->lval.sdword + addr + ud_insn_len(&u)) << std::dec << std::endl;
 				get->destaddrb = (jmp_addr->lval.sdword + addr + ud_insn_len(&u));
 				break;
 			case 64:
-				std::cout << "Jump to address64 " << std::hex << (jmp_addr->lval.sqword + addr + ud_insn_len(&u)) << std::dec << std::endl;
+	//			std::cout << "Jump to address64 " << std::hex << (jmp_addr->lval.sqword + addr + ud_insn_len(&u)) << std::dec << std::endl;
 				get->destaddrb = (jmp_addr->lval.sqword + addr + ud_insn_len(&u));
 				break;
 			default:
-				std::cout << "Unknown jump address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
+	//			std::cout << "Unknown jump address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
+				get->trace_jump = "??";
 				break;
 			}
 			break;
 		default:
-			std::cout << "Unknown jump address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
+	//		std::cout << "Unknown jump address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
+			get->trace_jump = "??";
 			break;
 		}
 		if (op == "jmp")
@@ -80,28 +83,82 @@ int disass_x86::get_instruction(instr* &get, address addr)
 			get->destaddra = addr + ud_insn_len(&u);
 			get->is_cbranch = 1;
 		}
-		std::cout << std::hex << addr << std::dec << ": " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
-				  << " :::: " << ud_insn_asm(&u) << " [" << ud_insn_hex(&u) << "] " 
-				  << ud_insn_len(&u) << std::endl;
+	//	std::cout << std::hex << addr << std::dec << ": " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
+	//			  << " :::: " << ud_insn_asm(&u) << " [" << ud_insn_hex(&u) << "] " 
+	//			  << ud_insn_len(&u) << std::endl;
 	}
 	else if ( (op == "loop") || (op == "loope") || (op == "loopz") || 
 				(op == "loopne") || (op == "loopnz") )
 	{
 		std::cout << "LOOP Operator is " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
+		get->trace_jump = "??";
 	}
 	else if (op == "call")
 	{
+		const ud_operand_t *jmp_addr = ud_insn_opr(&u, 0);
+	//	std::cout << "CALL Operator is " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
+	//			  << std::endl;
+		switch (jmp_addr->type)
+		{
+		case UD_OP_JIMM:
+			switch (jmp_addr->size)
+			{
+			case 8:
+	//			std::cout << "CALL to address8 " << std::hex << (jmp_addr->lval.sbyte + addr + ud_insn_len(&u)) << std::dec << std::endl;
+				get->call = (jmp_addr->lval.sbyte + addr + ud_insn_len(&u));
+				break;
+			case 16:
+	//			std::cout << "CALL to address16 " << std::hex << (jmp_addr->lval.sword + addr + ud_insn_len(&u)) << std::dec << std::endl;
+				get->call = (jmp_addr->lval.sword + addr + ud_insn_len(&u));
+				break;
+			case 32:
+	//			std::cout << "CALL to address32 " << std::hex << (jmp_addr->lval.sdword + addr + ud_insn_len(&u)) << std::dec << std::endl;
+				get->call = (jmp_addr->lval.sdword + addr + ud_insn_len(&u));
+				break;
+			case 64:
+	//			std::cout << "CALL to address64 " << std::hex << (jmp_addr->lval.sqword + addr + ud_insn_len(&u)) << std::dec << std::endl;
+				get->call = (jmp_addr->lval.sqword + addr + ud_insn_len(&u));
+				break;
+			default:
+	//			std::cout << "Unknown CALL address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
+				get->trace_call = "??";
+				break;
+			}
+			break;
+		default:
+	//		std::cout << "Unknown CALL address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
+			get->trace_call = "??";
+			break;
+		}
+	//	std::cout << std::hex << addr << std::dec << ": " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
+	//			  << " :::: " << ud_insn_asm(&u) << " [" << ud_insn_hex(&u) << "] " 
+	//			  << ud_insn_len(&u) << std::endl;
+		get->destaddra = addr + ud_insn_len(&u);
+		get->destaddrb = 0;
 	}
 	else if (op == "ret")
 	{
+		get->destaddra = 0;
+		get->destaddrb = 0;
 	}
 	else
 	{
 		get->destaddra = addr + ud_insn_len(&u);
 		get->destaddrb = 0;
-		std::cout << std::hex << addr << std::dec << ": " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
-				  << " :::: " << ud_insn_asm(&u) << " [" << ud_insn_hex(&u) << "] " 
-				  << ud_insn_len(&u) << std::endl;
+	//	std::cout << std::hex << addr << std::dec << ": " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
+	//			  << " :::: " << ud_insn_asm(&u) << " [" << ud_insn_hex(&u) << "] " 
+	//			  << ud_insn_len(&u) << std::endl;
+	}
+	
+	if ( (get->destaddra != 0) &&
+		 (get->destaddrb != 0) &&
+		 (get->destaddra != get->destaddrb) )
+	{
+		get->is_cbranch = 1;
+	}
+	else
+	{
+		get->is_cbranch = 0;
 	}
 	//throw invalid_instruction(addr);
 	

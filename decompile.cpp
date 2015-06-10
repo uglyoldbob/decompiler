@@ -4,7 +4,6 @@
 #include <cstring>
 #include <vector>
 
-#include "code_elements/ce_block.h"
 #include "code_elements/code_element.h"
 #include "code_elements/code_if_else.h"
 #include "code_elements/code_multi_if.h"

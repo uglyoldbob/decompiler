@@ -26,7 +26,6 @@ oper_assignment.cpp \
 oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
-code_elements/ce_block.cpp \
 code_elements/code_element.cpp \
 code_elements/code_if_else.cpp \
 code_elements/code_multi_if.cpp \
@@ -56,7 +55,6 @@ oper_assignment.cpp \
 oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
-code_elements/ce_block.cpp \
 code_elements/code_element.cpp \
 code_elements/code_if_else.cpp \
 code_elements/code_multi_if.cpp \
