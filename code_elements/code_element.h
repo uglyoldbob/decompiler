@@ -19,7 +19,9 @@ class code_element
 		void set_a(code_element *nwa);
 		void set_b(code_element *nwb);
 		code_element *ga();
+		int gains();
 		code_element *gb();
+		int gbins();
 		virtual void fprint(std::ostream &dest, int depth);
 		int gins();	//get ins
 		instr *getline(int num);	//-1 means get last line

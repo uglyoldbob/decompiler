@@ -119,7 +119,9 @@ int executable::load(char *bin_name)
 	std::cout << std::dec;
 	while (function_addresses.size() > 0)
 	{
-		function *tfunc = new function(function_addresses[0], *(exe_object->get_disasm()));
+		std::stringstream name;
+		name << "func_" << std::hex << function_addresses[0] << std::dec;
+		function *tfunc = new function(function_addresses[0], name.str().c_str(), *(exe_object->get_disasm()));
 		funcs.push_back(tfunc);
 		function_addresses.erase(function_addresses.begin());
 		std::vector<address> temp = funcs.back()->get_calls();
@@ -135,6 +137,10 @@ int executable::load(char *bin_name)
 	}
 
 	exe_file->close();
+	for (int i = 0; i < funcs.size(); i++)
+	{
+		delete (funcs[i]);
+	}
 	return processed;
 }
 

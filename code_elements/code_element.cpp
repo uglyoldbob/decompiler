@@ -6,7 +6,6 @@
 code_element::code_element(address addr)
 	: s(addr)
 {
-	std::cout << "Init block at 0x" << std::hex << addr << std::dec << std::endl;
 	a = 0;
 	b = 0;
 	depth = 0;
@@ -15,10 +14,10 @@ code_element::code_element(address addr)
 
 code_element::code_element(code_element* in, address start)
 {
-	std::cout << std::hex;
-	std::cout << "Split block Init block 0x" 
-			  << in->s << " at 0x" << start << std::endl;
-	std::cout << std::dec;
+	//std::cout << std::hex;
+	//std::cout << "Split block Init block 0x" 
+	//		  << in->s << " at 0x" << start << std::endl;
+	//std::cout << std::dec;
 	depth = 0;
 	finished = in->finished;
 	unsigned int i;
@@ -37,6 +36,17 @@ code_element::code_element(code_element* in, address start)
 	a = in->a;
 	b = in->b;
 	s = start;
+	if (a != 0)
+	{
+		a->remove_input(in);
+		a->add_input(this);
+	}
+	if (b != 0)
+	{
+		b->remove_input(in);
+		b->add_input(this);
+	}
+	
 
 	//now overwrite them
 	in->a = this;
@@ -54,17 +64,17 @@ code_element::code_element()
 
 code_element* code_element::split(address addr)
 {
-	std::cout << std::hex;
-	std::cout << "Split block Init block 0x" 
-			  << s << " at 0x" << addr << std::endl;
-	std::cout << std::dec;
-	fprint(std::cout, 0);
+	//std::cout << std::hex;
+	//std::cout << "Split block Init block 0x" 
+	//		  << s << " at 0x" << addr << std::endl;
+	//std::cout << std::dec;
+	//fprint(std::cout, 0);
 	
 	code_element *ret;
 	ret = new code_element(this, addr);
 
-	fprint(std::cout, 1);
-	ret->fprint(std::cout, 1);
+	//fprint(std::cout, 1);
+	//ret->fprint(std::cout, 1);
 	
 	return ret;
 }
@@ -76,7 +86,12 @@ code_element::~code_element()
 int code_element::is_cbranch()
 {	//does this element have a conditional branch at the end
 	if ((a != 0) && (b != 0))
-		return 1;
+	{
+		if (a != b)
+			return 1;
+		else
+			return 0;
+	}
 	else
 		return 0;
 }
@@ -129,7 +144,7 @@ instr *code_element::getline(int num)
 
 void code_element::done()
 {
-	fprint(std::cout, 0);
+	//fprint(std::cout, 0);
 	finished = 1;
 }
 
@@ -156,12 +171,28 @@ code_element *code_element::ga()
 		return a;
 }
 
+int code_element::gains()
+{
+	if (a == 0)
+		return b->gins();
+	else
+		return a->gins();
+}
+
 code_element *code_element::gb()
 {
 	if (a == 0)
 		return a;
 	else
 		return b;
+}
+
+int code_element::gbins()
+{
+	if (a == 0)
+		return a->gins();
+	else
+		return b->gins();
 }
 
 void code_element::add_line(instr *addme)
@@ -187,11 +218,15 @@ void code_element::fprint(std::ostream &dest, int depth)
 	dest << tabs(depth) << "/------";
 	if (depth == 0)
 	{
-		dest << std::hex << s << std::dec << " (" << lines[0]->ins << "input)";
+		dest << std::hex << s << std::dec << " (" << inputs.size() << " input)";
 	}
 	else
 	{
-		dest << std::hex << s << std::dec << " (" << lines[0]->ins << "input)";
+		dest << std::hex << s << std::dec << " (" << inputs.size() << " input) ";
+	}
+	for (int i = 0; i < inputs.size(); i++)
+	{
+		dest << std::hex << inputs[i]->gets() << std::dec << " ";  
 	}
 	dest << "\n";	
 	for (unsigned int k = 0; k < lines.size(); k++)
@@ -207,15 +242,23 @@ void code_element::fprint(std::ostream &dest, int depth)
 	{
 		if (a != 0)
 			dest << std::hex << a->gets() << std::dec << " ";
+		else
+			dest << "NULL ";
 		if (b != 0)
 			dest << std::hex << b->gets() << std::dec << " ";
+		else
+			dest << "NULL ";
 	}
 	else
 	{
 		if (a != 0)
 			dest << std::hex << a->gets() << std::dec << " ";
+		else
+			dest << "NULL ";
 		if (b != 0)
 			dest << std::hex << b->gets() << std::dec << " ";
+		else
+			dest << "NULL ";
 	}
 	dest << "\n";
 }

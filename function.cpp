@@ -73,20 +73,9 @@ void function::gather_instructions(disassembler &disas)
 
 	for (unsigned int i = 0; i < c_blocks.size(); i++)
 	{
-		std::cout << "Block " << i << " at addr 0x" << std::hex << c_blocks[i]->gets() << std::dec << std::endl;
+		//std::cout << "Block " << i << " at addr 0x" << std::hex << c_blocks[i]->gets() << std::dec << std::endl;
 		if (check_block(c_blocks[i]))
 		{
-			for (int j = 0; j < c_blocks.size(); j++)
-			{
-				if (c_blocks[j]->is_done() != 0)
-				{
-					std::cout << "Done Block " << j << " at addr 0x" << std::hex << c_blocks[j]->gets() << std::dec << std::endl;
-				}
-				else
-				{
-					std::cout << "TODO Block " << j << " at addr 0x" << std::hex << c_blocks[j]->gets() << std::dec << std::endl;
-				}
-			}
 			while (c_blocks[i]->is_done() == 0)
 			{
 				try
@@ -106,19 +95,19 @@ void function::gather_instructions(disassembler &disas)
 					if ( (temp->destaddra != 0) && (temp->destaddrb != 0) )
 					{
 						code_element *tmp = 0;
-						std::cout << "End block " << i << std::endl;
-						std::cout << "Adding block at addr 0x" << std::hex << temp->destaddra << std::dec << std::endl;
+					//	std::cout << "End block " << i << std::endl;
+					//	std::cout << "Adding block at addr 0x" << std::hex << temp->destaddra << std::dec << std::endl;
 						add_block(temp->destaddra, c_blocks[i]);
-						std::cout << "Installing pointer to next block\n";
+					//	std::cout << "Installing pointer to next block\n";
 						tmp = find_block(temp->destaddra);
 						if (tmp != 0)
 							c_blocks[i]->set_a(tmp);
 						if (temp->destaddra != temp->destaddrb)
 						{
-							std::cout << "Adding block at addr 0x" << std::hex << temp->destaddrb << std::dec << std::endl;
+					//		std::cout << "Adding block at addr 0x" << std::hex << temp->destaddrb << std::dec << std::endl;
 							add_block(temp->destaddrb, c_blocks[i]);
 						}
-						std::cout << "Installing pointer to next block\n";
+					//	std::cout << "Installing pointer to next block\n";
 						tmp = find_block(temp->destaddrb);
 						if (tmp != 0)
 							c_blocks[i]->set_b(tmp);
@@ -127,7 +116,7 @@ void function::gather_instructions(disassembler &disas)
 					}
 					else if ( (temp->destaddra == 0) && (temp->destaddrb == 0) )
 					{
-						std::cout << "End block " << i << std::endl;
+					//	std::cout << "End block " << i << std::endl;
 						c_blocks[i]->done();
 						offset = 0;
 					}
@@ -140,7 +129,7 @@ void function::gather_instructions(disassembler &disas)
 		}
 		else
 		{
-			std::cout << "Removing block " << i << std::endl;
+		//	std::cout << "Removing block " << i << std::endl;
 			c_blocks.erase(c_blocks.begin()+i);
 			i--;
 		}
@@ -177,10 +166,10 @@ int function::check_block(code_element *ref)
 				tmp = find_block(temp->getline(-1)->destaddrb);
 				if (tmp != 0)
 					temp->set_b(tmp);
-				std::cout << "Adding new block at addr: 0x"
-						  << std::hex << temp->gets() << std::dec << std::endl;
+			//	std::cout << "Adding new block at addr: 0x"
+			//			  << std::hex << temp->gets() << std::dec << std::endl;
 				c_blocks.push_back(temp);
-				temp->fprint(std::cout, 1);
+			//	temp->fprint(std::cout, 1);
 				add_it = 0;
 			}
 		}
@@ -201,8 +190,8 @@ code_element *function::find_block(address start)
 
 void function::add_block(address addr, code_element *ref)
 {	//consider adding a block starting at address addr
-	std::cout << "Adding new block at addr: 0x"
-			  << std::hex << addr << std::dec << std::endl;
+	//std::cout << "Adding new block at addr: 0x"
+	//		  << std::hex << addr << std::dec << std::endl;
 	int add_it = 1;
 	for (unsigned int i = 0; i < c_blocks.size(); ++i)
 	{
@@ -226,9 +215,9 @@ void function::add_block(address addr, code_element *ref)
 			tmp = find_block(temp->getline(-1)->destaddrb);
 			if (tmp != 0)
 				temp->set_b(tmp);
-			std::cout << "Adding new block at addr: 0x"
-					  << std::hex << temp->gets() << std::dec << std::endl;
-			temp->fprint(std::cout, 1);
+			//std::cout << "Adding new block at addr: 0x"
+			//		  << std::hex << temp->gets() << std::dec << std::endl;
+			//temp->fprint(std::cout, 1);
 			add_it = 0;
 		}
 	}
@@ -282,10 +271,11 @@ void function::simplify()
 	do
 	{
 		reduced = 0;
-	//	reduced += find_if_else();
-	//	reduced += find_loop();
-	//	reduced += find_runs();
+		reduced += find_if_else();
+		reduced += find_loop();
+		reduced += find_runs();
 		//find_stuff(c_blocks, actual_num_blocks, 1);
+		std::cout << "Reduced by " << reduced << " blocks\n";
 	} while (reduced > 0);
 	if (pieces.size() > 1)
 	{
@@ -298,9 +288,9 @@ void function::simplify()
 			address temp2 = 0;
 			if (pieces[i]->gb() != 0)
 				temp2 = pieces[i]->gb()->gets();
-			std::cout << "Block " << i << ": 0x" << std::hex << pieces[i]->gets()
-					   << " flows to either 0x" << temp1 << " or 0x" 
-					   << temp2 << std::dec << std::endl;
+			//std::cout << "Block " << i << ": 0x" << std::hex << pieces[i]->gets()
+			//		   << " flows to either 0x" << temp1 << " or 0x" 
+			//		   << temp2 << std::dec << std::endl;
 		}
 	}
 	else
@@ -322,17 +312,8 @@ void function::fprint(std::ostream &output)
 	output << "? " << name << "(?)\n{\n";
 	for (i = 0; i < pieces.size(); i++)
 	{
-		output << "\t****~~~~ " << std::hex << (int)pieces[i]->gets() << std::dec
-			   << " " << pieces[i]->gins() << " inputs ";
-		if (pieces[i]->ga() != 0)
-			output << std::hex << (int)pieces[i]->ga()->gets() << " " << std::dec
-					<< pieces[i]->ga()->gins() << " ";
-		if (pieces[i]->gb() != 0)
-			output << std::hex << (int)pieces[i]->gb()->gets() << " " << std::dec
-					<< pieces[i]->gb()->gins() << " ";
-		output << "\n";
+		output << "***************************** " << i << "\n";
 		pieces[i]->fprint(output, 1);
-		output << "\t~~~~**** \n";
 	}
 	output << "}\n";
 }
@@ -343,31 +324,31 @@ int function::find_runs()
 	int found = 0;
 	for (i = 0; i < pieces.size(); i++)
 	{
-		if ((pieces[i]->is_cbranch() != 1) && (pieces[i]->ga() != 0))
+		if ((pieces[i]->is_cbranch() != 1) && 
+			(pieces[i]->ga() != 0) &&
+			(pieces[i]->gains() == 1) )
 		{
-			if (pieces[i]->ga()->gins() == 1)
+			std::vector<code_element*> lisp;
+			code_run *temp;
+			temp = new code_run;
+			unsigned int j;
+			lisp.push_back(pieces[i]);
+			while ((lisp.back()->is_cbranch() != 1) && (lisp.back()->ga() != 0) && 
+					(lisp.back()->gains() == 1))
 			{
-				std::vector<code_element*> lisp;
-				code_run *temp;
-				temp = new code_run;
-				unsigned int j;
-				lisp.push_back(pieces[i]);
-				while ((lisp.back()->is_cbranch() != 1) && (lisp.back()->ga()->gins() == 1))
+				lisp.push_back(lisp.back()->ga());
+			}
+			if (lisp.size() > 1)
+			{
+				for (j = 0; j < lisp.size(); j++)
 				{
-					lisp.push_back(lisp.back()->ga());
+					temp->add_element(lisp[j]);
+					if (j != 0)
+						remove_piece(lisp[j]);
 				}
-				if (lisp.size() > 1)
-				{
-					for (j = 0; j < lisp.size(); j++)
-					{
-						temp->add_element(lisp[j]);
-						if (j != 0)
-							remove_piece(lisp[j]);
-					}
-					temp->done();
-					replace_references(pieces[i], temp);
-					found++;
-				}
+				temp->done();
+				replace_references(pieces[i], temp);
+				found++;
 			}
 		}
 	}
@@ -443,8 +424,8 @@ int function::do_multi_if(int i)
 	do
 	{
 		done = 1;
-		if ( (list.back()->ga()->gins() > 1) &&
-			(list.back()->gb()->gins() == 1) )
+		if ( (list.back()->gains() > 1) &&
+			(list.back()->gbins() == 1) )
 		{
 			if (list.back()->gb()->is_cbranch() == 1)
 			{
@@ -464,8 +445,8 @@ int function::do_multi_if(int i)
 				}
 			}
 		}
-		else if ( (list.back()->gb()->gins() > 1) &&
-			(list.back()->ga()->gins() == 1) )
+		else if ( (list.back()->gbins() > 1) &&
+			(list.back()->gains() == 1) )
 		{
 			if (list.back()->ga()->is_cbranch() == 1)
 			{
@@ -528,11 +509,11 @@ int function::do_multi_if(int i)
 						temp->set_final(common->ga());
 						temp->finish_or_no_else();
 						remove_piece(common);
-						if (common->ga()->gins() > 1)
+						if (common->gains() > 1)
 						{
 							//common->ga()->dins(1);
 						}
-						else if (common->ga()->gins() == 1)
+						else if (common->gains() == 1)
 						{
 							remove_piece(common->ga());
 						}
@@ -559,11 +540,11 @@ int function::do_multi_if(int i)
 						temp->finish_with_else();
 						remove_piece(common);
 						remove_piece(list.back()->gb());
-						if (common->ga()->gins() > 1)
+						if (common->gains() > 1)
 						{
 							//common->ga()->dins(1);
 						}
-						else if (common->ga()->gins() == 1)
+						else if (common->gains() == 1)
 						{
 							remove_piece(common->ga());
 						}
@@ -590,11 +571,11 @@ int function::do_multi_if(int i)
 						temp->finish_with_else();
 						remove_piece(common);
 						remove_piece(list.back()->ga());
-						if (common->ga()->gins() > 1)
+						if (common->gains() > 1)
 						{
 							//common->ga()->dins(1);
 						}
-						else if (common->ga()->gins() == 1)
+						else if (common->gains() == 1)
 						{
 							remove_piece(common->ga());
 						}
@@ -624,8 +605,8 @@ int function::do_if_else(int i)
 		if ( (lcb.back()->ga()->is_cbranch() == 1) &&
 				(lcb.back()->gb()->is_cbranch() != 1) )
 		{	//a is conditional, b is not
-			if ( (lcb.back()->ga()->gb()->gins() == 1) &&
-				 (lcb.back()->gb()->gins() == 1) )
+			if ( (lcb.back()->ga()->gbins() == 1) &&
+				 (lcb.back()->gbins() == 1) )
 			{
 				if (end_b == 0)
 				{	//nothing to compare to
@@ -653,8 +634,8 @@ int function::do_if_else(int i)
 		if ( (lcb.back()->gb()->is_cbranch() == 1) &&
 					(lcb.back()->ga()->is_cbranch() != 1) )
 		{	//b is conditional, a is not
-			if ( (lcb.back()->gb()->gb()->gins() == 1) &&
-				 (lcb.back()->ga()->gins() == 1) )
+			if ( (lcb.back()->gb()->gbins() == 1) &&
+				 (lcb.back()->gains() == 1) )
 			{
 				if (end_b == 0)
 				{
@@ -684,9 +665,10 @@ int function::do_if_else(int i)
 				(lcb.back()->ga()->ga() == lcb.back()->gb()->ga()) &&
 				(done == 1) )
 		{	//neither a nor b are conditional
-			if ( (lcb.back()->ga()->gins() == 1) &&
-					(lcb.back()->gb()->gins() == 1) &&
-					(lcb.back()->ga()->ga()->gins() >= (ecb.size()+2)) )
+			if ( (lcb.back()->gains() == 1) &&
+					(lcb.back()->gbins() == 1) &&
+					(lcb.back()->ga()->ga() != 0) &&
+					(lcb.back()->ga()->gains() >= (ecb.size()+2)) )
 			{
 				ecb.push_back(lcb.back()->ga());
 				helse = lcb.back()->gb();
@@ -706,7 +688,7 @@ int function::do_if_else(int i)
 				}
 				temp->set_else(helse);
 				remove_piece(helse);
-				if (helse->ga()->gins() == (ecb.size()+1))
+				if (helse->gains() == (ecb.size()+1))
 				{
 					temp->set_last(helse->ga());
 					remove_piece(helse->ga());
@@ -820,16 +802,16 @@ int function::find_if_else()
 			}
 			if (found == 0)
 			{
-				if ( (pieces[i]->ga()->gins() == 1) &&
-						(pieces[i]->gb()->gins() == 1))
+				if ( (pieces[i]->gains() == 1) &&
+						(pieces[i]->gbins() == 1))
 				{
 					found += do_if_else(i);
 				}
 			}
 			if (found == 0)
 			{
-				if ( (pieces[i]->gb()->gins() > 1) ||
-					(pieces[i]->ga()->gins() > 1) )
+				if ( (pieces[i]->gbins() > 1) ||
+					(pieces[i]->gains() > 1) )
 				{
 					found += do_multi_if(i);
 				}
