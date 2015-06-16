@@ -19,7 +19,8 @@ code_element::code_element(code_element* in, address start)
 	//		  << in->s << " at 0x" << start << std::endl;
 	//std::cout << std::dec;
 	depth = 0;
-	finished = in->finished;
+	if (finished)
+		in->done();
 	unsigned int i;
 	for (i = 0; i < in->lines.size(); ++i)
 	{
@@ -72,6 +73,7 @@ code_element* code_element::split(address addr)
 	
 	code_element *ret;
 	ret = new code_element(this, addr);
+	ret->finished = this->finished;
 
 	//fprint(std::cout, 1);
 	//ret->fprint(std::cout, 1);
@@ -145,6 +147,9 @@ instr *code_element::getline(int num)
 void code_element::done()
 {
 	//fprint(std::cout, 0);
+//	std::cout << std::hex;
+//	std::cout << "Block at 0x" << s << " being marked as done\n";
+//	std::cout << std::dec;
 	finished = 1;
 }
 
@@ -241,24 +246,44 @@ void code_element::fprint(std::ostream &dest, int depth)
 	if (depth == 0)
 	{
 		if (a != 0)
+		{
 			dest << std::hex << a->gets() << std::dec << " ";
+			dest << std::hex << a << std::dec << " ";
+		}
 		else
+		{
 			dest << "NULL ";
+		}
 		if (b != 0)
+		{
 			dest << std::hex << b->gets() << std::dec << " ";
+			dest << std::hex << b << std::dec << " ";
+		}
 		else
+		{
 			dest << "NULL ";
+		}
 	}
 	else
 	{
 		if (a != 0)
+		{
 			dest << std::hex << a->gets() << std::dec << " ";
+			dest << std::hex << a << std::dec << " ";
+		}
 		else
+		{
 			dest << "NULL ";
+		}
 		if (b != 0)
+		{
 			dest << std::hex << b->gets() << std::dec << " ";
+			dest << std::hex << b << std::dec << " ";
+		}
 		else
+		{
 			dest << "NULL ";
+		}
 	}
 	dest << "\n";
 }
@@ -270,6 +295,9 @@ address code_element::gets()
 
 void code_element::add_input(code_element *ref)
 {
+//	std::cout << std::hex;
+//	std::cout << "Add 0x" << ref->gets() << " to 0x" << s << std::endl;
+//	std::cout << std::dec;
 	char add = 1;
 	for (unsigned int i = 0; i < inputs.size(); ++i)
 	{
@@ -285,6 +313,10 @@ void code_element::add_input(code_element *ref)
 
 void code_element::remove_input(code_element *me)	//decrease ins
 {
+//	std::cout << std::hex;
+//	std::cout << "Remove 0x" << me->gets() << " from 0x" << s << std::endl;
+//	std::cout << std::dec;
+	
 	for (unsigned int i = 0; i < inputs.size(); ++i)
 	{
 		if (inputs[i] == me)

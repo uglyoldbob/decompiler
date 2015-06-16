@@ -32,10 +32,12 @@ class executable
 		executable();
 		~executable();
 		int load(char *bin_name);
+		int output(char *fld_name);
 	private:
 		int check_pe(std::istream *me);
 		int rbo;	//used to signal reversed byte order
 		std::ifstream *exe_file;
+		std::string folder;
 		EXECUTABLE_TYPE exe_type;
 		exe_loader *exe_object;
 		

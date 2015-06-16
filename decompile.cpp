@@ -63,6 +63,14 @@ int main(int argc, char *argv[])
 	int retval = 0;
 	try
 	{
+		if (argc < 3)
+		{
+			program.output("./default");
+		}
+		else if (argc >= 3)
+		{
+			program.output(argv[2]);
+		}
 		if (argc < 2)
 		{
 			program.load(argv[0]);

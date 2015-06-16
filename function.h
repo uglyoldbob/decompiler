@@ -17,6 +17,7 @@ class function
 		std::vector<address> get_calls();	//get a list of addresses called as functions
 		void simplify();
 		void set_name(const char *to);
+		void output_graph_data(std::string fld_name);
 		std::string get_name();
 		address gets();
 		friend std::ostream& operator << (std::ostream& output, function &me);
@@ -29,6 +30,7 @@ class function
 		std::vector<code_element *> pieces;
 		void remove_piece(code_element *rmv);	//removes a piece
 		void replace_references(code_element *old, code_element *nw);
+		void replace_cblock_references(code_element *old, code_element *nw);
 
 		//constructor helpers
 		void gather_instructions(disassembler &disas);

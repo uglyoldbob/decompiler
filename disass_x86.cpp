@@ -64,18 +64,38 @@ int disass_x86::get_instruction(instr* &get, address addr)
 				break;
 			default:
 	//			std::cout << "Unknown jump address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
-				get->trace_jump = "??";
+				get->trace_jump = "unknown size??";
 				break;
 			}
 			break;
+		case UD_OP_MEM:
+			std::cout << "Unknown jump memory reference" << std::endl;
+			get->trace_jump = "memory ref??";
+			break;
+		case UD_OP_PTR:
+			get->destaddrb = (jmp_addr->lval.ptr.seg*0x10 + jmp_addr->lval.ptr.off);
+			break;
+		case UD_OP_IMM:
+			std::cout << "Unknown jump immediate" << std::endl;
+			get->trace_jump = "immediate??";
+			break;
+		case UD_OP_CONST:
+			std::cout << "Unknown jump const" << std::endl;
+			get->trace_jump = "const??";
+			break;
+		case UD_OP_REG:
+			std::cout << "Unknown jump register" << std::endl;
+			get->trace_jump = "register??";
+			break;
 		default:
-	//		std::cout << "Unknown jump address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
-			get->trace_jump = "??";
+			std::cout << "Unknown jump address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
+			get->trace_jump = "not an immediate??";
 			break;
 		}
 		if (op == "jmp")
 		{
 			get->destaddra = get->destaddrb;
+			get->destaddrb = 0;
 			get->is_cbranch = 0;
 		}
 		else
@@ -83,9 +103,11 @@ int disass_x86::get_instruction(instr* &get, address addr)
 			get->destaddra = addr + ud_insn_len(&u);
 			get->is_cbranch = 1;
 		}
-	//	std::cout << std::hex << addr << std::dec << ": " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
-	//			  << " :::: " << ud_insn_asm(&u) << " [" << ud_insn_hex(&u) << "] " 
-	//			  << ud_insn_len(&u) << std::endl;
+	/*	std::cout << std::hex << addr << ": " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
+				  << " :::: " << ud_insn_asm(&u) << " [" << ud_insn_hex(&u) << "] " 
+				  << ud_insn_len(&u) << " " << get->destaddra << " " << get->destaddrb << " " 
+				  << get->is_cbranch 
+				  << std::dec << std::endl;*/
 	}
 	else if ( (op == "loop") || (op == "loope") || (op == "loopz") || 
 				(op == "loopne") || (op == "loopnz") )

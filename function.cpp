@@ -1,5 +1,7 @@
 #include "function.h"
 
+#include <iostream>
+#include <fstream>
 #include <string>
 
 #include "code_elements/code_if_else.h"
@@ -19,6 +21,7 @@ function::function(address addr, const char *n, disassembler &disas)
 	gather_instructions(disas);
 	create_pieces();
 	link_blocks();
+	//fprint(std::cout);
 	simplify();
 	std::cout << "Done with function " << name << " ?\n";
 	std::cout << *this << std::endl;
@@ -76,6 +79,7 @@ void function::gather_instructions(disassembler &disas)
 		//std::cout << "Block " << i << " at addr 0x" << std::hex << c_blocks[i]->gets() << std::dec << std::endl;
 		if (check_block(c_blocks[i]))
 		{
+		//	std::cout << "...doing block\n";
 			while (c_blocks[i]->is_done() == 0)
 			{
 				try
@@ -86,37 +90,37 @@ void function::gather_instructions(disassembler &disas)
 					c_blocks[i]->add_line(temp);	//add it to the current block
 					add_line(temp);	//add the line to the list of all lines for the function
 					offset += len;	//adjust for the next instruction
-					//if the next instruction does not belong to this block, move to another block
+					
 					if (temp->trace_jump != "")
 					{
-						std::cout << "Must trace a jump destination\n";
+						std::cout << "Must trace a jump destination [" << temp->trace_jump << "]\n\t"
+								   << temp->comment << "\n";
 						throw "Cannot trace a jump address";
 					}
 					if ( (temp->destaddra != 0) && (temp->destaddrb != 0) )
-					{
+					{	//it is the end of the block if the instruction has two destinations
 						code_element *tmp = 0;
-					//	std::cout << "End block " << i << std::endl;
-					//	std::cout << "Adding block at addr 0x" << std::hex << temp->destaddra << std::dec << std::endl;
-						add_block(temp->destaddra, c_blocks[i]);
-					//	std::cout << "Installing pointer to next block\n";
-						tmp = find_block(temp->destaddra);
-						if (tmp != 0)
-							c_blocks[i]->set_a(tmp);
-						if (temp->destaddra != temp->destaddrb)
-						{
-					//		std::cout << "Adding block at addr 0x" << std::hex << temp->destaddrb << std::dec << std::endl;
-							add_block(temp->destaddrb, c_blocks[i]);
-						}
-					//	std::cout << "Installing pointer to next block\n";
-						tmp = find_block(temp->destaddrb);
-						if (tmp != 0)
-							c_blocks[i]->set_b(tmp);
 						c_blocks[i]->done();
+						add_block(temp->destaddra, c_blocks[i]);
+						add_block(temp->destaddrb, c_blocks[i]);
+						offset = 0;
+					}
+					else if ( (temp->destaddra != 0) && (temp->destaddrb == 0) && (temp->destaddra != c_blocks[i]->gets()+offset) )
+					{	//if the next instruction is not immediately after this one, it belongs to another block
+						code_element *tmp = 0;
+						c_blocks[i]->done();
+						add_block(temp->destaddra, c_blocks[i]);
+						offset = 0;
+					}
+					else if ( (temp->destaddrb != 0) && (temp->destaddra == 0) && (temp->destaddrb != c_blocks[i]->gets()+offset) )
+					{	//if the next instruction is not immediately after this one, it belongs to another block
+						code_element *tmp = 0;
+						c_blocks[i]->done();
+						add_block(temp->destaddrb, c_blocks[i]);
 						offset = 0;
 					}
 					else if ( (temp->destaddra == 0) && (temp->destaddrb == 0) )
-					{
-					//	std::cout << "End block " << i << std::endl;
+					{	//it is the end of the block if the instruction goes nowhere
 						c_blocks[i]->done();
 						offset = 0;
 					}
@@ -129,8 +133,10 @@ void function::gather_instructions(disassembler &disas)
 		}
 		else
 		{
-		//	std::cout << "Removing block " << i << std::endl;
+			code_element *old = c_blocks[i];
 			c_blocks.erase(c_blocks.begin()+i);
+			code_element *replace = find_block(old->gets());
+			replace_cblock_references(old, replace);
 			i--;
 		}
 	}
@@ -145,13 +151,14 @@ void function::add_line(instr *addme)
 	da_lines.push_back(addme);
 }
 
+//check to see if another block already duplicates this one
 int function::check_block(code_element *ref)
 {
 	int add_it = 1;
 	
 	for (unsigned int i = 0; i < c_blocks.size(); ++i)
 	{
-		if (c_blocks[i] != ref)
+		if (c_blocks[i]->gets() != ref->gets())
 		{
 			int res = c_blocks[i]->contains(ref->gets());
 			if (res == -1)
@@ -162,19 +169,23 @@ int function::check_block(code_element *ref)
 				temp->add_input(ref);
 				tmp = find_block(temp->getline(-1)->destaddra);
 				if (tmp != 0)
+				{
 					temp->set_a(tmp);
+				}
 				tmp = find_block(temp->getline(-1)->destaddrb);
 				if (tmp != 0)
+				{ 
 					temp->set_b(tmp);
-			//	std::cout << "Adding new block at addr: 0x"
-			//			  << std::hex << temp->gets() << std::dec << std::endl;
+				}
 				c_blocks.push_back(temp);
-			//	temp->fprint(std::cout, 1);
+				add_it = 0;
+			}
+			else if (res == 1)
+			{
 				add_it = 0;
 			}
 		}
 	}
-	std::cout << std::dec;
 	return add_it;
 }
 
@@ -196,9 +207,17 @@ void function::add_block(address addr, code_element *ref)
 	for (unsigned int i = 0; i < c_blocks.size(); ++i)
 	{
 		int res = c_blocks[i]->contains(addr);
+			
 		if (res == 1)
 		{
+			code_element *tmp;
 			c_blocks[i]->add_input(ref);
+			tmp = find_block(ref->getline(-1)->destaddra);
+			if (tmp != 0)
+				ref->set_a(tmp);
+			tmp = find_block(ref->getline(-1)->destaddrb);
+			if (tmp != 0)
+				ref->set_b(tmp);
 			add_it = 0;
 			break;
 		}
@@ -215,9 +234,6 @@ void function::add_block(address addr, code_element *ref)
 			tmp = find_block(temp->getline(-1)->destaddrb);
 			if (tmp != 0)
 				temp->set_b(tmp);
-			//std::cout << "Adding new block at addr: 0x"
-			//		  << std::hex << temp->gets() << std::dec << std::endl;
-			//temp->fprint(std::cout, 1);
 			add_it = 0;
 		}
 	}
@@ -225,6 +241,14 @@ void function::add_block(address addr, code_element *ref)
 	{
 		code_element *temp = new code_element(addr);
 		temp->add_input(ref);
+		if (ref->getline(-1)->destaddra == temp->gets())
+		{
+			ref->set_a(temp);
+		}
+		if (ref->getline(-1)->destaddrb == temp->gets())
+		{
+			ref->set_b(temp);
+		}
 		c_blocks.push_back(temp);
 	}
 }
@@ -250,6 +274,17 @@ void function::remove_piece(code_element *rmv)
 			removed++;
 			pieces.erase(pieces.begin() + i);
 		}
+	}
+}
+
+void function::replace_cblock_references(code_element *old, code_element *nw)
+{
+	unsigned int i;
+	for (i = 0; i < c_blocks.size(); i++)
+	{
+		if (c_blocks[i] == old)
+			c_blocks[i] = nw;
+		c_blocks[i]->replace_references(old, nw);
 	}
 }
 
@@ -312,10 +347,34 @@ void function::fprint(std::ostream &output)
 	output << "? " << name << "(?)\n{\n";
 	for (i = 0; i < pieces.size(); i++)
 	{
-		output << "***************************** " << i << "\n";
+		output << "***************************** " << i << " ";
+		output << std::hex << pieces[i] 
+			   << " 0x" << pieces[i]->gets() << std::dec << "\n";
 		pieces[i]->fprint(output, 1);
 	}
 	output << "}\n";
+}
+
+void function::output_graph_data(std::string fld_name)
+{
+	std::string outname = fld_name + "/" + name + ".gv";
+	std::ofstream output;
+	output.open(outname, std::ios::out);
+	output << "digraph " << name << "{\n";
+	output << std::hex;
+	for (int i = 0; i < pieces.size(); i++)
+	{
+		if (pieces[i]->ga() != 0)
+			output << "\tX" << pieces[i]->gets()// << "_" << pieces[i] 
+				   << " -> X" << pieces[i]->ga()->gets()// << "_" << pieces[i]->ga()  
+				   << " [ label=a ];\n";
+		if ( (pieces[i]->gb() != 0) && (pieces[i]->ga() != pieces[i]->gb()) )
+			output << "\tX" << pieces[i]->gets()// << "_" << pieces[i] 
+				   << " -> X" << pieces[i]->gb()->gets()// << "_" << pieces[i]->gb() 
+				   << " [ label=b ];\n";
+	}
+	output << "}\n";
+	output.close();
 }
 
 int function::find_runs()

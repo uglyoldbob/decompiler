@@ -1,3 +1,5 @@
+#include <sys/stat.h>
+
 #include "disassembler.h"
 #include "exceptions.h"
 #include "executable.h"
@@ -50,6 +52,26 @@ int executable::check_pe(std::istream *me)
 	}
 
 	return 0;
+}
+
+int executable::output(char *fld_name)
+{
+	std::cout << "Writing outputs to folder " << fld_name << std::endl;
+	folder = fld_name;
+	int status = mkdir(fld_name, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	if (status == -1)
+	{
+		switch (errno)
+		{
+		case EEXIST:
+			break;
+		default:
+			std::cout << "Status: " << status << " " << errno << std::endl;
+			throw "Could not create output folder";
+			break;
+		}	
+	}
+	return status;
 }
 
 int executable::load(char *bin_name)
@@ -105,6 +127,7 @@ int executable::load(char *bin_name)
 	function *start;
 	std::vector<address> function_addresses;	//a list of function start addresses
 	start = new function(exe_object->entry_addr(), exe_object->entry_name(), *(exe_object->get_disasm()));
+	start->output_graph_data(folder);
 	funcs.push_back(start);
 	std::vector<address> temp = funcs.back()->get_calls();
 	std::cout << std::hex;
@@ -122,6 +145,7 @@ int executable::load(char *bin_name)
 		std::stringstream name;
 		name << "func_" << std::hex << function_addresses[0] << std::dec;
 		function *tfunc = new function(function_addresses[0], name.str().c_str(), *(exe_object->get_disasm()));
+		tfunc->output_graph_data(folder);
 		funcs.push_back(tfunc);
 		function_addresses.erase(function_addresses.begin());
 		std::vector<address> temp = funcs.back()->get_calls();
