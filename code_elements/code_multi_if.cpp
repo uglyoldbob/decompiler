@@ -120,6 +120,22 @@ void code_multi_if::fprint(std::ostream &dest, int depth)
 	dest << "\n";
 }
 
+void code_multi_if::print_graph(std::ostream &dest)
+{
+	dest << "#multi if\n";
+	for (int i = 0; i < ifs.size(); i++)
+	{
+		ifs[i]->print_graph(dest);
+	}
+	if (common_block != 0)
+		common_block->print_graph(dest);
+	if (helse != 0)
+		helse->print_graph(dest);
+	if (thefinal != 0)
+		thefinal->print_graph(dest);
+	dest << "#end multi if\n";
+}
+
 void code_multi_if::set_else(code_element *e)
 {
 	helse = e;

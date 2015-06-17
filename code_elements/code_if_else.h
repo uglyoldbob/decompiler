@@ -17,6 +17,7 @@ class code_if_else : public code_element
 		void set_else(code_element *h);
 		void set_last(code_element *l);
 		void set_next(code_element *l);	//when the final element cannot be merged into this block
+		virtual void print_graph(std::ostream &dest);
 	private:
 		std::vector<code_element*>lcb;	//the logic blocks
 		std::vector<code_element*>ecb;	//the executing blocks

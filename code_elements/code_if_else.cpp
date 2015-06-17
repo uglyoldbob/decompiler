@@ -111,3 +111,17 @@ void code_if_else::fprint(std::ostream &dest, int depth)
 	}
 	dest << "\n";
 }
+
+void code_if_else::print_graph(std::ostream &dest)
+{
+	dest << "#if else\n";
+	for (int i = 0; i < lcb.size(); i++)
+		lcb[i]->print_graph(dest);
+	for (int i = 0; i < ecb.size(); i++)
+		ecb[i]->print_graph(dest);
+	if (helse != 0)
+		helse->print_graph(dest);
+	if (next != 0)
+		next->print_graph(dest);
+	dest << "#end if else\n";
+}

@@ -16,15 +16,15 @@ function::function(address addr, const char *n, disassembler &disas)
 	: name(n)
 {
 	s = addr;
-	std::cout << "Function " << name
-			  << " at address 0x" << std::hex << s << std::dec << "\n";
+	//std::cout << "Function " << name
+	//		  << " at address 0x" << std::hex << s << std::dec << "\n";
 	gather_instructions(disas);
 	create_pieces();
 	link_blocks();
 	//fprint(std::cout);
-	simplify();
-	std::cout << "Done with function " << name << " ?\n";
-	std::cout << *this << std::endl;
+//	simplify();
+	//std::cout << "Done with function " << name << " ?\n";
+	//std::cout << *this << std::endl;
 }
 
 function::function(address addr, disassembler &disas)
@@ -95,6 +95,7 @@ void function::gather_instructions(disassembler &disas)
 					{
 						std::cout << "Must trace a jump destination [" << temp->trace_jump << "]\n\t"
 								   << temp->comment << "\n";
+					   c_blocks[i]->fprint(std::cout, 2);
 						throw "Cannot trace a jump address";
 					}
 					if ( (temp->destaddra != 0) && (temp->destaddrb != 0) )
@@ -310,11 +311,11 @@ void function::simplify()
 		reduced += find_loop();
 		reduced += find_runs();
 		//find_stuff(c_blocks, actual_num_blocks, 1);
-		std::cout << "Reduced by " << reduced << " blocks\n";
+		//std::cout << "Reduced by " << reduced << " blocks\n";
 	} while (reduced > 0);
 	if (pieces.size() > 1)
 	{
-		std::cout << "Failed to simplify enough (" << pieces.size() << "/" << c_blocks.size() << ")\n";
+		//std::cout << "Failed to simplify enough (" << pieces.size() << "/" << c_blocks.size() << ")\n";
 		for (int i = 0; i < pieces.size(); i++)
 		{
 			address temp1 = 0;
@@ -330,7 +331,7 @@ void function::simplify()
 	}
 	else
 	{
-		std::cout << "Logic fully reduced\n";
+		//std::cout << "Logic fully reduced\n";
 	}
 }
 
@@ -364,17 +365,24 @@ void function::output_graph_data(std::string fld_name)
 	output << std::hex;
 	for (int i = 0; i < pieces.size(); i++)
 	{
-		if (pieces[i]->ga() != 0)
-			output << "\tX" << pieces[i]->gets()// << "_" << pieces[i] 
-				   << " -> X" << pieces[i]->ga()->gets()// << "_" << pieces[i]->ga()  
-				   << " [ label=a ];\n";
-		if ( (pieces[i]->gb() != 0) && (pieces[i]->ga() != pieces[i]->gb()) )
-			output << "\tX" << pieces[i]->gets()// << "_" << pieces[i] 
-				   << " -> X" << pieces[i]->gb()->gets()// << "_" << pieces[i]->gb() 
-				   << " [ label=b ];\n";
+		pieces[i]->print_graph(output);
 	}
 	output << "}\n";
 	output.close();
+	
+	simplify();
+	
+	outname = fld_name + "/" + name + "sim.gv";
+	output.open(outname, std::ios::out);
+	output << "digraph " << name << "{\n";
+	output << std::hex;
+	for (int i = 0; i < pieces.size(); i++)
+	{
+		pieces[i]->print_graph(output);
+	}
+	output << "}\n";
+	output.close();
+	
 }
 
 int function::find_runs()
@@ -399,6 +407,7 @@ int function::find_runs()
 			}
 			if (lisp.size() > 1)
 			{
+				replace_references(pieces[i], temp);
 				for (j = 0; j < lisp.size(); j++)
 				{
 					temp->add_element(lisp[j]);
@@ -406,7 +415,6 @@ int function::find_runs()
 						remove_piece(lisp[j]);
 				}
 				temp->done();
-				replace_references(pieces[i], temp);
 				found++;
 			}
 		}
@@ -424,8 +432,8 @@ int function::find_loop()
 		{
 			code_do_while_loop *temp;
 			temp = new code_do_while_loop(pieces[i]);
-			xblocks.push_back(temp);
 			replace_references(pieces[i], temp);
+			xblocks.push_back(temp);
 			found++;
 		}
 		else if ( (pieces[i]->is_cbranch() != 1) &&
@@ -436,9 +444,9 @@ int function::find_loop()
 		{
 			code_while_loop *temp;
 			temp = new code_while_loop(pieces[i]->ga(), pieces[i]);
-			xblocks.push_back(temp);
 			replace_references(pieces[i]->ga(), temp);
 			remove_piece(pieces[i]);
+			xblocks.push_back(temp);
 			found++;
 		}
 	}
@@ -465,9 +473,9 @@ int function::do_simple_if(code_element *a, code_element *b, int i)
 		{
 			temp->set_next(b);
 		}
+		replace_references(pieces[i], temp);
 		xblocks.push_back(temp);
 		remove_piece(a);
-		replace_references(pieces[i], temp);
 		return 1;
 	}
 	return 0;
@@ -544,8 +552,8 @@ int function::do_multi_if(int i)
 						}
 						temp->common(common);
 						temp->finish_and_no_else();
-						remove_piece(common);
 						replace_references(pieces[i], temp);
+						remove_piece(common);
 						xblocks.push_back(temp);
 						found++;
 					}
@@ -558,6 +566,7 @@ int function::do_multi_if(int i)
 						code_multi_if *temp;
 						temp = new code_multi_if;
 						unsigned int q = 0;
+						replace_references(pieces[i], temp);
 						for (q = 0; q < list.size(); q++)
 						{
 							temp->add(list[q]);
@@ -576,12 +585,12 @@ int function::do_multi_if(int i)
 						{
 							remove_piece(common->ga());
 						}
-						replace_references(pieces[i], temp);
 						xblocks.push_back(temp);
 						found++;
 					}
 					else if ( (common->is_cbranch() != 1) && (list.back()->is_cbranch() == 1) &&
 							(list.back()->ga()->ga() == list.back()->gb()->ga()) &&
+							(common->ga() != 0) &&
 							(common != list.back()->gb()) )
 					{	//AND or OR with an ELSE block
 						code_multi_if *temp;
@@ -597,6 +606,7 @@ int function::do_multi_if(int i)
 						temp->set_else(list.back()->gb());
 						temp->set_final(common->ga());
 						temp->finish_with_else();
+						replace_references(pieces[i], temp);
 						remove_piece(common);
 						remove_piece(list.back()->gb());
 						if (common->gains() > 1)
@@ -607,12 +617,12 @@ int function::do_multi_if(int i)
 						{
 							remove_piece(common->ga());
 						}
-						replace_references(pieces[i], temp);
 						xblocks.push_back(temp);
 						found++;
 					}
 					else if ( (common->is_cbranch() != 1) && (list.back()->is_cbranch() == 1) &&
 							(list.back()->gb()->ga() == list.back()->ga()->ga()) &&
+							(common->ga() != 0) &&
 							(common != list.back()->ga()) )
 					{	//AND or OR with an ELSE block
 						code_multi_if *temp;
@@ -628,6 +638,7 @@ int function::do_multi_if(int i)
 						temp->set_else(list.back()->ga());
 						temp->set_final(common->ga());
 						temp->finish_with_else();
+						replace_references(pieces[i], temp);
 						remove_piece(common);
 						remove_piece(list.back()->ga());
 						if (common->gains() > 1)
@@ -638,7 +649,6 @@ int function::do_multi_if(int i)
 						{
 							remove_piece(common->ga());
 						}
-						replace_references(pieces[i], temp);
 						xblocks.push_back(temp);
 						found++;
 					}
@@ -733,6 +743,7 @@ int function::do_if_else(int i)
 				helse = lcb.back()->gb();
 				code_if_else *temp;
 				temp = new code_if_else;
+				replace_references(pieces[i], temp);
 				unsigned int j;
 				for (j = 0; j < lcb.size(); j++)
 				{
@@ -757,7 +768,6 @@ int function::do_if_else(int i)
 					temp->set_next(helse->ga());
 					//helse->ga()->dins(ecb.size());
 				}
-				replace_references(pieces[i], temp);
 				xblocks.push_back(temp);
 				found++;
 				done = 1;
@@ -775,6 +785,7 @@ int function::do_if_else(int i)
 					ecb.push_back(lcb.back()->gb());
 					code_if_else *temp;
 					temp = new code_if_else;
+					replace_references(pieces[i], temp);
 					unsigned int j;
 					for (j = 0; j < lcb.size(); j++)
 					{
@@ -796,7 +807,6 @@ int function::do_if_else(int i)
 					{
 						temp->set_next(end_b);
 					}
-					replace_references(pieces[i], temp);
 					xblocks.push_back(temp);
 					found++;
 					done = 1;
@@ -809,6 +819,7 @@ int function::do_if_else(int i)
 					ecb.push_back(lcb.back()->ga());
 					code_if_else *temp;
 					temp = new code_if_else;
+					replace_references(pieces[i], temp);
 					unsigned int j;
 					for (j = 0; j < lcb.size(); j++)
 					{
@@ -830,7 +841,6 @@ int function::do_if_else(int i)
 					{
 						temp->set_next(end_b);
 					}
-					replace_references(pieces[i], temp);
 					xblocks.push_back(temp);
 					found++;
 					done = 1;

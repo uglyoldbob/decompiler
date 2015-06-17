@@ -72,3 +72,11 @@ void code_run::fprint(std::ostream &dest, int depth)
 	}
 	dest << "\n";
 }
+
+void code_run::print_graph(std::ostream &dest)
+{
+	dest << "#run " << this << "\n";
+	for (int i = 0; i < els.size(); i++)
+		els[i]->print_graph(dest);
+	dest << "#end run\n";
+}

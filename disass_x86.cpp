@@ -36,7 +36,8 @@ int disass_x86::get_instruction(instr* &get, address addr)
 	get->call = 0;
 	std::string op(ud_lookup_mnemonic(ud_insn_mnemonic(&u)));
 	
-	if (op[0] == 'j')
+	if ((op[0] == 'j') || (op == "loop") || (op == "loope") || 
+		(op == "loopz") || 	(op == "loopne") || (op == "loopnz") )
 	{
 		const ud_operand_t *jmp_addr = ud_insn_opr(&u, 0);
 	//	std::cout << "JUMP Operator is " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
@@ -109,11 +110,14 @@ int disass_x86::get_instruction(instr* &get, address addr)
 				  << get->is_cbranch 
 				  << std::dec << std::endl;*/
 	}
-	else if ( (op == "loop") || (op == "loope") || (op == "loopz") || 
-				(op == "loopne") || (op == "loopnz") )
+	else if (op == "invalid")
 	{
-		std::cout << "LOOP Operator is " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
-		get->trace_jump = "??";
+		std::cout << std::hex << addr << ": " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
+				  << " :::: " << ud_insn_asm(&u) << " [" << ud_insn_hex(&u) << "] " 
+				  << ud_insn_len(&u) << " " << get->destaddra << " " << get->destaddrb << " " 
+				  << get->is_cbranch 
+				  << std::dec << std::endl;
+		throw "Invalid opcode";
 	}
 	else if (op == "call")
 	{

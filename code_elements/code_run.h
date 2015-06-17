@@ -13,6 +13,7 @@ class code_run : public code_element
 		void add_element(code_element *add);
 		void done();
 		void fprint(std::ostream &dest, int depth);
+		virtual void print_graph(std::ostream &dest);
 	private:
 		std::vector<code_element *> els;	//a string of elements
 };

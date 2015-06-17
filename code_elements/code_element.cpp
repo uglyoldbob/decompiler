@@ -218,6 +218,20 @@ void code_element::copy_inputs(code_element *src)
 	inputs = src->inputs;
 }
 
+void code_element::print_graph(std::ostream &dest)
+{
+	if (a != 0)
+		dest << "\tX" << s// << "_" << pieces[i] 
+			 << " -> X" << a->gets()// << "_" << pieces[i]->ga()  
+			 << " [ label=a ];\n";
+	if ((b != 0) && (a != b))
+		dest << "\tX" << s// << "_" << pieces[i] 
+			 << " -> X" << b->gets()// << "_" << pieces[i]->gb() 
+			 << " [ label=b ];\n";
+	if ( (a == 0) && (b == 0) )
+		dest << "\tX" << s << ";\n";
+}
+
 void code_element::fprint(std::ostream &dest, int depth)
 {
 	dest << tabs(depth) << "/------";

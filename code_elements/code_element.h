@@ -23,6 +23,7 @@ class code_element
 		code_element *gb();
 		int gbins();
 		virtual void fprint(std::ostream &dest, int depth);
+		virtual void print_graph(std::ostream &dest);
 		int gins();	//get ins
 		instr *getline(int num);	//-1 means get last line
 		int contains(address addr);

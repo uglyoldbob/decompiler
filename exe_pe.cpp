@@ -86,7 +86,7 @@ int exe_pe::process(std::istream *me)	//do basic processing
 int exe_pe::goto_address(address addr)
 {
 	int bad = 1;
-	if ((addr >= starting) && (addr <= (starting + size)))
+	if (addr <= size)
 	{
 		bad = 0;
 		exe->seekg(addr+header.header_paragraphs*16, std::ios::beg);

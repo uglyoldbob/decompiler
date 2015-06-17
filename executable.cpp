@@ -135,7 +135,7 @@ int executable::load(char *bin_name)
 	{
 		if (check_func_list(temp[i]))
 		{
-			std::cout << "\tNew function at 0x" << temp[i] << std::endl;
+			//std::cout << "\tNew function at 0x" << temp[i] << std::endl;
 			function_addresses.push_back(temp[i]);
 		}
 	}
@@ -154,7 +154,7 @@ int executable::load(char *bin_name)
 		{
 			if (check_func_list(temp[i]))
 			{
-				std::cout << "\tNew function at 0x" << temp[i] << std::endl;
+				//std::cout << "\tNew function at 0x" << temp[i] << std::endl;
 				function_addresses.push_back(temp[i]);
 			}
 		}

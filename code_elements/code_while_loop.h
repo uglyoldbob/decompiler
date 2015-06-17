@@ -10,6 +10,7 @@ class code_while_loop : public code_element
 		code_while_loop(code_element *f, code_element *g);
 		~code_while_loop();
 		void fprint(std::ostream &dest, int depth);
+		virtual void print_graph(std::ostream &dest);
 	private:
 		code_element *condition;
 		code_element *theloop;

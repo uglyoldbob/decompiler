@@ -63,3 +63,11 @@ void code_do_while_loop::fprint(std::ostream &dest, int depth)
 	}
 	dest << "\n";
 }
+
+void code_do_while_loop::print_graph(std::ostream &dest)
+{
+	dest << "#do while\n";
+	if (theloop != 0)
+		theloop->print_graph(dest);
+	dest << "#end do while\n";
+}
