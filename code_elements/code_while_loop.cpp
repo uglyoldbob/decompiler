@@ -22,7 +22,7 @@ code_while_loop::~code_while_loop()
 
 void code_while_loop::fprint(std::ostream &dest, int depth)
 {
-	dest << tabs(depth) << "/------";
+	/*dest << tabs(depth) << "/------";
 	if (depth == 0)
 	{
 		dest << std::hex << s << std::dec << " (" << inputs.size() << " input)";
@@ -35,13 +35,13 @@ void code_while_loop::fprint(std::ostream &dest, int depth)
 	{
 		dest << std::hex << inputs[i]->gets() << std::dec << " ";  
 	}
-	dest << "\n";
+	dest << "\n";*/
 	condition->fprint(dest, depth);
 	dest << tabs(depth) << "while (?)\n";
 	dest << tabs(depth) << "{\n" << tabs(depth);
 	theloop->fprint(dest, depth+1);
 	dest << tabs(depth) << "}\n";
-	dest << tabs(depth) << "\\------ ";
+	/*dest << tabs(depth) << "\\------ ";
 	if (depth == 0)
 	{
 		if (a != 0)
@@ -64,9 +64,10 @@ void code_while_loop::fprint(std::ostream &dest, int depth)
 		else
 			dest << "NULL ";
 	}
-	dest << "\n";
+	dest << "\n";*/
 }
 
+#ifdef PROVE_SIMPLIFY
 void code_while_loop::print_graph(std::ostream &dest)
 {
 	dest << "#while loop\n";
@@ -76,3 +77,4 @@ void code_while_loop::print_graph(std::ostream &dest)
 		theloop->print_graph(dest);
 	dest << "#end while loop\n";
 }
+#endif

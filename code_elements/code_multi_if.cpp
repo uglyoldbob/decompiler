@@ -48,7 +48,7 @@ void code_multi_if::common(code_element *c)
 void code_multi_if::fprint(std::ostream &dest, int depth)
 {
 	unsigned int i;
-	dest << tabs(depth) << "/------";
+	/*dest << tabs(depth) << "/------";
 	if (depth == 0)
 	{
 		dest << std::hex << s << std::dec << " (" << inputs.size() << " input)";
@@ -61,7 +61,7 @@ void code_multi_if::fprint(std::ostream &dest, int depth)
 	{
 		dest << std::hex << inputs[i]->gets() << std::dec << " ";  
 	}
-	dest << "\n";
+	dest << "\n";*/
 	ifs[0]->fprint(dest, depth);
 	dest << tabs(depth) << "if ( (?)";
 	if (form == AND_NO_ELSE)
@@ -94,7 +94,7 @@ void code_multi_if::fprint(std::ostream &dest, int depth)
 	{
 		thefinal->fprint(dest, depth);
 	}
-	dest << tabs(depth) << "\\------ ";
+	/*dest << tabs(depth) << "\\------ ";
 	if (depth == 0)
 	{
 		if (a != 0)
@@ -117,9 +117,10 @@ void code_multi_if::fprint(std::ostream &dest, int depth)
 		else
 			dest << "NULL ";
 	}
-	dest << "\n";
+	dest << "\n";*/
 }
 
+#ifdef PROVE_SIMPLIFY
 void code_multi_if::print_graph(std::ostream &dest)
 {
 	dest << "#multi if\n";
@@ -135,6 +136,7 @@ void code_multi_if::print_graph(std::ostream &dest)
 		thefinal->print_graph(dest);
 	dest << "#end multi if\n";
 }
+#endif
 
 void code_multi_if::set_else(code_element *e)
 {

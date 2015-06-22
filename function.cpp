@@ -344,13 +344,17 @@ inline std::ostream& operator << (std::ostream& output, function &me)
 void function::fprint(std::ostream &output)
 {	//print the code to the output for examination
 	unsigned int i;
-	output << "//There are " << pieces.size() << " blocks\n";
+	//output << "//There are " << pieces.size() << " blocks\n";
 	output << "? " << name << "(?)\n{\n";
 	for (i = 0; i < pieces.size(); i++)
 	{
-		output << "***************************** " << i << " ";
-		output << std::hex << pieces[i] 
-			   << " 0x" << pieces[i]->gets() << std::dec << "\n";
+		//output << "***************************** " << i << " ";
+		//output << std::hex << pieces[i] 
+		//	   << " 0x" << pieces[i]->gets() << std::dec << "\n";
+		if ((pieces[i]->ga() != 0) && (pieces[i]->gb() != 0))
+		{
+			output << "#error \"Unfinished block\"\n";
+		}
 		pieces[i]->fprint(output, 1);
 	}
 	output << "}\n";
@@ -382,7 +386,16 @@ void function::output_graph_data(std::string fld_name)
 	}
 	output << "}\n";
 	output.close();
-	
+}
+
+void function::output_code(std::string fld_name)
+{
+	simplify();
+	std::string outname = fld_name + "/" + name + ".c";
+	std::ofstream output;
+	output.open(outname, std::ios::out);
+	fprint(output);
+	output.close();
 }
 
 int function::find_runs()
@@ -464,6 +477,7 @@ int function::do_simple_if(code_element *a, code_element *b, int i)
 		temp = new code_if_else;
 		temp->add_lcb(pieces[i]);
 		temp->add_ecb(a);
+		replace_references(pieces[i], temp);
 		if (b->gins() == 2)
 		{
 			temp->set_last(b);
@@ -473,7 +487,25 @@ int function::do_simple_if(code_element *a, code_element *b, int i)
 		{
 			temp->set_next(b);
 		}
+		xblocks.push_back(temp);
+		remove_piece(a);
+		return 1;
+	}
+	if ( (a->gins() == 1) &&
+		 (b->gins() == 1) &&
+	     (a->ga() == 0) && 
+	     (a->is_cbranch() != 1) )
+	{
+		code_if_else *temp;
+		temp = new code_if_else;
+		temp->add_lcb(pieces[i]);
+		temp->add_ecb(a);
 		replace_references(pieces[i], temp);
+		if (b->gins() >= 1)
+		{
+			temp->set_last(b);
+			remove_piece(b);
+		}
 		xblocks.push_back(temp);
 		remove_piece(a);
 		return 1;
@@ -671,8 +703,37 @@ int function::do_if_else(int i)
 	while (!done)
 	{
 		done = 1;
+		if ( (lcb.back()->ga()->is_cbranch() != 1) &&
+			 (lcb.back()->gb()->is_cbranch() != 1) && 
+			 (lcb.back()->ga()->ga() == 0) &&
+			 (lcb.back()->gb()->ga() == 0) )
+		{
+			ecb.push_back(lcb.back()->ga());
+			helse = lcb.back()->gb();
+			
+			code_if_else *temp;
+			temp = new code_if_else;
+			replace_references(pieces[i], temp);
+			unsigned int j;
+			for (j = 0; j < lcb.size(); j++)
+			{
+				temp->add_lcb(lcb[j]);
+				if (j != 0)
+					remove_piece(lcb[j]);
+			}
+			for (j = 0; j < ecb.size(); j++)
+			{
+				temp->add_ecb(ecb[j]);
+				remove_piece(ecb[j]);
+			}
+			temp->set_else(helse);
+				remove_piece(helse);
+			xblocks.push_back(temp);
+			found++;
+			done = 1;
+		}
 		if ( (lcb.back()->ga()->is_cbranch() == 1) &&
-				(lcb.back()->gb()->is_cbranch() != 1) )
+			 (lcb.back()->gb()->is_cbranch() != 1) )
 		{	//a is conditional, b is not
 			if ( (lcb.back()->ga()->gbins() == 1) &&
 				 (lcb.back()->gbins() == 1) )
@@ -701,7 +762,7 @@ int function::do_if_else(int i)
 			}
 		}
 		if ( (lcb.back()->gb()->is_cbranch() == 1) &&
-					(lcb.back()->ga()->is_cbranch() != 1) )
+			 (lcb.back()->ga()->is_cbranch() != 1) )
 		{	//b is conditional, a is not
 			if ( (lcb.back()->gb()->gbins() == 1) &&
 				 (lcb.back()->gains() == 1) )
@@ -730,14 +791,14 @@ int function::do_if_else(int i)
 			}
 		}
 		if ( (lcb.back()->gb()->is_cbranch() != 1) &&
-				(lcb.back()->ga()->is_cbranch() != 1)  &&
-				(lcb.back()->ga()->ga() == lcb.back()->gb()->ga()) &&
-				(done == 1) )
-		{	//neither a nor b are conditional
+			 (lcb.back()->ga()->is_cbranch() != 1)  &&
+			 (lcb.back()->ga()->ga() == lcb.back()->gb()->ga()) &&
+			 (done == 1) )
+		{	//neither a nor b are conditional, both go somewhere though
 			if ( (lcb.back()->gains() == 1) &&
-					(lcb.back()->gbins() == 1) &&
-					(lcb.back()->ga()->ga() != 0) &&
-					(lcb.back()->ga()->gains() >= (ecb.size()+2)) )
+				 (lcb.back()->gbins() == 1) &&
+				 (lcb.back()->ga()->ga() != 0) &&
+				 (lcb.back()->ga()->gains() >= (ecb.size()+2)) )
 			{
 				ecb.push_back(lcb.back()->ga());
 				helse = lcb.back()->gb();

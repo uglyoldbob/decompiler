@@ -1,14 +1,23 @@
 #include "variable.h"
 
+#include <cctype>
+
 variable::variable()
 {
 	p = OPER_LVL0;
 }
 
-variable::variable(std::string &in)
+variable::variable(std::string in)
 {
-	p = OPER_LVL18;
-	isconst = 0;
+	p = OPER_LVL0;
+	if (isdigit(in[0]))
+	{
+		isconst = 1;
+	}
+	else
+	{
+		isconst = 0;
+	}
 	sign = 0;
 	type = "?";
 	name = in;

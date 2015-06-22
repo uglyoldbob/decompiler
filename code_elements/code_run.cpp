@@ -29,7 +29,7 @@ void code_run::done()
 void code_run::fprint(std::ostream &dest, int depth)
 {
 	unsigned int i;
-	dest << tabs(depth) << "/------";
+	/*dest << tabs(depth) << "/------";
 	if (depth == 0)
 	{
 		dest << std::hex << s << std::dec << " (" << inputs.size() << " input)";
@@ -42,12 +42,12 @@ void code_run::fprint(std::ostream &dest, int depth)
 	{
 		dest << std::hex << inputs[i]->gets() << std::dec << " ";  
 	}
-	dest << "\n";
+	dest << "\n";*/
 	for (i = 0; i < els.size(); i++)
 	{
 		els[i]->fprint(dest, depth);
 	}
-	dest << tabs(depth) << "\\------ ";
+	/*dest << tabs(depth) << "\\------ ";
 	if (depth == 0)
 	{
 		if (a != 0)
@@ -70,9 +70,10 @@ void code_run::fprint(std::ostream &dest, int depth)
 		else
 			dest << "NULL ";
 	}
-	dest << "\n";
+	dest << "\n";*/
 }
 
+#ifdef PROVE_SIMPLIFY
 void code_run::print_graph(std::ostream &dest)
 {
 	dest << "#run " << this << "\n";
@@ -80,3 +81,4 @@ void code_run::print_graph(std::ostream &dest)
 		els[i]->print_graph(dest);
 	dest << "#end run\n";
 }
+#endif

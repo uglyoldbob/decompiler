@@ -18,6 +18,7 @@ class function
 		void simplify();
 		void set_name(const char *to);
 		void output_graph_data(std::string fld_name);
+		void output_code(std::string fld_name);
 		std::string get_name();
 		address gets();
 		friend std::ostream& operator << (std::ostream& output, function &me);

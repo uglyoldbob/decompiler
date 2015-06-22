@@ -1,0 +1,9 @@
+digraph simple_if{
+	a -> b;
+	a -> c;
+	b -> c;
+	a[label="if some condition"];
+	b[label="do this if true"];
+	c[label="then do this"];
+}
+

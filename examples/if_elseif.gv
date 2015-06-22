@@ -1,0 +1,11 @@
+digraph if_elseif{
+	a -> b;
+	a -> c;
+	b -> z;
+	c -> d;
+	c -> e;
+	e -> z;	
+	d -> z;
+	z[label="if (a)\n{ b }\nelse if (c)\n{d}\nelse\n{e}\nthen do this"];
+}
+

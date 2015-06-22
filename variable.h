@@ -13,7 +13,7 @@
 //1
 //::	l2r
 
-//1
+//2
 /* these are left 2 right
 ++ -- (suffix)
 ()	function call
@@ -74,15 +74,13 @@ delete, delete[]
 =
 += -=
 *= /= %= <<= >>= &= ^= |=
+throw
 */
 
 //16
-//throw	r2l
-
-//17
 //,	comma	l2r
 
-//18
+//17
 //a plain variable
 
 enum oper_precedence
@@ -104,15 +102,14 @@ enum oper_precedence
 	OPER_LVL14,
 	OPER_LVL15,
 	OPER_LVL16,
-	OPER_LVL17,
-	OPER_LVL18
+	OPER_LVL17
 };
 
 class variable
 {
 	public:
 		variable();
-		variable(std::string &in);
+		variable(std::string in);
 		virtual ~variable();
 		std::size_t mysize() { return thesize; }
 		friend std::ostream &operator<<(std::ostream &out, variable &o);

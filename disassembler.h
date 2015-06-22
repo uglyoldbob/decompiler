@@ -15,6 +15,7 @@ struct instr
 	std::string comment;
 	int ins;	//increase when control is branched to here
 	int is_cbranch;	//set when it is a conditional branch statement
+	char len;	//length of the instruction
 	address destaddra;	//stores the dest of the conditional branch statement
 	address destaddrb;	//stores the other dest
 	address call;		//a literal value for a function call

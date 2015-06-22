@@ -49,7 +49,7 @@ void code_if_else::set_next(code_element *n)
 void code_if_else::fprint(std::ostream &dest, int depth)
 {
 	unsigned int i;
-	dest << tabs(depth) << "/------";
+	/*dest << tabs(depth) << "/------";
 	if (depth == 0)
 	{
 		dest << std::hex << s << std::dec << " (" << inputs.size() << " input)";
@@ -62,7 +62,7 @@ void code_if_else::fprint(std::ostream &dest, int depth)
 	{
 		dest << std::hex << inputs[i]->gets() << std::dec << " ";  
 	}
-	dest << "\n";
+	dest << "\n";*/
 	lcb[0]->fprint(dest, depth);
 	dest << tabs(depth) << "if (?)\n";
 	dest << tabs(depth) << "{\n";
@@ -86,7 +86,7 @@ void code_if_else::fprint(std::ostream &dest, int depth)
 	{
 		next->fprint(dest, depth);
 	}
-	dest << tabs(depth) << "\\------ ";
+/*	dest << tabs(depth) << "\\------ ";
 	if (depth == 0)
 	{
 		if (a != 0)
@@ -109,9 +109,10 @@ void code_if_else::fprint(std::ostream &dest, int depth)
 		else
 			dest << "NULL ";
 	}
-	dest << "\n";
+	dest << "\n";*/
 }
 
+#ifdef PROVE_SIMPLIFY
 void code_if_else::print_graph(std::ostream &dest)
 {
 	dest << "#if else\n";
@@ -125,3 +126,4 @@ void code_if_else::print_graph(std::ostream &dest)
 		next->print_graph(dest);
 	dest << "#end if else\n";
 }
+#endif

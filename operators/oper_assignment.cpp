@@ -8,7 +8,7 @@ oper_assignment::oper_assignment(variable *a, variable *b)
 
 std::ostream &oper_assignment::print(std::ostream &out)
 {
-	if (arg1->get_p() < this->get_p())
+	if (this->get_p() < arg1->get_p())
 	{
 		out << "(" << *arg1 << ") = ";
 	}
@@ -16,7 +16,7 @@ std::ostream &oper_assignment::print(std::ostream &out)
 	{
 		out << *arg1 << " = ";
 	}
-	if (arg2->get_p() > this->get_p())
+	if (this->get_p() < arg2->get_p())
 	{
 		out << "(" << *arg2 << ")";
 	}

@@ -9,7 +9,7 @@ oper_preincrement::oper_preincrement(variable *a)
 
 std::ostream &oper_preincrement::print(std::ostream &out)
 {
-	if (this->get_p() > arg->get_p())
+	if (this->get_p() < arg->get_p())
 	{	//parentheses required to have correct order
 		out << "++(" << *arg << ")";
 	}

@@ -4,3 +4,4 @@
 #include "oper_bitwise_or.h"
 #include "oper_sub.h"
 #include "oper_preincrement.h"
+#include "oper_dereference.h"

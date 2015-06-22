@@ -57,11 +57,14 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man3dir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
 am_decompile16_OBJECTS = decompile16-variable.$(OBJEXT) \
-	decompile16-oper1.$(OBJEXT) decompile16-oper2.$(OBJEXT) \
-	decompile16-oper_preincrement.$(OBJEXT) \
-	decompile16-oper_add.$(OBJEXT) decompile16-oper_sub.$(OBJEXT) \
-	decompile16-oper_assignment.$(OBJEXT) \
-	decompile16-oper_bitwise_or.$(OBJEXT) \
+	operators/decompile16-oper1.$(OBJEXT) \
+	operators/decompile16-oper2.$(OBJEXT) \
+	operators/decompile16-oper_dereference.$(OBJEXT) \
+	operators/decompile16-oper_preincrement.$(OBJEXT) \
+	operators/decompile16-oper_add.$(OBJEXT) \
+	operators/decompile16-oper_sub.$(OBJEXT) \
+	operators/decompile16-oper_assignment.$(OBJEXT) \
+	operators/decompile16-oper_bitwise_or.$(OBJEXT) \
 	decompile16-decompile.$(OBJEXT) decompile16-function.$(OBJEXT) \
 	code_elements/decompile16-code_element.$(OBJEXT) \
 	code_elements/decompile16-code_if_else.$(OBJEXT) \
@@ -81,11 +84,14 @@ decompile16_LDADD = $(LDADD)
 decompile16_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(decompile16_LDFLAGS) $(LDFLAGS) -o $@
 am_decompile32_OBJECTS = decompile32-variable.$(OBJEXT) \
-	decompile32-oper1.$(OBJEXT) decompile32-oper2.$(OBJEXT) \
-	decompile32-oper_preincrement.$(OBJEXT) \
-	decompile32-oper_add.$(OBJEXT) decompile32-oper_sub.$(OBJEXT) \
-	decompile32-oper_assignment.$(OBJEXT) \
-	decompile32-oper_bitwise_or.$(OBJEXT) \
+	operators/decompile32-oper1.$(OBJEXT) \
+	operators/decompile32-oper2.$(OBJEXT) \
+	operators/decompile32-oper_dereference.$(OBJEXT) \
+	operators/decompile32-oper_preincrement.$(OBJEXT) \
+	operators/decompile32-oper_add.$(OBJEXT) \
+	operators/decompile32-oper_sub.$(OBJEXT) \
+	operators/decompile32-oper_assignment.$(OBJEXT) \
+	operators/decompile32-oper_bitwise_or.$(OBJEXT) \
 	decompile32-decompile.$(OBJEXT) decompile32-function.$(OBJEXT) \
 	code_elements/decompile32-code_element.$(OBJEXT) \
 	code_elements/decompile32-code_if_else.$(OBJEXT) \
@@ -105,11 +111,14 @@ decompile32_LDADD = $(LDADD)
 decompile32_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(decompile32_LDFLAGS) $(LDFLAGS) -o $@
 am_decompile64_OBJECTS = decompile64-variable.$(OBJEXT) \
-	decompile64-oper1.$(OBJEXT) decompile64-oper2.$(OBJEXT) \
-	decompile64-oper_preincrement.$(OBJEXT) \
-	decompile64-oper_add.$(OBJEXT) decompile64-oper_sub.$(OBJEXT) \
-	decompile64-oper_assignment.$(OBJEXT) \
-	decompile64-oper_bitwise_or.$(OBJEXT) \
+	operators/decompile64-oper1.$(OBJEXT) \
+	operators/decompile64-oper2.$(OBJEXT) \
+	operators/decompile64-oper_dereference.$(OBJEXT) \
+	operators/decompile64-oper_preincrement.$(OBJEXT) \
+	operators/decompile64-oper_add.$(OBJEXT) \
+	operators/decompile64-oper_sub.$(OBJEXT) \
+	operators/decompile64-oper_assignment.$(OBJEXT) \
+	operators/decompile64-oper_bitwise_or.$(OBJEXT) \
 	decompile64-decompile.$(OBJEXT) decompile64-function.$(OBJEXT) \
 	code_elements/decompile64-ce_block.$(OBJEXT) \
 	code_elements/decompile64-code_element.$(OBJEXT) \
@@ -306,13 +315,14 @@ decompile64_CPPFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${
 @WINDOWS_TRUE@decompile64_LDFLAGS = -lmingw32
 decompile16_SOURCES = \
 variable.cpp \
-oper1.cpp \
-oper2.cpp \
-oper_preincrement.cpp \
-oper_add.cpp \
-oper_sub.cpp \
-oper_assignment.cpp \
-oper_bitwise_or.cpp \
+operators/oper1.cpp \
+operators/oper2.cpp \
+operators/oper_dereference.cpp \
+operators/oper_preincrement.cpp \
+operators/oper_add.cpp \
+operators/oper_sub.cpp \
+operators/oper_assignment.cpp \
+operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
 code_elements/code_element.cpp \
@@ -334,13 +344,14 @@ helpers.cpp
 
 decompile32_SOURCES = \
 variable.cpp \
-oper1.cpp \
-oper2.cpp \
-oper_preincrement.cpp \
-oper_add.cpp \
-oper_sub.cpp \
-oper_assignment.cpp \
-oper_bitwise_or.cpp \
+operators/oper1.cpp \
+operators/oper2.cpp \
+operators/oper_dereference.cpp \
+operators/oper_preincrement.cpp \
+operators/oper_add.cpp \
+operators/oper_sub.cpp \
+operators/oper_assignment.cpp \
+operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
 code_elements/code_element.cpp \
@@ -362,13 +373,14 @@ helpers.cpp
 
 decompile64_SOURCES = \
 variable.cpp \
-oper1.cpp \
-oper2.cpp \
-oper_preincrement.cpp \
-oper_add.cpp \
-oper_sub.cpp \
-oper_assignment.cpp \
-oper_bitwise_or.cpp \
+operators/oper1.cpp \
+operators/oper2.cpp \
+operators/oper_dereference.cpp \
+operators/oper_preincrement.cpp \
+operators/oper_add.cpp \
+operators/oper_sub.cpp \
+operators/oper_assignment.cpp \
+operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
 code_elements/ce_block.cpp \
@@ -485,6 +497,28 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+operators/$(am__dirstamp):
+	@$(MKDIR_P) operators
+	@: > operators/$(am__dirstamp)
+operators/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) operators/$(DEPDIR)
+	@: > operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile16-oper1.$(OBJEXT): operators/$(am__dirstamp) \
+	operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile16-oper2.$(OBJEXT): operators/$(am__dirstamp) \
+	operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile16-oper_dereference.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile16-oper_preincrement.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile16-oper_add.$(OBJEXT): operators/$(am__dirstamp) \
+	operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile16-oper_sub.$(OBJEXT): operators/$(am__dirstamp) \
+	operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile16-oper_assignment.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile16-oper_bitwise_or.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
 code_elements/$(am__dirstamp):
 	@$(MKDIR_P) code_elements
 	@: > code_elements/$(am__dirstamp)
@@ -512,6 +546,22 @@ code_elements/decompile16-code_while_loop.$(OBJEXT):  \
 decompile16$(EXEEXT): $(decompile16_OBJECTS) $(decompile16_DEPENDENCIES) $(EXTRA_decompile16_DEPENDENCIES) 
 	@rm -f decompile16$(EXEEXT)
 	$(decompile16_LINK) $(decompile16_OBJECTS) $(decompile16_LDADD) $(LIBS)
+operators/decompile32-oper1.$(OBJEXT): operators/$(am__dirstamp) \
+	operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile32-oper2.$(OBJEXT): operators/$(am__dirstamp) \
+	operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile32-oper_dereference.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile32-oper_preincrement.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile32-oper_add.$(OBJEXT): operators/$(am__dirstamp) \
+	operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile32-oper_sub.$(OBJEXT): operators/$(am__dirstamp) \
+	operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile32-oper_assignment.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile32-oper_bitwise_or.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
 code_elements/decompile32-code_element.$(OBJEXT):  \
 	code_elements/$(am__dirstamp) \
 	code_elements/$(DEPDIR)/$(am__dirstamp)
@@ -533,6 +583,22 @@ code_elements/decompile32-code_while_loop.$(OBJEXT):  \
 decompile32$(EXEEXT): $(decompile32_OBJECTS) $(decompile32_DEPENDENCIES) $(EXTRA_decompile32_DEPENDENCIES) 
 	@rm -f decompile32$(EXEEXT)
 	$(decompile32_LINK) $(decompile32_OBJECTS) $(decompile32_LDADD) $(LIBS)
+operators/decompile64-oper1.$(OBJEXT): operators/$(am__dirstamp) \
+	operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile64-oper2.$(OBJEXT): operators/$(am__dirstamp) \
+	operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile64-oper_dereference.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile64-oper_preincrement.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile64-oper_add.$(OBJEXT): operators/$(am__dirstamp) \
+	operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile64-oper_sub.$(OBJEXT): operators/$(am__dirstamp) \
+	operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile64-oper_assignment.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile64-oper_bitwise_or.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
 code_elements/decompile64-ce_block.$(OBJEXT):  \
 	code_elements/$(am__dirstamp) \
 	code_elements/$(DEPDIR)/$(am__dirstamp)
@@ -579,6 +645,30 @@ mostlyclean-compile:
 	-rm -f code_elements/decompile64-code_multi_if.$(OBJEXT)
 	-rm -f code_elements/decompile64-code_run.$(OBJEXT)
 	-rm -f code_elements/decompile64-code_while_loop.$(OBJEXT)
+	-rm -f operators/decompile16-oper1.$(OBJEXT)
+	-rm -f operators/decompile16-oper2.$(OBJEXT)
+	-rm -f operators/decompile16-oper_add.$(OBJEXT)
+	-rm -f operators/decompile16-oper_assignment.$(OBJEXT)
+	-rm -f operators/decompile16-oper_bitwise_or.$(OBJEXT)
+	-rm -f operators/decompile16-oper_dereference.$(OBJEXT)
+	-rm -f operators/decompile16-oper_preincrement.$(OBJEXT)
+	-rm -f operators/decompile16-oper_sub.$(OBJEXT)
+	-rm -f operators/decompile32-oper1.$(OBJEXT)
+	-rm -f operators/decompile32-oper2.$(OBJEXT)
+	-rm -f operators/decompile32-oper_add.$(OBJEXT)
+	-rm -f operators/decompile32-oper_assignment.$(OBJEXT)
+	-rm -f operators/decompile32-oper_bitwise_or.$(OBJEXT)
+	-rm -f operators/decompile32-oper_dereference.$(OBJEXT)
+	-rm -f operators/decompile32-oper_preincrement.$(OBJEXT)
+	-rm -f operators/decompile32-oper_sub.$(OBJEXT)
+	-rm -f operators/decompile64-oper1.$(OBJEXT)
+	-rm -f operators/decompile64-oper2.$(OBJEXT)
+	-rm -f operators/decompile64-oper_add.$(OBJEXT)
+	-rm -f operators/decompile64-oper_assignment.$(OBJEXT)
+	-rm -f operators/decompile64-oper_bitwise_or.$(OBJEXT)
+	-rm -f operators/decompile64-oper_dereference.$(OBJEXT)
+	-rm -f operators/decompile64-oper_preincrement.$(OBJEXT)
+	-rm -f operators/decompile64-oper_sub.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -595,13 +685,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile16-executable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile16-function.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile16-helpers.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile16-oper1.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile16-oper2.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile16-oper_add.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile16-oper_assignment.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile16-oper_bitwise_or.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile16-oper_preincrement.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile16-oper_sub.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile16-variable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile32-decompile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile32-disass_ppc.Po@am__quote@
@@ -615,13 +698,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile32-executable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile32-function.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile32-helpers.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile32-oper1.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile32-oper2.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile32-oper_add.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile32-oper_assignment.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile32-oper_bitwise_or.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile32-oper_preincrement.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile32-oper_sub.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile32-variable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-decompile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-disass_ppc.Po@am__quote@
@@ -635,13 +711,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-executable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-function.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-helpers.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-oper1.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-oper2.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-oper_add.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-oper_assignment.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-oper_bitwise_or.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-oper_preincrement.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-oper_sub.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-variable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile16-code_do_while_loop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile16-code_element.Po@am__quote@
@@ -662,6 +731,30 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile64-code_multi_if.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile64-code_run.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile64-code_while_loop.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper_add.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper_assignment.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper_bitwise_or.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper_dereference.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper_preincrement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper_sub.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper_add.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper_assignment.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper_bitwise_or.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper_dereference.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper_preincrement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper_sub.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_add.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_assignment.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_bitwise_or.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_dereference.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_preincrement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_sub.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -693,103 +786,117 @@ decompile16-variable.obj: variable.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-variable.obj `if test -f 'variable.cpp'; then $(CYGPATH_W) 'variable.cpp'; else $(CYGPATH_W) '$(srcdir)/variable.cpp'; fi`
 
-decompile16-oper1.o: oper1.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-oper1.o -MD -MP -MF $(DEPDIR)/decompile16-oper1.Tpo -c -o decompile16-oper1.o `test -f 'oper1.cpp' || echo '$(srcdir)/'`oper1.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile16-oper1.Tpo $(DEPDIR)/decompile16-oper1.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper1.cpp' object='decompile16-oper1.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile16-oper1.o: operators/oper1.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper1.o -MD -MP -MF operators/$(DEPDIR)/decompile16-oper1.Tpo -c -o operators/decompile16-oper1.o `test -f 'operators/oper1.cpp' || echo '$(srcdir)/'`operators/oper1.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper1.Tpo operators/$(DEPDIR)/decompile16-oper1.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper1.cpp' object='operators/decompile16-oper1.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-oper1.o `test -f 'oper1.cpp' || echo '$(srcdir)/'`oper1.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper1.o `test -f 'operators/oper1.cpp' || echo '$(srcdir)/'`operators/oper1.cpp
 
-decompile16-oper1.obj: oper1.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-oper1.obj -MD -MP -MF $(DEPDIR)/decompile16-oper1.Tpo -c -o decompile16-oper1.obj `if test -f 'oper1.cpp'; then $(CYGPATH_W) 'oper1.cpp'; else $(CYGPATH_W) '$(srcdir)/oper1.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile16-oper1.Tpo $(DEPDIR)/decompile16-oper1.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper1.cpp' object='decompile16-oper1.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile16-oper1.obj: operators/oper1.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper1.obj -MD -MP -MF operators/$(DEPDIR)/decompile16-oper1.Tpo -c -o operators/decompile16-oper1.obj `if test -f 'operators/oper1.cpp'; then $(CYGPATH_W) 'operators/oper1.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper1.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper1.Tpo operators/$(DEPDIR)/decompile16-oper1.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper1.cpp' object='operators/decompile16-oper1.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-oper1.obj `if test -f 'oper1.cpp'; then $(CYGPATH_W) 'oper1.cpp'; else $(CYGPATH_W) '$(srcdir)/oper1.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper1.obj `if test -f 'operators/oper1.cpp'; then $(CYGPATH_W) 'operators/oper1.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper1.cpp'; fi`
 
-decompile16-oper2.o: oper2.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-oper2.o -MD -MP -MF $(DEPDIR)/decompile16-oper2.Tpo -c -o decompile16-oper2.o `test -f 'oper2.cpp' || echo '$(srcdir)/'`oper2.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile16-oper2.Tpo $(DEPDIR)/decompile16-oper2.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper2.cpp' object='decompile16-oper2.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile16-oper2.o: operators/oper2.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper2.o -MD -MP -MF operators/$(DEPDIR)/decompile16-oper2.Tpo -c -o operators/decompile16-oper2.o `test -f 'operators/oper2.cpp' || echo '$(srcdir)/'`operators/oper2.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper2.Tpo operators/$(DEPDIR)/decompile16-oper2.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper2.cpp' object='operators/decompile16-oper2.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-oper2.o `test -f 'oper2.cpp' || echo '$(srcdir)/'`oper2.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper2.o `test -f 'operators/oper2.cpp' || echo '$(srcdir)/'`operators/oper2.cpp
 
-decompile16-oper2.obj: oper2.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-oper2.obj -MD -MP -MF $(DEPDIR)/decompile16-oper2.Tpo -c -o decompile16-oper2.obj `if test -f 'oper2.cpp'; then $(CYGPATH_W) 'oper2.cpp'; else $(CYGPATH_W) '$(srcdir)/oper2.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile16-oper2.Tpo $(DEPDIR)/decompile16-oper2.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper2.cpp' object='decompile16-oper2.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile16-oper2.obj: operators/oper2.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper2.obj -MD -MP -MF operators/$(DEPDIR)/decompile16-oper2.Tpo -c -o operators/decompile16-oper2.obj `if test -f 'operators/oper2.cpp'; then $(CYGPATH_W) 'operators/oper2.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper2.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper2.Tpo operators/$(DEPDIR)/decompile16-oper2.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper2.cpp' object='operators/decompile16-oper2.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-oper2.obj `if test -f 'oper2.cpp'; then $(CYGPATH_W) 'oper2.cpp'; else $(CYGPATH_W) '$(srcdir)/oper2.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper2.obj `if test -f 'operators/oper2.cpp'; then $(CYGPATH_W) 'operators/oper2.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper2.cpp'; fi`
 
-decompile16-oper_preincrement.o: oper_preincrement.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-oper_preincrement.o -MD -MP -MF $(DEPDIR)/decompile16-oper_preincrement.Tpo -c -o decompile16-oper_preincrement.o `test -f 'oper_preincrement.cpp' || echo '$(srcdir)/'`oper_preincrement.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile16-oper_preincrement.Tpo $(DEPDIR)/decompile16-oper_preincrement.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_preincrement.cpp' object='decompile16-oper_preincrement.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile16-oper_dereference.o: operators/oper_dereference.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_dereference.o -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_dereference.Tpo -c -o operators/decompile16-oper_dereference.o `test -f 'operators/oper_dereference.cpp' || echo '$(srcdir)/'`operators/oper_dereference.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_dereference.Tpo operators/$(DEPDIR)/decompile16-oper_dereference.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_dereference.cpp' object='operators/decompile16-oper_dereference.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-oper_preincrement.o `test -f 'oper_preincrement.cpp' || echo '$(srcdir)/'`oper_preincrement.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_dereference.o `test -f 'operators/oper_dereference.cpp' || echo '$(srcdir)/'`operators/oper_dereference.cpp
 
-decompile16-oper_preincrement.obj: oper_preincrement.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-oper_preincrement.obj -MD -MP -MF $(DEPDIR)/decompile16-oper_preincrement.Tpo -c -o decompile16-oper_preincrement.obj `if test -f 'oper_preincrement.cpp'; then $(CYGPATH_W) 'oper_preincrement.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_preincrement.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile16-oper_preincrement.Tpo $(DEPDIR)/decompile16-oper_preincrement.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_preincrement.cpp' object='decompile16-oper_preincrement.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile16-oper_dereference.obj: operators/oper_dereference.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_dereference.obj -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_dereference.Tpo -c -o operators/decompile16-oper_dereference.obj `if test -f 'operators/oper_dereference.cpp'; then $(CYGPATH_W) 'operators/oper_dereference.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_dereference.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_dereference.Tpo operators/$(DEPDIR)/decompile16-oper_dereference.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_dereference.cpp' object='operators/decompile16-oper_dereference.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-oper_preincrement.obj `if test -f 'oper_preincrement.cpp'; then $(CYGPATH_W) 'oper_preincrement.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_preincrement.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_dereference.obj `if test -f 'operators/oper_dereference.cpp'; then $(CYGPATH_W) 'operators/oper_dereference.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_dereference.cpp'; fi`
 
-decompile16-oper_add.o: oper_add.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-oper_add.o -MD -MP -MF $(DEPDIR)/decompile16-oper_add.Tpo -c -o decompile16-oper_add.o `test -f 'oper_add.cpp' || echo '$(srcdir)/'`oper_add.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile16-oper_add.Tpo $(DEPDIR)/decompile16-oper_add.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_add.cpp' object='decompile16-oper_add.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile16-oper_preincrement.o: operators/oper_preincrement.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_preincrement.o -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_preincrement.Tpo -c -o operators/decompile16-oper_preincrement.o `test -f 'operators/oper_preincrement.cpp' || echo '$(srcdir)/'`operators/oper_preincrement.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_preincrement.Tpo operators/$(DEPDIR)/decompile16-oper_preincrement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_preincrement.cpp' object='operators/decompile16-oper_preincrement.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-oper_add.o `test -f 'oper_add.cpp' || echo '$(srcdir)/'`oper_add.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_preincrement.o `test -f 'operators/oper_preincrement.cpp' || echo '$(srcdir)/'`operators/oper_preincrement.cpp
 
-decompile16-oper_add.obj: oper_add.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-oper_add.obj -MD -MP -MF $(DEPDIR)/decompile16-oper_add.Tpo -c -o decompile16-oper_add.obj `if test -f 'oper_add.cpp'; then $(CYGPATH_W) 'oper_add.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_add.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile16-oper_add.Tpo $(DEPDIR)/decompile16-oper_add.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_add.cpp' object='decompile16-oper_add.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile16-oper_preincrement.obj: operators/oper_preincrement.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_preincrement.obj -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_preincrement.Tpo -c -o operators/decompile16-oper_preincrement.obj `if test -f 'operators/oper_preincrement.cpp'; then $(CYGPATH_W) 'operators/oper_preincrement.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_preincrement.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_preincrement.Tpo operators/$(DEPDIR)/decompile16-oper_preincrement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_preincrement.cpp' object='operators/decompile16-oper_preincrement.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-oper_add.obj `if test -f 'oper_add.cpp'; then $(CYGPATH_W) 'oper_add.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_add.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_preincrement.obj `if test -f 'operators/oper_preincrement.cpp'; then $(CYGPATH_W) 'operators/oper_preincrement.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_preincrement.cpp'; fi`
 
-decompile16-oper_sub.o: oper_sub.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-oper_sub.o -MD -MP -MF $(DEPDIR)/decompile16-oper_sub.Tpo -c -o decompile16-oper_sub.o `test -f 'oper_sub.cpp' || echo '$(srcdir)/'`oper_sub.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile16-oper_sub.Tpo $(DEPDIR)/decompile16-oper_sub.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_sub.cpp' object='decompile16-oper_sub.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile16-oper_add.o: operators/oper_add.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_add.o -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_add.Tpo -c -o operators/decompile16-oper_add.o `test -f 'operators/oper_add.cpp' || echo '$(srcdir)/'`operators/oper_add.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_add.Tpo operators/$(DEPDIR)/decompile16-oper_add.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_add.cpp' object='operators/decompile16-oper_add.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-oper_sub.o `test -f 'oper_sub.cpp' || echo '$(srcdir)/'`oper_sub.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_add.o `test -f 'operators/oper_add.cpp' || echo '$(srcdir)/'`operators/oper_add.cpp
 
-decompile16-oper_sub.obj: oper_sub.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-oper_sub.obj -MD -MP -MF $(DEPDIR)/decompile16-oper_sub.Tpo -c -o decompile16-oper_sub.obj `if test -f 'oper_sub.cpp'; then $(CYGPATH_W) 'oper_sub.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_sub.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile16-oper_sub.Tpo $(DEPDIR)/decompile16-oper_sub.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_sub.cpp' object='decompile16-oper_sub.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile16-oper_add.obj: operators/oper_add.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_add.obj -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_add.Tpo -c -o operators/decompile16-oper_add.obj `if test -f 'operators/oper_add.cpp'; then $(CYGPATH_W) 'operators/oper_add.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_add.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_add.Tpo operators/$(DEPDIR)/decompile16-oper_add.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_add.cpp' object='operators/decompile16-oper_add.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-oper_sub.obj `if test -f 'oper_sub.cpp'; then $(CYGPATH_W) 'oper_sub.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_sub.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_add.obj `if test -f 'operators/oper_add.cpp'; then $(CYGPATH_W) 'operators/oper_add.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_add.cpp'; fi`
 
-decompile16-oper_assignment.o: oper_assignment.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-oper_assignment.o -MD -MP -MF $(DEPDIR)/decompile16-oper_assignment.Tpo -c -o decompile16-oper_assignment.o `test -f 'oper_assignment.cpp' || echo '$(srcdir)/'`oper_assignment.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile16-oper_assignment.Tpo $(DEPDIR)/decompile16-oper_assignment.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_assignment.cpp' object='decompile16-oper_assignment.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile16-oper_sub.o: operators/oper_sub.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_sub.o -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_sub.Tpo -c -o operators/decompile16-oper_sub.o `test -f 'operators/oper_sub.cpp' || echo '$(srcdir)/'`operators/oper_sub.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_sub.Tpo operators/$(DEPDIR)/decompile16-oper_sub.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_sub.cpp' object='operators/decompile16-oper_sub.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-oper_assignment.o `test -f 'oper_assignment.cpp' || echo '$(srcdir)/'`oper_assignment.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_sub.o `test -f 'operators/oper_sub.cpp' || echo '$(srcdir)/'`operators/oper_sub.cpp
 
-decompile16-oper_assignment.obj: oper_assignment.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-oper_assignment.obj -MD -MP -MF $(DEPDIR)/decompile16-oper_assignment.Tpo -c -o decompile16-oper_assignment.obj `if test -f 'oper_assignment.cpp'; then $(CYGPATH_W) 'oper_assignment.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_assignment.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile16-oper_assignment.Tpo $(DEPDIR)/decompile16-oper_assignment.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_assignment.cpp' object='decompile16-oper_assignment.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile16-oper_sub.obj: operators/oper_sub.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_sub.obj -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_sub.Tpo -c -o operators/decompile16-oper_sub.obj `if test -f 'operators/oper_sub.cpp'; then $(CYGPATH_W) 'operators/oper_sub.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_sub.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_sub.Tpo operators/$(DEPDIR)/decompile16-oper_sub.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_sub.cpp' object='operators/decompile16-oper_sub.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-oper_assignment.obj `if test -f 'oper_assignment.cpp'; then $(CYGPATH_W) 'oper_assignment.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_assignment.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_sub.obj `if test -f 'operators/oper_sub.cpp'; then $(CYGPATH_W) 'operators/oper_sub.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_sub.cpp'; fi`
 
-decompile16-oper_bitwise_or.o: oper_bitwise_or.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-oper_bitwise_or.o -MD -MP -MF $(DEPDIR)/decompile16-oper_bitwise_or.Tpo -c -o decompile16-oper_bitwise_or.o `test -f 'oper_bitwise_or.cpp' || echo '$(srcdir)/'`oper_bitwise_or.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile16-oper_bitwise_or.Tpo $(DEPDIR)/decompile16-oper_bitwise_or.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_bitwise_or.cpp' object='decompile16-oper_bitwise_or.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile16-oper_assignment.o: operators/oper_assignment.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_assignment.o -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_assignment.Tpo -c -o operators/decompile16-oper_assignment.o `test -f 'operators/oper_assignment.cpp' || echo '$(srcdir)/'`operators/oper_assignment.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_assignment.Tpo operators/$(DEPDIR)/decompile16-oper_assignment.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_assignment.cpp' object='operators/decompile16-oper_assignment.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-oper_bitwise_or.o `test -f 'oper_bitwise_or.cpp' || echo '$(srcdir)/'`oper_bitwise_or.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_assignment.o `test -f 'operators/oper_assignment.cpp' || echo '$(srcdir)/'`operators/oper_assignment.cpp
 
-decompile16-oper_bitwise_or.obj: oper_bitwise_or.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-oper_bitwise_or.obj -MD -MP -MF $(DEPDIR)/decompile16-oper_bitwise_or.Tpo -c -o decompile16-oper_bitwise_or.obj `if test -f 'oper_bitwise_or.cpp'; then $(CYGPATH_W) 'oper_bitwise_or.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_bitwise_or.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile16-oper_bitwise_or.Tpo $(DEPDIR)/decompile16-oper_bitwise_or.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_bitwise_or.cpp' object='decompile16-oper_bitwise_or.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile16-oper_assignment.obj: operators/oper_assignment.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_assignment.obj -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_assignment.Tpo -c -o operators/decompile16-oper_assignment.obj `if test -f 'operators/oper_assignment.cpp'; then $(CYGPATH_W) 'operators/oper_assignment.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_assignment.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_assignment.Tpo operators/$(DEPDIR)/decompile16-oper_assignment.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_assignment.cpp' object='operators/decompile16-oper_assignment.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-oper_bitwise_or.obj `if test -f 'oper_bitwise_or.cpp'; then $(CYGPATH_W) 'oper_bitwise_or.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_bitwise_or.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_assignment.obj `if test -f 'operators/oper_assignment.cpp'; then $(CYGPATH_W) 'operators/oper_assignment.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_assignment.cpp'; fi`
+
+operators/decompile16-oper_bitwise_or.o: operators/oper_bitwise_or.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_bitwise_or.o -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_bitwise_or.Tpo -c -o operators/decompile16-oper_bitwise_or.o `test -f 'operators/oper_bitwise_or.cpp' || echo '$(srcdir)/'`operators/oper_bitwise_or.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_bitwise_or.Tpo operators/$(DEPDIR)/decompile16-oper_bitwise_or.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_bitwise_or.cpp' object='operators/decompile16-oper_bitwise_or.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_bitwise_or.o `test -f 'operators/oper_bitwise_or.cpp' || echo '$(srcdir)/'`operators/oper_bitwise_or.cpp
+
+operators/decompile16-oper_bitwise_or.obj: operators/oper_bitwise_or.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_bitwise_or.obj -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_bitwise_or.Tpo -c -o operators/decompile16-oper_bitwise_or.obj `if test -f 'operators/oper_bitwise_or.cpp'; then $(CYGPATH_W) 'operators/oper_bitwise_or.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_bitwise_or.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_bitwise_or.Tpo operators/$(DEPDIR)/decompile16-oper_bitwise_or.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_bitwise_or.cpp' object='operators/decompile16-oper_bitwise_or.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_bitwise_or.obj `if test -f 'operators/oper_bitwise_or.cpp'; then $(CYGPATH_W) 'operators/oper_bitwise_or.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_bitwise_or.cpp'; fi`
 
 decompile16-decompile.o: decompile.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-decompile.o -MD -MP -MF $(DEPDIR)/decompile16-decompile.Tpo -c -o decompile16-decompile.o `test -f 'decompile.cpp' || echo '$(srcdir)/'`decompile.cpp
@@ -1057,103 +1164,117 @@ decompile32-variable.obj: variable.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-variable.obj `if test -f 'variable.cpp'; then $(CYGPATH_W) 'variable.cpp'; else $(CYGPATH_W) '$(srcdir)/variable.cpp'; fi`
 
-decompile32-oper1.o: oper1.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-oper1.o -MD -MP -MF $(DEPDIR)/decompile32-oper1.Tpo -c -o decompile32-oper1.o `test -f 'oper1.cpp' || echo '$(srcdir)/'`oper1.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile32-oper1.Tpo $(DEPDIR)/decompile32-oper1.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper1.cpp' object='decompile32-oper1.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile32-oper1.o: operators/oper1.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper1.o -MD -MP -MF operators/$(DEPDIR)/decompile32-oper1.Tpo -c -o operators/decompile32-oper1.o `test -f 'operators/oper1.cpp' || echo '$(srcdir)/'`operators/oper1.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper1.Tpo operators/$(DEPDIR)/decompile32-oper1.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper1.cpp' object='operators/decompile32-oper1.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-oper1.o `test -f 'oper1.cpp' || echo '$(srcdir)/'`oper1.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper1.o `test -f 'operators/oper1.cpp' || echo '$(srcdir)/'`operators/oper1.cpp
 
-decompile32-oper1.obj: oper1.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-oper1.obj -MD -MP -MF $(DEPDIR)/decompile32-oper1.Tpo -c -o decompile32-oper1.obj `if test -f 'oper1.cpp'; then $(CYGPATH_W) 'oper1.cpp'; else $(CYGPATH_W) '$(srcdir)/oper1.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile32-oper1.Tpo $(DEPDIR)/decompile32-oper1.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper1.cpp' object='decompile32-oper1.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile32-oper1.obj: operators/oper1.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper1.obj -MD -MP -MF operators/$(DEPDIR)/decompile32-oper1.Tpo -c -o operators/decompile32-oper1.obj `if test -f 'operators/oper1.cpp'; then $(CYGPATH_W) 'operators/oper1.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper1.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper1.Tpo operators/$(DEPDIR)/decompile32-oper1.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper1.cpp' object='operators/decompile32-oper1.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-oper1.obj `if test -f 'oper1.cpp'; then $(CYGPATH_W) 'oper1.cpp'; else $(CYGPATH_W) '$(srcdir)/oper1.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper1.obj `if test -f 'operators/oper1.cpp'; then $(CYGPATH_W) 'operators/oper1.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper1.cpp'; fi`
 
-decompile32-oper2.o: oper2.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-oper2.o -MD -MP -MF $(DEPDIR)/decompile32-oper2.Tpo -c -o decompile32-oper2.o `test -f 'oper2.cpp' || echo '$(srcdir)/'`oper2.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile32-oper2.Tpo $(DEPDIR)/decompile32-oper2.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper2.cpp' object='decompile32-oper2.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile32-oper2.o: operators/oper2.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper2.o -MD -MP -MF operators/$(DEPDIR)/decompile32-oper2.Tpo -c -o operators/decompile32-oper2.o `test -f 'operators/oper2.cpp' || echo '$(srcdir)/'`operators/oper2.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper2.Tpo operators/$(DEPDIR)/decompile32-oper2.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper2.cpp' object='operators/decompile32-oper2.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-oper2.o `test -f 'oper2.cpp' || echo '$(srcdir)/'`oper2.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper2.o `test -f 'operators/oper2.cpp' || echo '$(srcdir)/'`operators/oper2.cpp
 
-decompile32-oper2.obj: oper2.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-oper2.obj -MD -MP -MF $(DEPDIR)/decompile32-oper2.Tpo -c -o decompile32-oper2.obj `if test -f 'oper2.cpp'; then $(CYGPATH_W) 'oper2.cpp'; else $(CYGPATH_W) '$(srcdir)/oper2.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile32-oper2.Tpo $(DEPDIR)/decompile32-oper2.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper2.cpp' object='decompile32-oper2.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile32-oper2.obj: operators/oper2.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper2.obj -MD -MP -MF operators/$(DEPDIR)/decompile32-oper2.Tpo -c -o operators/decompile32-oper2.obj `if test -f 'operators/oper2.cpp'; then $(CYGPATH_W) 'operators/oper2.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper2.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper2.Tpo operators/$(DEPDIR)/decompile32-oper2.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper2.cpp' object='operators/decompile32-oper2.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-oper2.obj `if test -f 'oper2.cpp'; then $(CYGPATH_W) 'oper2.cpp'; else $(CYGPATH_W) '$(srcdir)/oper2.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper2.obj `if test -f 'operators/oper2.cpp'; then $(CYGPATH_W) 'operators/oper2.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper2.cpp'; fi`
 
-decompile32-oper_preincrement.o: oper_preincrement.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-oper_preincrement.o -MD -MP -MF $(DEPDIR)/decompile32-oper_preincrement.Tpo -c -o decompile32-oper_preincrement.o `test -f 'oper_preincrement.cpp' || echo '$(srcdir)/'`oper_preincrement.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile32-oper_preincrement.Tpo $(DEPDIR)/decompile32-oper_preincrement.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_preincrement.cpp' object='decompile32-oper_preincrement.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile32-oper_dereference.o: operators/oper_dereference.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_dereference.o -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_dereference.Tpo -c -o operators/decompile32-oper_dereference.o `test -f 'operators/oper_dereference.cpp' || echo '$(srcdir)/'`operators/oper_dereference.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_dereference.Tpo operators/$(DEPDIR)/decompile32-oper_dereference.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_dereference.cpp' object='operators/decompile32-oper_dereference.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-oper_preincrement.o `test -f 'oper_preincrement.cpp' || echo '$(srcdir)/'`oper_preincrement.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_dereference.o `test -f 'operators/oper_dereference.cpp' || echo '$(srcdir)/'`operators/oper_dereference.cpp
 
-decompile32-oper_preincrement.obj: oper_preincrement.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-oper_preincrement.obj -MD -MP -MF $(DEPDIR)/decompile32-oper_preincrement.Tpo -c -o decompile32-oper_preincrement.obj `if test -f 'oper_preincrement.cpp'; then $(CYGPATH_W) 'oper_preincrement.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_preincrement.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile32-oper_preincrement.Tpo $(DEPDIR)/decompile32-oper_preincrement.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_preincrement.cpp' object='decompile32-oper_preincrement.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile32-oper_dereference.obj: operators/oper_dereference.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_dereference.obj -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_dereference.Tpo -c -o operators/decompile32-oper_dereference.obj `if test -f 'operators/oper_dereference.cpp'; then $(CYGPATH_W) 'operators/oper_dereference.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_dereference.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_dereference.Tpo operators/$(DEPDIR)/decompile32-oper_dereference.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_dereference.cpp' object='operators/decompile32-oper_dereference.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-oper_preincrement.obj `if test -f 'oper_preincrement.cpp'; then $(CYGPATH_W) 'oper_preincrement.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_preincrement.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_dereference.obj `if test -f 'operators/oper_dereference.cpp'; then $(CYGPATH_W) 'operators/oper_dereference.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_dereference.cpp'; fi`
 
-decompile32-oper_add.o: oper_add.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-oper_add.o -MD -MP -MF $(DEPDIR)/decompile32-oper_add.Tpo -c -o decompile32-oper_add.o `test -f 'oper_add.cpp' || echo '$(srcdir)/'`oper_add.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile32-oper_add.Tpo $(DEPDIR)/decompile32-oper_add.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_add.cpp' object='decompile32-oper_add.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile32-oper_preincrement.o: operators/oper_preincrement.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_preincrement.o -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_preincrement.Tpo -c -o operators/decompile32-oper_preincrement.o `test -f 'operators/oper_preincrement.cpp' || echo '$(srcdir)/'`operators/oper_preincrement.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_preincrement.Tpo operators/$(DEPDIR)/decompile32-oper_preincrement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_preincrement.cpp' object='operators/decompile32-oper_preincrement.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-oper_add.o `test -f 'oper_add.cpp' || echo '$(srcdir)/'`oper_add.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_preincrement.o `test -f 'operators/oper_preincrement.cpp' || echo '$(srcdir)/'`operators/oper_preincrement.cpp
 
-decompile32-oper_add.obj: oper_add.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-oper_add.obj -MD -MP -MF $(DEPDIR)/decompile32-oper_add.Tpo -c -o decompile32-oper_add.obj `if test -f 'oper_add.cpp'; then $(CYGPATH_W) 'oper_add.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_add.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile32-oper_add.Tpo $(DEPDIR)/decompile32-oper_add.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_add.cpp' object='decompile32-oper_add.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile32-oper_preincrement.obj: operators/oper_preincrement.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_preincrement.obj -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_preincrement.Tpo -c -o operators/decompile32-oper_preincrement.obj `if test -f 'operators/oper_preincrement.cpp'; then $(CYGPATH_W) 'operators/oper_preincrement.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_preincrement.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_preincrement.Tpo operators/$(DEPDIR)/decompile32-oper_preincrement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_preincrement.cpp' object='operators/decompile32-oper_preincrement.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-oper_add.obj `if test -f 'oper_add.cpp'; then $(CYGPATH_W) 'oper_add.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_add.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_preincrement.obj `if test -f 'operators/oper_preincrement.cpp'; then $(CYGPATH_W) 'operators/oper_preincrement.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_preincrement.cpp'; fi`
 
-decompile32-oper_sub.o: oper_sub.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-oper_sub.o -MD -MP -MF $(DEPDIR)/decompile32-oper_sub.Tpo -c -o decompile32-oper_sub.o `test -f 'oper_sub.cpp' || echo '$(srcdir)/'`oper_sub.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile32-oper_sub.Tpo $(DEPDIR)/decompile32-oper_sub.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_sub.cpp' object='decompile32-oper_sub.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile32-oper_add.o: operators/oper_add.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_add.o -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_add.Tpo -c -o operators/decompile32-oper_add.o `test -f 'operators/oper_add.cpp' || echo '$(srcdir)/'`operators/oper_add.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_add.Tpo operators/$(DEPDIR)/decompile32-oper_add.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_add.cpp' object='operators/decompile32-oper_add.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-oper_sub.o `test -f 'oper_sub.cpp' || echo '$(srcdir)/'`oper_sub.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_add.o `test -f 'operators/oper_add.cpp' || echo '$(srcdir)/'`operators/oper_add.cpp
 
-decompile32-oper_sub.obj: oper_sub.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-oper_sub.obj -MD -MP -MF $(DEPDIR)/decompile32-oper_sub.Tpo -c -o decompile32-oper_sub.obj `if test -f 'oper_sub.cpp'; then $(CYGPATH_W) 'oper_sub.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_sub.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile32-oper_sub.Tpo $(DEPDIR)/decompile32-oper_sub.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_sub.cpp' object='decompile32-oper_sub.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile32-oper_add.obj: operators/oper_add.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_add.obj -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_add.Tpo -c -o operators/decompile32-oper_add.obj `if test -f 'operators/oper_add.cpp'; then $(CYGPATH_W) 'operators/oper_add.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_add.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_add.Tpo operators/$(DEPDIR)/decompile32-oper_add.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_add.cpp' object='operators/decompile32-oper_add.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-oper_sub.obj `if test -f 'oper_sub.cpp'; then $(CYGPATH_W) 'oper_sub.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_sub.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_add.obj `if test -f 'operators/oper_add.cpp'; then $(CYGPATH_W) 'operators/oper_add.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_add.cpp'; fi`
 
-decompile32-oper_assignment.o: oper_assignment.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-oper_assignment.o -MD -MP -MF $(DEPDIR)/decompile32-oper_assignment.Tpo -c -o decompile32-oper_assignment.o `test -f 'oper_assignment.cpp' || echo '$(srcdir)/'`oper_assignment.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile32-oper_assignment.Tpo $(DEPDIR)/decompile32-oper_assignment.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_assignment.cpp' object='decompile32-oper_assignment.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile32-oper_sub.o: operators/oper_sub.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_sub.o -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_sub.Tpo -c -o operators/decompile32-oper_sub.o `test -f 'operators/oper_sub.cpp' || echo '$(srcdir)/'`operators/oper_sub.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_sub.Tpo operators/$(DEPDIR)/decompile32-oper_sub.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_sub.cpp' object='operators/decompile32-oper_sub.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-oper_assignment.o `test -f 'oper_assignment.cpp' || echo '$(srcdir)/'`oper_assignment.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_sub.o `test -f 'operators/oper_sub.cpp' || echo '$(srcdir)/'`operators/oper_sub.cpp
 
-decompile32-oper_assignment.obj: oper_assignment.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-oper_assignment.obj -MD -MP -MF $(DEPDIR)/decompile32-oper_assignment.Tpo -c -o decompile32-oper_assignment.obj `if test -f 'oper_assignment.cpp'; then $(CYGPATH_W) 'oper_assignment.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_assignment.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile32-oper_assignment.Tpo $(DEPDIR)/decompile32-oper_assignment.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_assignment.cpp' object='decompile32-oper_assignment.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile32-oper_sub.obj: operators/oper_sub.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_sub.obj -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_sub.Tpo -c -o operators/decompile32-oper_sub.obj `if test -f 'operators/oper_sub.cpp'; then $(CYGPATH_W) 'operators/oper_sub.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_sub.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_sub.Tpo operators/$(DEPDIR)/decompile32-oper_sub.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_sub.cpp' object='operators/decompile32-oper_sub.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-oper_assignment.obj `if test -f 'oper_assignment.cpp'; then $(CYGPATH_W) 'oper_assignment.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_assignment.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_sub.obj `if test -f 'operators/oper_sub.cpp'; then $(CYGPATH_W) 'operators/oper_sub.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_sub.cpp'; fi`
 
-decompile32-oper_bitwise_or.o: oper_bitwise_or.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-oper_bitwise_or.o -MD -MP -MF $(DEPDIR)/decompile32-oper_bitwise_or.Tpo -c -o decompile32-oper_bitwise_or.o `test -f 'oper_bitwise_or.cpp' || echo '$(srcdir)/'`oper_bitwise_or.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile32-oper_bitwise_or.Tpo $(DEPDIR)/decompile32-oper_bitwise_or.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_bitwise_or.cpp' object='decompile32-oper_bitwise_or.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile32-oper_assignment.o: operators/oper_assignment.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_assignment.o -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_assignment.Tpo -c -o operators/decompile32-oper_assignment.o `test -f 'operators/oper_assignment.cpp' || echo '$(srcdir)/'`operators/oper_assignment.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_assignment.Tpo operators/$(DEPDIR)/decompile32-oper_assignment.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_assignment.cpp' object='operators/decompile32-oper_assignment.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-oper_bitwise_or.o `test -f 'oper_bitwise_or.cpp' || echo '$(srcdir)/'`oper_bitwise_or.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_assignment.o `test -f 'operators/oper_assignment.cpp' || echo '$(srcdir)/'`operators/oper_assignment.cpp
 
-decompile32-oper_bitwise_or.obj: oper_bitwise_or.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-oper_bitwise_or.obj -MD -MP -MF $(DEPDIR)/decompile32-oper_bitwise_or.Tpo -c -o decompile32-oper_bitwise_or.obj `if test -f 'oper_bitwise_or.cpp'; then $(CYGPATH_W) 'oper_bitwise_or.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_bitwise_or.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile32-oper_bitwise_or.Tpo $(DEPDIR)/decompile32-oper_bitwise_or.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_bitwise_or.cpp' object='decompile32-oper_bitwise_or.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile32-oper_assignment.obj: operators/oper_assignment.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_assignment.obj -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_assignment.Tpo -c -o operators/decompile32-oper_assignment.obj `if test -f 'operators/oper_assignment.cpp'; then $(CYGPATH_W) 'operators/oper_assignment.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_assignment.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_assignment.Tpo operators/$(DEPDIR)/decompile32-oper_assignment.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_assignment.cpp' object='operators/decompile32-oper_assignment.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-oper_bitwise_or.obj `if test -f 'oper_bitwise_or.cpp'; then $(CYGPATH_W) 'oper_bitwise_or.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_bitwise_or.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_assignment.obj `if test -f 'operators/oper_assignment.cpp'; then $(CYGPATH_W) 'operators/oper_assignment.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_assignment.cpp'; fi`
+
+operators/decompile32-oper_bitwise_or.o: operators/oper_bitwise_or.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_bitwise_or.o -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_bitwise_or.Tpo -c -o operators/decompile32-oper_bitwise_or.o `test -f 'operators/oper_bitwise_or.cpp' || echo '$(srcdir)/'`operators/oper_bitwise_or.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_bitwise_or.Tpo operators/$(DEPDIR)/decompile32-oper_bitwise_or.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_bitwise_or.cpp' object='operators/decompile32-oper_bitwise_or.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_bitwise_or.o `test -f 'operators/oper_bitwise_or.cpp' || echo '$(srcdir)/'`operators/oper_bitwise_or.cpp
+
+operators/decompile32-oper_bitwise_or.obj: operators/oper_bitwise_or.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_bitwise_or.obj -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_bitwise_or.Tpo -c -o operators/decompile32-oper_bitwise_or.obj `if test -f 'operators/oper_bitwise_or.cpp'; then $(CYGPATH_W) 'operators/oper_bitwise_or.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_bitwise_or.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_bitwise_or.Tpo operators/$(DEPDIR)/decompile32-oper_bitwise_or.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_bitwise_or.cpp' object='operators/decompile32-oper_bitwise_or.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_bitwise_or.obj `if test -f 'operators/oper_bitwise_or.cpp'; then $(CYGPATH_W) 'operators/oper_bitwise_or.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_bitwise_or.cpp'; fi`
 
 decompile32-decompile.o: decompile.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-decompile.o -MD -MP -MF $(DEPDIR)/decompile32-decompile.Tpo -c -o decompile32-decompile.o `test -f 'decompile.cpp' || echo '$(srcdir)/'`decompile.cpp
@@ -1421,103 +1542,117 @@ decompile64-variable.obj: variable.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-variable.obj `if test -f 'variable.cpp'; then $(CYGPATH_W) 'variable.cpp'; else $(CYGPATH_W) '$(srcdir)/variable.cpp'; fi`
 
-decompile64-oper1.o: oper1.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-oper1.o -MD -MP -MF $(DEPDIR)/decompile64-oper1.Tpo -c -o decompile64-oper1.o `test -f 'oper1.cpp' || echo '$(srcdir)/'`oper1.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile64-oper1.Tpo $(DEPDIR)/decompile64-oper1.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper1.cpp' object='decompile64-oper1.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile64-oper1.o: operators/oper1.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper1.o -MD -MP -MF operators/$(DEPDIR)/decompile64-oper1.Tpo -c -o operators/decompile64-oper1.o `test -f 'operators/oper1.cpp' || echo '$(srcdir)/'`operators/oper1.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper1.Tpo operators/$(DEPDIR)/decompile64-oper1.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper1.cpp' object='operators/decompile64-oper1.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-oper1.o `test -f 'oper1.cpp' || echo '$(srcdir)/'`oper1.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper1.o `test -f 'operators/oper1.cpp' || echo '$(srcdir)/'`operators/oper1.cpp
 
-decompile64-oper1.obj: oper1.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-oper1.obj -MD -MP -MF $(DEPDIR)/decompile64-oper1.Tpo -c -o decompile64-oper1.obj `if test -f 'oper1.cpp'; then $(CYGPATH_W) 'oper1.cpp'; else $(CYGPATH_W) '$(srcdir)/oper1.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile64-oper1.Tpo $(DEPDIR)/decompile64-oper1.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper1.cpp' object='decompile64-oper1.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile64-oper1.obj: operators/oper1.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper1.obj -MD -MP -MF operators/$(DEPDIR)/decompile64-oper1.Tpo -c -o operators/decompile64-oper1.obj `if test -f 'operators/oper1.cpp'; then $(CYGPATH_W) 'operators/oper1.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper1.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper1.Tpo operators/$(DEPDIR)/decompile64-oper1.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper1.cpp' object='operators/decompile64-oper1.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-oper1.obj `if test -f 'oper1.cpp'; then $(CYGPATH_W) 'oper1.cpp'; else $(CYGPATH_W) '$(srcdir)/oper1.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper1.obj `if test -f 'operators/oper1.cpp'; then $(CYGPATH_W) 'operators/oper1.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper1.cpp'; fi`
 
-decompile64-oper2.o: oper2.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-oper2.o -MD -MP -MF $(DEPDIR)/decompile64-oper2.Tpo -c -o decompile64-oper2.o `test -f 'oper2.cpp' || echo '$(srcdir)/'`oper2.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile64-oper2.Tpo $(DEPDIR)/decompile64-oper2.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper2.cpp' object='decompile64-oper2.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile64-oper2.o: operators/oper2.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper2.o -MD -MP -MF operators/$(DEPDIR)/decompile64-oper2.Tpo -c -o operators/decompile64-oper2.o `test -f 'operators/oper2.cpp' || echo '$(srcdir)/'`operators/oper2.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper2.Tpo operators/$(DEPDIR)/decompile64-oper2.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper2.cpp' object='operators/decompile64-oper2.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-oper2.o `test -f 'oper2.cpp' || echo '$(srcdir)/'`oper2.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper2.o `test -f 'operators/oper2.cpp' || echo '$(srcdir)/'`operators/oper2.cpp
 
-decompile64-oper2.obj: oper2.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-oper2.obj -MD -MP -MF $(DEPDIR)/decompile64-oper2.Tpo -c -o decompile64-oper2.obj `if test -f 'oper2.cpp'; then $(CYGPATH_W) 'oper2.cpp'; else $(CYGPATH_W) '$(srcdir)/oper2.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile64-oper2.Tpo $(DEPDIR)/decompile64-oper2.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper2.cpp' object='decompile64-oper2.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile64-oper2.obj: operators/oper2.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper2.obj -MD -MP -MF operators/$(DEPDIR)/decompile64-oper2.Tpo -c -o operators/decompile64-oper2.obj `if test -f 'operators/oper2.cpp'; then $(CYGPATH_W) 'operators/oper2.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper2.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper2.Tpo operators/$(DEPDIR)/decompile64-oper2.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper2.cpp' object='operators/decompile64-oper2.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-oper2.obj `if test -f 'oper2.cpp'; then $(CYGPATH_W) 'oper2.cpp'; else $(CYGPATH_W) '$(srcdir)/oper2.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper2.obj `if test -f 'operators/oper2.cpp'; then $(CYGPATH_W) 'operators/oper2.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper2.cpp'; fi`
 
-decompile64-oper_preincrement.o: oper_preincrement.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-oper_preincrement.o -MD -MP -MF $(DEPDIR)/decompile64-oper_preincrement.Tpo -c -o decompile64-oper_preincrement.o `test -f 'oper_preincrement.cpp' || echo '$(srcdir)/'`oper_preincrement.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile64-oper_preincrement.Tpo $(DEPDIR)/decompile64-oper_preincrement.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_preincrement.cpp' object='decompile64-oper_preincrement.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile64-oper_dereference.o: operators/oper_dereference.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_dereference.o -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_dereference.Tpo -c -o operators/decompile64-oper_dereference.o `test -f 'operators/oper_dereference.cpp' || echo '$(srcdir)/'`operators/oper_dereference.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_dereference.Tpo operators/$(DEPDIR)/decompile64-oper_dereference.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_dereference.cpp' object='operators/decompile64-oper_dereference.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-oper_preincrement.o `test -f 'oper_preincrement.cpp' || echo '$(srcdir)/'`oper_preincrement.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_dereference.o `test -f 'operators/oper_dereference.cpp' || echo '$(srcdir)/'`operators/oper_dereference.cpp
 
-decompile64-oper_preincrement.obj: oper_preincrement.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-oper_preincrement.obj -MD -MP -MF $(DEPDIR)/decompile64-oper_preincrement.Tpo -c -o decompile64-oper_preincrement.obj `if test -f 'oper_preincrement.cpp'; then $(CYGPATH_W) 'oper_preincrement.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_preincrement.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile64-oper_preincrement.Tpo $(DEPDIR)/decompile64-oper_preincrement.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_preincrement.cpp' object='decompile64-oper_preincrement.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile64-oper_dereference.obj: operators/oper_dereference.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_dereference.obj -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_dereference.Tpo -c -o operators/decompile64-oper_dereference.obj `if test -f 'operators/oper_dereference.cpp'; then $(CYGPATH_W) 'operators/oper_dereference.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_dereference.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_dereference.Tpo operators/$(DEPDIR)/decompile64-oper_dereference.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_dereference.cpp' object='operators/decompile64-oper_dereference.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-oper_preincrement.obj `if test -f 'oper_preincrement.cpp'; then $(CYGPATH_W) 'oper_preincrement.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_preincrement.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_dereference.obj `if test -f 'operators/oper_dereference.cpp'; then $(CYGPATH_W) 'operators/oper_dereference.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_dereference.cpp'; fi`
 
-decompile64-oper_add.o: oper_add.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-oper_add.o -MD -MP -MF $(DEPDIR)/decompile64-oper_add.Tpo -c -o decompile64-oper_add.o `test -f 'oper_add.cpp' || echo '$(srcdir)/'`oper_add.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile64-oper_add.Tpo $(DEPDIR)/decompile64-oper_add.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_add.cpp' object='decompile64-oper_add.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile64-oper_preincrement.o: operators/oper_preincrement.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_preincrement.o -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_preincrement.Tpo -c -o operators/decompile64-oper_preincrement.o `test -f 'operators/oper_preincrement.cpp' || echo '$(srcdir)/'`operators/oper_preincrement.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_preincrement.Tpo operators/$(DEPDIR)/decompile64-oper_preincrement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_preincrement.cpp' object='operators/decompile64-oper_preincrement.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-oper_add.o `test -f 'oper_add.cpp' || echo '$(srcdir)/'`oper_add.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_preincrement.o `test -f 'operators/oper_preincrement.cpp' || echo '$(srcdir)/'`operators/oper_preincrement.cpp
 
-decompile64-oper_add.obj: oper_add.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-oper_add.obj -MD -MP -MF $(DEPDIR)/decompile64-oper_add.Tpo -c -o decompile64-oper_add.obj `if test -f 'oper_add.cpp'; then $(CYGPATH_W) 'oper_add.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_add.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile64-oper_add.Tpo $(DEPDIR)/decompile64-oper_add.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_add.cpp' object='decompile64-oper_add.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile64-oper_preincrement.obj: operators/oper_preincrement.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_preincrement.obj -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_preincrement.Tpo -c -o operators/decompile64-oper_preincrement.obj `if test -f 'operators/oper_preincrement.cpp'; then $(CYGPATH_W) 'operators/oper_preincrement.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_preincrement.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_preincrement.Tpo operators/$(DEPDIR)/decompile64-oper_preincrement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_preincrement.cpp' object='operators/decompile64-oper_preincrement.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-oper_add.obj `if test -f 'oper_add.cpp'; then $(CYGPATH_W) 'oper_add.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_add.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_preincrement.obj `if test -f 'operators/oper_preincrement.cpp'; then $(CYGPATH_W) 'operators/oper_preincrement.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_preincrement.cpp'; fi`
 
-decompile64-oper_sub.o: oper_sub.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-oper_sub.o -MD -MP -MF $(DEPDIR)/decompile64-oper_sub.Tpo -c -o decompile64-oper_sub.o `test -f 'oper_sub.cpp' || echo '$(srcdir)/'`oper_sub.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile64-oper_sub.Tpo $(DEPDIR)/decompile64-oper_sub.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_sub.cpp' object='decompile64-oper_sub.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile64-oper_add.o: operators/oper_add.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_add.o -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_add.Tpo -c -o operators/decompile64-oper_add.o `test -f 'operators/oper_add.cpp' || echo '$(srcdir)/'`operators/oper_add.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_add.Tpo operators/$(DEPDIR)/decompile64-oper_add.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_add.cpp' object='operators/decompile64-oper_add.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-oper_sub.o `test -f 'oper_sub.cpp' || echo '$(srcdir)/'`oper_sub.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_add.o `test -f 'operators/oper_add.cpp' || echo '$(srcdir)/'`operators/oper_add.cpp
 
-decompile64-oper_sub.obj: oper_sub.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-oper_sub.obj -MD -MP -MF $(DEPDIR)/decompile64-oper_sub.Tpo -c -o decompile64-oper_sub.obj `if test -f 'oper_sub.cpp'; then $(CYGPATH_W) 'oper_sub.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_sub.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile64-oper_sub.Tpo $(DEPDIR)/decompile64-oper_sub.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_sub.cpp' object='decompile64-oper_sub.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile64-oper_add.obj: operators/oper_add.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_add.obj -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_add.Tpo -c -o operators/decompile64-oper_add.obj `if test -f 'operators/oper_add.cpp'; then $(CYGPATH_W) 'operators/oper_add.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_add.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_add.Tpo operators/$(DEPDIR)/decompile64-oper_add.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_add.cpp' object='operators/decompile64-oper_add.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-oper_sub.obj `if test -f 'oper_sub.cpp'; then $(CYGPATH_W) 'oper_sub.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_sub.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_add.obj `if test -f 'operators/oper_add.cpp'; then $(CYGPATH_W) 'operators/oper_add.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_add.cpp'; fi`
 
-decompile64-oper_assignment.o: oper_assignment.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-oper_assignment.o -MD -MP -MF $(DEPDIR)/decompile64-oper_assignment.Tpo -c -o decompile64-oper_assignment.o `test -f 'oper_assignment.cpp' || echo '$(srcdir)/'`oper_assignment.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile64-oper_assignment.Tpo $(DEPDIR)/decompile64-oper_assignment.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_assignment.cpp' object='decompile64-oper_assignment.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile64-oper_sub.o: operators/oper_sub.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_sub.o -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_sub.Tpo -c -o operators/decompile64-oper_sub.o `test -f 'operators/oper_sub.cpp' || echo '$(srcdir)/'`operators/oper_sub.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_sub.Tpo operators/$(DEPDIR)/decompile64-oper_sub.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_sub.cpp' object='operators/decompile64-oper_sub.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-oper_assignment.o `test -f 'oper_assignment.cpp' || echo '$(srcdir)/'`oper_assignment.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_sub.o `test -f 'operators/oper_sub.cpp' || echo '$(srcdir)/'`operators/oper_sub.cpp
 
-decompile64-oper_assignment.obj: oper_assignment.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-oper_assignment.obj -MD -MP -MF $(DEPDIR)/decompile64-oper_assignment.Tpo -c -o decompile64-oper_assignment.obj `if test -f 'oper_assignment.cpp'; then $(CYGPATH_W) 'oper_assignment.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_assignment.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile64-oper_assignment.Tpo $(DEPDIR)/decompile64-oper_assignment.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_assignment.cpp' object='decompile64-oper_assignment.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile64-oper_sub.obj: operators/oper_sub.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_sub.obj -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_sub.Tpo -c -o operators/decompile64-oper_sub.obj `if test -f 'operators/oper_sub.cpp'; then $(CYGPATH_W) 'operators/oper_sub.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_sub.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_sub.Tpo operators/$(DEPDIR)/decompile64-oper_sub.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_sub.cpp' object='operators/decompile64-oper_sub.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-oper_assignment.obj `if test -f 'oper_assignment.cpp'; then $(CYGPATH_W) 'oper_assignment.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_assignment.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_sub.obj `if test -f 'operators/oper_sub.cpp'; then $(CYGPATH_W) 'operators/oper_sub.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_sub.cpp'; fi`
 
-decompile64-oper_bitwise_or.o: oper_bitwise_or.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-oper_bitwise_or.o -MD -MP -MF $(DEPDIR)/decompile64-oper_bitwise_or.Tpo -c -o decompile64-oper_bitwise_or.o `test -f 'oper_bitwise_or.cpp' || echo '$(srcdir)/'`oper_bitwise_or.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile64-oper_bitwise_or.Tpo $(DEPDIR)/decompile64-oper_bitwise_or.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_bitwise_or.cpp' object='decompile64-oper_bitwise_or.o' libtool=no @AMDEPBACKSLASH@
+operators/decompile64-oper_assignment.o: operators/oper_assignment.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_assignment.o -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_assignment.Tpo -c -o operators/decompile64-oper_assignment.o `test -f 'operators/oper_assignment.cpp' || echo '$(srcdir)/'`operators/oper_assignment.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_assignment.Tpo operators/$(DEPDIR)/decompile64-oper_assignment.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_assignment.cpp' object='operators/decompile64-oper_assignment.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-oper_bitwise_or.o `test -f 'oper_bitwise_or.cpp' || echo '$(srcdir)/'`oper_bitwise_or.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_assignment.o `test -f 'operators/oper_assignment.cpp' || echo '$(srcdir)/'`operators/oper_assignment.cpp
 
-decompile64-oper_bitwise_or.obj: oper_bitwise_or.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-oper_bitwise_or.obj -MD -MP -MF $(DEPDIR)/decompile64-oper_bitwise_or.Tpo -c -o decompile64-oper_bitwise_or.obj `if test -f 'oper_bitwise_or.cpp'; then $(CYGPATH_W) 'oper_bitwise_or.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_bitwise_or.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile64-oper_bitwise_or.Tpo $(DEPDIR)/decompile64-oper_bitwise_or.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='oper_bitwise_or.cpp' object='decompile64-oper_bitwise_or.obj' libtool=no @AMDEPBACKSLASH@
+operators/decompile64-oper_assignment.obj: operators/oper_assignment.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_assignment.obj -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_assignment.Tpo -c -o operators/decompile64-oper_assignment.obj `if test -f 'operators/oper_assignment.cpp'; then $(CYGPATH_W) 'operators/oper_assignment.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_assignment.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_assignment.Tpo operators/$(DEPDIR)/decompile64-oper_assignment.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_assignment.cpp' object='operators/decompile64-oper_assignment.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-oper_bitwise_or.obj `if test -f 'oper_bitwise_or.cpp'; then $(CYGPATH_W) 'oper_bitwise_or.cpp'; else $(CYGPATH_W) '$(srcdir)/oper_bitwise_or.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_assignment.obj `if test -f 'operators/oper_assignment.cpp'; then $(CYGPATH_W) 'operators/oper_assignment.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_assignment.cpp'; fi`
+
+operators/decompile64-oper_bitwise_or.o: operators/oper_bitwise_or.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_bitwise_or.o -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_bitwise_or.Tpo -c -o operators/decompile64-oper_bitwise_or.o `test -f 'operators/oper_bitwise_or.cpp' || echo '$(srcdir)/'`operators/oper_bitwise_or.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_bitwise_or.Tpo operators/$(DEPDIR)/decompile64-oper_bitwise_or.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_bitwise_or.cpp' object='operators/decompile64-oper_bitwise_or.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_bitwise_or.o `test -f 'operators/oper_bitwise_or.cpp' || echo '$(srcdir)/'`operators/oper_bitwise_or.cpp
+
+operators/decompile64-oper_bitwise_or.obj: operators/oper_bitwise_or.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_bitwise_or.obj -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_bitwise_or.Tpo -c -o operators/decompile64-oper_bitwise_or.obj `if test -f 'operators/oper_bitwise_or.cpp'; then $(CYGPATH_W) 'operators/oper_bitwise_or.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_bitwise_or.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_bitwise_or.Tpo operators/$(DEPDIR)/decompile64-oper_bitwise_or.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_bitwise_or.cpp' object='operators/decompile64-oper_bitwise_or.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_bitwise_or.obj `if test -f 'operators/oper_bitwise_or.cpp'; then $(CYGPATH_W) 'operators/oper_bitwise_or.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_bitwise_or.cpp'; fi`
 
 decompile64-decompile.o: decompile.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-decompile.o -MD -MP -MF $(DEPDIR)/decompile64-decompile.Tpo -c -o decompile64-decompile.o `test -f 'decompile.cpp' || echo '$(srcdir)/'`decompile.cpp
@@ -2085,6 +2220,8 @@ distclean-generic:
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
 	-rm -f code_elements/$(DEPDIR)/$(am__dirstamp)
 	-rm -f code_elements/$(am__dirstamp)
+	-rm -f operators/$(DEPDIR)/$(am__dirstamp)
+	-rm -f operators/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -2096,7 +2233,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-local mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR) operators/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -2144,7 +2281,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR) operators/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

@@ -8,7 +8,7 @@
 #include "exe_loader.h"
 #include "exceptions.h"
 #include "helpers.h"
-#include "operators_all.h"
+#include "operators/operators_all.h"
 
 disass_ppc::disass_ppc(exe_loader *own)
 	: disassembler(own)
@@ -39,6 +39,7 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	get->call = temp.call;
 	get->destaddra = temp.targeta;
 	get->destaddrb = temp.targetb;
+	get->len = 4;
 	if ( (get->destaddra != 0) &&
 		 (get->destaddrb != 0) &&
 		 (get->destaddra != get->destaddrb) )
@@ -167,88 +168,121 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		int offset;
 		char paren;
 		argin >> scanset("^,", arg1) >> dummy >> hex(offset) >> paren >> scanset("^)", arg3);
-		line = "*( (uint32_t *)(" + arg3;
+		variable *mem_ref;
 		if (offset == 0)
 		{
-			line += ") ) = " + arg1 + ";";
+			mem_ref = new variable(arg3);
 		}
 		else if (offset > 0)
 		{
-			line += " + " + hstring(offset) + ") ) = " + arg1 + ";";
+			mem_ref = new oper_add(new variable(arg3), new variable(hstring(offset)));
 		}
-		else if (offset < 0)
+		else
 		{
-			line += " - " + hstring(-offset) + ") ) = " + arg1 + ";";
+			mem_ref = new oper_sub(new variable(arg3), new variable(hstring(-offset)));
 		}
+		statement = new oper_assignment(new oper_dereference(mem_ref, 0), new variable(arg1));
 	}
 	else if (op == "lwz")
 	{
 		int offset;
 		char paren;
 		argin >> scanset("^,", arg1) >> dummy >> hex(offset) >> paren >> scanset("^)", arg3);
-		line = arg1 + " = *( (uint32_t *)(" + arg3;
+		variable *mem_ref;
 		if (offset == 0)
 		{
-			line += ") );";
+			mem_ref = new variable(arg3);
 		}
 		else if (offset > 0)
 		{
-			line += " + " + hstring(offset) + ") );";
+			mem_ref = new oper_add(new variable(arg3), new variable(hstring(offset)));
 		}
-		else if (offset < 0)
+		else
 		{
-			line += " - " + hstring(-offset) + ") );";
+			mem_ref = new oper_sub(new variable(arg3), new variable(hstring(-offset)));
 		}
+		statement = new oper_assignment(new variable(arg1), new oper_dereference(mem_ref, 0));
 	}
 	else if (op == "lbz")
 	{
 		int offset;
 		char paren;
 		argin >> scanset("^,", arg1) >> dummy >> hex(offset) >> paren >> scanset("^)", arg3);
-		line = arg1 + " = *( (uint8_t *)(" + arg3;
+		variable *mem_ref;
 		if (offset == 0)
 		{
-			line += ") );";
+			mem_ref = new variable(arg3);
 		}
 		else if (offset > 0)
 		{
-			line += " + " + hstring(offset) + ") );";
+			mem_ref = new oper_add(new variable(arg3), new variable(hstring(offset)));
 		}
-		else if (offset < 0)
+		else
 		{
-			line += " - " + hstring(-offset) + ") );";
+			mem_ref = new oper_sub(new variable(arg3), new variable(hstring(-offset)));
 		}
+		statement = new oper_assignment(new variable(arg1), new oper_dereference(mem_ref, 0));
 	}
 	else if (op == "stwu")
 	{
 		int offset;
 		char paren;
 		argin >> scanset("^,", arg1) >> dummy >> hex(offset) >> paren >> scanset("^)", arg3);
-		line = "*( (uint32_t *)(" + arg3;
+		variable *mem_ref;
 		if (offset == 0)
 		{
-			line += ") ) = " + arg1 + ";";
+			mem_ref = new variable(arg3);
 		}
 		else if (offset > 0)
 		{
-			line += " + " + hstring(offset) + ") ) = " + arg1 + ";";
+			mem_ref = new oper_add(new variable(arg3), new variable(hstring(offset)));
 		}
-		else if (offset < 0)
+		else
 		{
-			line += " - " + hstring(-offset) + ") ) = " + arg1 + ";";
+			mem_ref = new oper_sub(new variable(arg3), new variable(hstring(-offset)));
 		}
-		//get->statements.push_back(statement);
+		statement = new oper_assignment(new oper_dereference(mem_ref, 0), new variable(arg1));
+		get->statements.push_back(statement);
 		if (offset > 0)
 		{
-			line = arg3 + " = " + arg3 + " + " + hstring(offset) + ";";
-			//get->statements.push_back(statement);
+			mem_ref = new oper_add(new variable(arg3), new variable(hstring(offset)));
 		}
-		else if (offset < 0)
+		else
 		{
-			line = arg3 + " = " + arg3 + " - " + hstring(-offset) + ";";
-			//get->statements.push_back(statement);
+			mem_ref = new oper_sub(new variable(arg3), new variable(hstring(-offset)));
 		}
+		statement = new oper_assignment(new variable(arg3), mem_ref);
+		get->statements.push_back(statement);
 		statement = 0;
+	}
+	else if (op == "stmw")
+	{
+		int offset;
+		int rnum;
+		char paren;
+		argin >> paren >> rnum >> dummy >> hex(offset) >> paren >> scanset("^)", arg3);
+		variable *mem_ref;
+		for (int i = rnum; i < 32; i++)
+		{
+			if (offset == 0)
+			{
+				mem_ref = new variable(arg3);
+			}
+			else if ((offset+(i-rnum)*4) > 0)
+			{
+				mem_ref = new oper_add(new variable(arg3), new variable(hstring(offset+(i-rnum)*4)));
+			}
+			else
+			{
+				mem_ref = new oper_sub(new variable(arg3), new variable(hstring(-offset-(i-rnum)*4)));
+			}
+			std::stringstream s;
+			s << std::dec;
+			s << 'r' << i;
+			statement = new oper_assignment(new oper_dereference(mem_ref, 0), new variable(s.str()));
+			get->statements.push_back(statement);
+			statement = 0;
+		}
 	}
 	else if (op == "extsb")
 	{

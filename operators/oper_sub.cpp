@@ -8,15 +8,15 @@ oper_sub::oper_sub(variable *a, variable *b)
 
 std::ostream &oper_sub::print(std::ostream &out)
 {
-	if (arg1->get_p() < this->get_p())
+	if (this->get_p() < arg1->get_p())
 	{
-		out << "(" << *arg1 << ") + ";
+		out << "(" << *arg1 << ") - ";
 	}
 	else
 	{
 		out << *arg1 << " - ";
 	}
-	if (arg2->get_p() < this->get_p())
+	if (this->get_p() < arg2->get_p())
 	{
 		out << "(" << *arg2 << ")";
 	}

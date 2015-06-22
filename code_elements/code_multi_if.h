@@ -26,7 +26,9 @@ class code_multi_if : public code_element
 		void finish_or_no_else();
 		void finish_with_else();
 		void fprint(std::ostream &dest, int depth);
+#ifdef PROVE_SIMPLIFY
 		virtual void print_graph(std::ostream &dest);
+#endif
 	private:
 		code_multi_type form;	//what form of the structure is this?
 		std::vector<code_element*> ifs;	//the list if conditions that could lead to a common block

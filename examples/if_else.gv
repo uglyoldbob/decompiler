@@ -1,0 +1,11 @@
+digraph if_else{
+	a -> b;
+	a -> c;
+	b -> d;
+	c -> d;
+	a[label="if some condition"];
+	b[label="do this if true"];
+	c[label="do this if not true"];
+	d[label="then do this"];
+}
+

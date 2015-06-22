@@ -17,13 +17,14 @@ decompile64_LDFLAGS = -lmingw32
 endif
 decompile16_SOURCES = \
 variable.cpp \
-oper1.cpp \
-oper2.cpp \
-oper_preincrement.cpp \
-oper_add.cpp \
-oper_sub.cpp \
-oper_assignment.cpp \
-oper_bitwise_or.cpp \
+operators/oper1.cpp \
+operators/oper2.cpp \
+operators/oper_dereference.cpp \
+operators/oper_preincrement.cpp \
+operators/oper_add.cpp \
+operators/oper_sub.cpp \
+operators/oper_assignment.cpp \
+operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
 code_elements/code_element.cpp \
@@ -46,13 +47,14 @@ helpers.cpp
 
 decompile32_SOURCES = \
 variable.cpp \
-oper1.cpp \
-oper2.cpp \
-oper_preincrement.cpp \
-oper_add.cpp \
-oper_sub.cpp \
-oper_assignment.cpp \
-oper_bitwise_or.cpp \
+operators/oper1.cpp \
+operators/oper2.cpp \
+operators/oper_dereference.cpp \
+operators/oper_preincrement.cpp \
+operators/oper_add.cpp \
+operators/oper_sub.cpp \
+operators/oper_assignment.cpp \
+operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
 code_elements/code_element.cpp \
@@ -74,13 +76,14 @@ helpers.cpp
 
 decompile64_SOURCES = \
 variable.cpp \
-oper1.cpp \
-oper2.cpp \
-oper_preincrement.cpp \
-oper_add.cpp \
-oper_sub.cpp \
-oper_assignment.cpp \
-oper_bitwise_or.cpp \
+operators/oper1.cpp \
+operators/oper2.cpp \
+operators/oper_dereference.cpp \
+operators/oper_preincrement.cpp \
+operators/oper_add.cpp \
+operators/oper_sub.cpp \
+operators/oper_assignment.cpp \
+operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
 code_elements/ce_block.cpp \

@@ -234,7 +234,7 @@ void code_element::print_graph(std::ostream &dest)
 
 void code_element::fprint(std::ostream &dest, int depth)
 {
-	dest << tabs(depth) << "/------";
+	/*dest << tabs(depth) << "/------";
 	if (depth == 0)
 	{
 		dest << std::hex << s << std::dec << " (" << inputs.size() << " input)";
@@ -247,16 +247,16 @@ void code_element::fprint(std::ostream &dest, int depth)
 	{
 		dest << std::hex << inputs[i]->gets() << std::dec << " ";  
 	}
-	dest << "\n";	
+	dest << "\n";*/
 	for (unsigned int k = 0; k < lines.size(); k++)
 	{
 		std::stringstream temp;
-		temp << tabs(depth) << "|";
+		temp << tabs(depth);// << "|";
 		lines[k]->preprint = temp.str();
 		dest << *lines[k] << "\n";
 		lines[k]->preprint = "";
 	}
-	dest << tabs(depth) << "\\------ ";
+	/*dest << tabs(depth) << "\\------ ";
 	if (depth == 0)
 	{
 		if (a != 0)
@@ -299,7 +299,7 @@ void code_element::fprint(std::ostream &dest, int depth)
 			dest << "NULL ";
 		}
 	}
-	dest << "\n";
+	dest << "\n";*/
 }
 
 address code_element::gets()
