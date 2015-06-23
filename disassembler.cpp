@@ -17,13 +17,13 @@ std::ostream& operator<< (std::ostream& out, instr &a)
 	{
 		out << a.preprint;
 		out << a.comment << " (0x" << std::hex << a.addr << std::dec << ")";
-		if (a.trace_call != "")
+		if (a.trace_call != 0)
 		{
-			out << " [trace call" << a.trace_call << "] ";
+			out << " [trace call " << *a.trace_call << "] ";
 		}
-		else if (a.trace_jump != "")
+		else if (a.trace_jump != 0)
 		{
-			out << " [trace jump" << a.trace_jump << "] ";
+			out << " [trace jump " << *a.trace_jump << "] ";
 		}
 	}
 	for (unsigned int i = 0; i < a.statements.size(); i++)
@@ -34,13 +34,13 @@ std::ostream& operator<< (std::ostream& out, instr &a)
 		{
 			out << a.comment << " (0x" << std::hex << a.addr << std::dec << ")";
 		}
-		if (a.trace_call != "")
+		if (a.trace_call != 0)
 		{
-			out << " [trace call " << a.trace_call << "] ";
+			out << " [trace call " << *a.trace_call << "] ";
 		}
-		else if (a.trace_jump != "")
+		else if (a.trace_jump != 0)
 		{
-			out << " [trace jump" << a.trace_jump << "] ";
+			out << " [trace jump " << *a.trace_jump << "] ";
 		}
 		if ((i+1) < a.statements.size())
 			out << "\n";

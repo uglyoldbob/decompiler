@@ -22,8 +22,10 @@ operators/oper2.cpp \
 operators/oper_dereference.cpp \
 operators/oper_preincrement.cpp \
 operators/oper_add.cpp \
+operators/oper_left_shift.cpp \
 operators/oper_sub.cpp \
 operators/oper_assignment.cpp \
+operators/oper_bitwise_and.cpp \
 operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
@@ -52,8 +54,10 @@ operators/oper2.cpp \
 operators/oper_dereference.cpp \
 operators/oper_preincrement.cpp \
 operators/oper_add.cpp \
+operators/oper_left_shift.cpp \
 operators/oper_sub.cpp \
 operators/oper_assignment.cpp \
+operators/oper_bitwise_and.cpp \
 operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
@@ -81,8 +85,10 @@ operators/oper2.cpp \
 operators/oper_dereference.cpp \
 operators/oper_preincrement.cpp \
 operators/oper_add.cpp \
+operators/oper_left_shift.cpp \
 operators/oper_sub.cpp \
 operators/oper_assignment.cpp \
+operators/oper_bitwise_and.cpp \
 operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \

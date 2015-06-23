@@ -27,6 +27,7 @@ class code_element
 		int gbins();
 		virtual void fprint(std::ostream &dest, int depth);
 		virtual void print_graph(std::ostream &dest);
+		virtual void trace(variable *trc, address location);
 		int gins();	//get ins
 		instr *getline(int num);	//-1 means get last line
 		int contains(address addr);

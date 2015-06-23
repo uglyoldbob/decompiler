@@ -97,6 +97,8 @@ int disass_x86::get_instruction(instr* &get, address addr)
 	get->comment = std::string("\t//") + ud_insn_asm(&u);
 	get->call = 0;
 	get->len = ud_insn_len(&u);
+	get->trace_call = 0;
+	get->trace_jump = 0;
 	std::string op(ud_lookup_mnemonic(ud_insn_mnemonic(&u)));
 	
 	if ((op[0] == 'j') || (op == "loop") || (op == "loope") || 
@@ -128,32 +130,32 @@ int disass_x86::get_instruction(instr* &get, address addr)
 				break;
 			default:
 	//			std::cout << "Unknown jump address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
-				get->trace_jump = "unknown size??";
+				get->trace_jump = new variable("unknown size??");
 				break;
 			}
 			break;
 		case UD_OP_MEM:
 			std::cout << "Unknown jump memory reference" << std::endl;
-			get->trace_jump = "memory ref??";
+			get->trace_jump = new variable("memory ref??");
 			break;
 		case UD_OP_PTR:
 			get->destaddrb = (jmp_addr->lval.ptr.seg*0x10 + jmp_addr->lval.ptr.off);
 			break;
 		case UD_OP_IMM:
 			std::cout << "Unknown jump immediate" << std::endl;
-			get->trace_jump = "immediate??";
+			get->trace_jump = new variable("immediate??");
 			break;
 		case UD_OP_CONST:
 			std::cout << "Unknown jump const" << std::endl;
-			get->trace_jump = "const??";
+			get->trace_jump = new variable("const??");
 			break;
 		case UD_OP_REG:
 			std::cout << "Unknown jump register" << std::endl;
-			get->trace_jump = "register??";
+			get->trace_jump = new variable(get_type(jmp_addr->base));
 			break;
 		default:
 			std::cout << "Unknown jump address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
-			get->trace_jump = "not an immediate??";
+			get->trace_jump = new variable("not an immediate??");
 			break;
 		}
 		if (op == "jmp")
@@ -210,13 +212,13 @@ int disass_x86::get_instruction(instr* &get, address addr)
 				break;
 			default:
 	//			std::cout << "Unknown CALL address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
-				get->trace_call = "??";
+				get->trace_call = new variable("??");
 				break;
 			}
 			break;
 		default:
 	//		std::cout << "Unknown CALL address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
-			get->trace_call = "??";
+			get->trace_call = new variable("??");
 			break;
 		}
 	//	std::cout << std::hex << addr << std::dec << ": " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 

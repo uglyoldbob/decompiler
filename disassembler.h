@@ -19,8 +19,8 @@ struct instr
 	address destaddra;	//stores the dest of the conditional branch statement
 	address destaddrb;	//stores the other dest
 	address call;		//a literal value for a function call
-	std::string trace_call;		//a function call whose address must be traced
-	std::string trace_jump;		//a jump address that must be traced
+	variable *trace_call;		//a function call whose address must be traced
+	variable *trace_jump;		//a jump address that must be traced
 };
 //only two possibilities for branching
 	//non-literal function calls are easier to trace values for becuase all the structure is present

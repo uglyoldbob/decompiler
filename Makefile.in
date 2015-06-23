@@ -62,8 +62,10 @@ am_decompile16_OBJECTS = decompile16-variable.$(OBJEXT) \
 	operators/decompile16-oper_dereference.$(OBJEXT) \
 	operators/decompile16-oper_preincrement.$(OBJEXT) \
 	operators/decompile16-oper_add.$(OBJEXT) \
+	operators/decompile16-oper_left_shift.$(OBJEXT) \
 	operators/decompile16-oper_sub.$(OBJEXT) \
 	operators/decompile16-oper_assignment.$(OBJEXT) \
+	operators/decompile16-oper_bitwise_and.$(OBJEXT) \
 	operators/decompile16-oper_bitwise_or.$(OBJEXT) \
 	decompile16-decompile.$(OBJEXT) decompile16-function.$(OBJEXT) \
 	code_elements/decompile16-code_element.$(OBJEXT) \
@@ -89,8 +91,10 @@ am_decompile32_OBJECTS = decompile32-variable.$(OBJEXT) \
 	operators/decompile32-oper_dereference.$(OBJEXT) \
 	operators/decompile32-oper_preincrement.$(OBJEXT) \
 	operators/decompile32-oper_add.$(OBJEXT) \
+	operators/decompile32-oper_left_shift.$(OBJEXT) \
 	operators/decompile32-oper_sub.$(OBJEXT) \
 	operators/decompile32-oper_assignment.$(OBJEXT) \
+	operators/decompile32-oper_bitwise_and.$(OBJEXT) \
 	operators/decompile32-oper_bitwise_or.$(OBJEXT) \
 	decompile32-decompile.$(OBJEXT) decompile32-function.$(OBJEXT) \
 	code_elements/decompile32-code_element.$(OBJEXT) \
@@ -116,8 +120,10 @@ am_decompile64_OBJECTS = decompile64-variable.$(OBJEXT) \
 	operators/decompile64-oper_dereference.$(OBJEXT) \
 	operators/decompile64-oper_preincrement.$(OBJEXT) \
 	operators/decompile64-oper_add.$(OBJEXT) \
+	operators/decompile64-oper_left_shift.$(OBJEXT) \
 	operators/decompile64-oper_sub.$(OBJEXT) \
 	operators/decompile64-oper_assignment.$(OBJEXT) \
+	operators/decompile64-oper_bitwise_and.$(OBJEXT) \
 	operators/decompile64-oper_bitwise_or.$(OBJEXT) \
 	decompile64-decompile.$(OBJEXT) decompile64-function.$(OBJEXT) \
 	code_elements/decompile64-ce_block.$(OBJEXT) \
@@ -320,8 +326,10 @@ operators/oper2.cpp \
 operators/oper_dereference.cpp \
 operators/oper_preincrement.cpp \
 operators/oper_add.cpp \
+operators/oper_left_shift.cpp \
 operators/oper_sub.cpp \
 operators/oper_assignment.cpp \
+operators/oper_bitwise_and.cpp \
 operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
@@ -349,8 +357,10 @@ operators/oper2.cpp \
 operators/oper_dereference.cpp \
 operators/oper_preincrement.cpp \
 operators/oper_add.cpp \
+operators/oper_left_shift.cpp \
 operators/oper_sub.cpp \
 operators/oper_assignment.cpp \
+operators/oper_bitwise_and.cpp \
 operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
@@ -378,8 +388,10 @@ operators/oper2.cpp \
 operators/oper_dereference.cpp \
 operators/oper_preincrement.cpp \
 operators/oper_add.cpp \
+operators/oper_left_shift.cpp \
 operators/oper_sub.cpp \
 operators/oper_assignment.cpp \
+operators/oper_bitwise_and.cpp \
 operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
@@ -513,9 +525,13 @@ operators/decompile16-oper_preincrement.$(OBJEXT):  \
 	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile16-oper_add.$(OBJEXT): operators/$(am__dirstamp) \
 	operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile16-oper_left_shift.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile16-oper_sub.$(OBJEXT): operators/$(am__dirstamp) \
 	operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile16-oper_assignment.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile16-oper_bitwise_and.$(OBJEXT):  \
 	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile16-oper_bitwise_or.$(OBJEXT):  \
 	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
@@ -556,9 +572,13 @@ operators/decompile32-oper_preincrement.$(OBJEXT):  \
 	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile32-oper_add.$(OBJEXT): operators/$(am__dirstamp) \
 	operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile32-oper_left_shift.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile32-oper_sub.$(OBJEXT): operators/$(am__dirstamp) \
 	operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile32-oper_assignment.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile32-oper_bitwise_and.$(OBJEXT):  \
 	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile32-oper_bitwise_or.$(OBJEXT):  \
 	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
@@ -593,9 +613,13 @@ operators/decompile64-oper_preincrement.$(OBJEXT):  \
 	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile64-oper_add.$(OBJEXT): operators/$(am__dirstamp) \
 	operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile64-oper_left_shift.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile64-oper_sub.$(OBJEXT): operators/$(am__dirstamp) \
 	operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile64-oper_assignment.$(OBJEXT):  \
+	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
+operators/decompile64-oper_bitwise_and.$(OBJEXT):  \
 	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile64-oper_bitwise_or.$(OBJEXT):  \
 	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
@@ -649,24 +673,30 @@ mostlyclean-compile:
 	-rm -f operators/decompile16-oper2.$(OBJEXT)
 	-rm -f operators/decompile16-oper_add.$(OBJEXT)
 	-rm -f operators/decompile16-oper_assignment.$(OBJEXT)
+	-rm -f operators/decompile16-oper_bitwise_and.$(OBJEXT)
 	-rm -f operators/decompile16-oper_bitwise_or.$(OBJEXT)
 	-rm -f operators/decompile16-oper_dereference.$(OBJEXT)
+	-rm -f operators/decompile16-oper_left_shift.$(OBJEXT)
 	-rm -f operators/decompile16-oper_preincrement.$(OBJEXT)
 	-rm -f operators/decompile16-oper_sub.$(OBJEXT)
 	-rm -f operators/decompile32-oper1.$(OBJEXT)
 	-rm -f operators/decompile32-oper2.$(OBJEXT)
 	-rm -f operators/decompile32-oper_add.$(OBJEXT)
 	-rm -f operators/decompile32-oper_assignment.$(OBJEXT)
+	-rm -f operators/decompile32-oper_bitwise_and.$(OBJEXT)
 	-rm -f operators/decompile32-oper_bitwise_or.$(OBJEXT)
 	-rm -f operators/decompile32-oper_dereference.$(OBJEXT)
+	-rm -f operators/decompile32-oper_left_shift.$(OBJEXT)
 	-rm -f operators/decompile32-oper_preincrement.$(OBJEXT)
 	-rm -f operators/decompile32-oper_sub.$(OBJEXT)
 	-rm -f operators/decompile64-oper1.$(OBJEXT)
 	-rm -f operators/decompile64-oper2.$(OBJEXT)
 	-rm -f operators/decompile64-oper_add.$(OBJEXT)
 	-rm -f operators/decompile64-oper_assignment.$(OBJEXT)
+	-rm -f operators/decompile64-oper_bitwise_and.$(OBJEXT)
 	-rm -f operators/decompile64-oper_bitwise_or.$(OBJEXT)
 	-rm -f operators/decompile64-oper_dereference.$(OBJEXT)
+	-rm -f operators/decompile64-oper_left_shift.$(OBJEXT)
 	-rm -f operators/decompile64-oper_preincrement.$(OBJEXT)
 	-rm -f operators/decompile64-oper_sub.$(OBJEXT)
 
@@ -735,24 +765,30 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper_add.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper_assignment.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper_bitwise_and.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper_bitwise_or.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper_dereference.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper_left_shift.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper_preincrement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile16-oper_sub.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper_add.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper_assignment.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper_bitwise_and.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper_bitwise_or.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper_dereference.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper_left_shift.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper_preincrement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile32-oper_sub.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_add.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_assignment.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_bitwise_and.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_bitwise_or.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_dereference.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_left_shift.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_preincrement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_sub.Po@am__quote@
 
@@ -856,6 +892,20 @@ operators/decompile16-oper_add.obj: operators/oper_add.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_add.obj `if test -f 'operators/oper_add.cpp'; then $(CYGPATH_W) 'operators/oper_add.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_add.cpp'; fi`
 
+operators/decompile16-oper_left_shift.o: operators/oper_left_shift.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_left_shift.o -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_left_shift.Tpo -c -o operators/decompile16-oper_left_shift.o `test -f 'operators/oper_left_shift.cpp' || echo '$(srcdir)/'`operators/oper_left_shift.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_left_shift.Tpo operators/$(DEPDIR)/decompile16-oper_left_shift.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_left_shift.cpp' object='operators/decompile16-oper_left_shift.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_left_shift.o `test -f 'operators/oper_left_shift.cpp' || echo '$(srcdir)/'`operators/oper_left_shift.cpp
+
+operators/decompile16-oper_left_shift.obj: operators/oper_left_shift.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_left_shift.obj -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_left_shift.Tpo -c -o operators/decompile16-oper_left_shift.obj `if test -f 'operators/oper_left_shift.cpp'; then $(CYGPATH_W) 'operators/oper_left_shift.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_left_shift.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_left_shift.Tpo operators/$(DEPDIR)/decompile16-oper_left_shift.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_left_shift.cpp' object='operators/decompile16-oper_left_shift.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_left_shift.obj `if test -f 'operators/oper_left_shift.cpp'; then $(CYGPATH_W) 'operators/oper_left_shift.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_left_shift.cpp'; fi`
+
 operators/decompile16-oper_sub.o: operators/oper_sub.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_sub.o -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_sub.Tpo -c -o operators/decompile16-oper_sub.o `test -f 'operators/oper_sub.cpp' || echo '$(srcdir)/'`operators/oper_sub.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_sub.Tpo operators/$(DEPDIR)/decompile16-oper_sub.Po
@@ -883,6 +933,20 @@ operators/decompile16-oper_assignment.obj: operators/oper_assignment.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_assignment.cpp' object='operators/decompile16-oper_assignment.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_assignment.obj `if test -f 'operators/oper_assignment.cpp'; then $(CYGPATH_W) 'operators/oper_assignment.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_assignment.cpp'; fi`
+
+operators/decompile16-oper_bitwise_and.o: operators/oper_bitwise_and.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_bitwise_and.o -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_bitwise_and.Tpo -c -o operators/decompile16-oper_bitwise_and.o `test -f 'operators/oper_bitwise_and.cpp' || echo '$(srcdir)/'`operators/oper_bitwise_and.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_bitwise_and.Tpo operators/$(DEPDIR)/decompile16-oper_bitwise_and.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_bitwise_and.cpp' object='operators/decompile16-oper_bitwise_and.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_bitwise_and.o `test -f 'operators/oper_bitwise_and.cpp' || echo '$(srcdir)/'`operators/oper_bitwise_and.cpp
+
+operators/decompile16-oper_bitwise_and.obj: operators/oper_bitwise_and.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_bitwise_and.obj -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_bitwise_and.Tpo -c -o operators/decompile16-oper_bitwise_and.obj `if test -f 'operators/oper_bitwise_and.cpp'; then $(CYGPATH_W) 'operators/oper_bitwise_and.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_bitwise_and.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile16-oper_bitwise_and.Tpo operators/$(DEPDIR)/decompile16-oper_bitwise_and.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_bitwise_and.cpp' object='operators/decompile16-oper_bitwise_and.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile16-oper_bitwise_and.obj `if test -f 'operators/oper_bitwise_and.cpp'; then $(CYGPATH_W) 'operators/oper_bitwise_and.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_bitwise_and.cpp'; fi`
 
 operators/decompile16-oper_bitwise_or.o: operators/oper_bitwise_or.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile16-oper_bitwise_or.o -MD -MP -MF operators/$(DEPDIR)/decompile16-oper_bitwise_or.Tpo -c -o operators/decompile16-oper_bitwise_or.o `test -f 'operators/oper_bitwise_or.cpp' || echo '$(srcdir)/'`operators/oper_bitwise_or.cpp
@@ -1234,6 +1298,20 @@ operators/decompile32-oper_add.obj: operators/oper_add.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_add.obj `if test -f 'operators/oper_add.cpp'; then $(CYGPATH_W) 'operators/oper_add.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_add.cpp'; fi`
 
+operators/decompile32-oper_left_shift.o: operators/oper_left_shift.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_left_shift.o -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_left_shift.Tpo -c -o operators/decompile32-oper_left_shift.o `test -f 'operators/oper_left_shift.cpp' || echo '$(srcdir)/'`operators/oper_left_shift.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_left_shift.Tpo operators/$(DEPDIR)/decompile32-oper_left_shift.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_left_shift.cpp' object='operators/decompile32-oper_left_shift.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_left_shift.o `test -f 'operators/oper_left_shift.cpp' || echo '$(srcdir)/'`operators/oper_left_shift.cpp
+
+operators/decompile32-oper_left_shift.obj: operators/oper_left_shift.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_left_shift.obj -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_left_shift.Tpo -c -o operators/decompile32-oper_left_shift.obj `if test -f 'operators/oper_left_shift.cpp'; then $(CYGPATH_W) 'operators/oper_left_shift.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_left_shift.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_left_shift.Tpo operators/$(DEPDIR)/decompile32-oper_left_shift.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_left_shift.cpp' object='operators/decompile32-oper_left_shift.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_left_shift.obj `if test -f 'operators/oper_left_shift.cpp'; then $(CYGPATH_W) 'operators/oper_left_shift.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_left_shift.cpp'; fi`
+
 operators/decompile32-oper_sub.o: operators/oper_sub.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_sub.o -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_sub.Tpo -c -o operators/decompile32-oper_sub.o `test -f 'operators/oper_sub.cpp' || echo '$(srcdir)/'`operators/oper_sub.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_sub.Tpo operators/$(DEPDIR)/decompile32-oper_sub.Po
@@ -1261,6 +1339,20 @@ operators/decompile32-oper_assignment.obj: operators/oper_assignment.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_assignment.cpp' object='operators/decompile32-oper_assignment.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_assignment.obj `if test -f 'operators/oper_assignment.cpp'; then $(CYGPATH_W) 'operators/oper_assignment.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_assignment.cpp'; fi`
+
+operators/decompile32-oper_bitwise_and.o: operators/oper_bitwise_and.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_bitwise_and.o -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_bitwise_and.Tpo -c -o operators/decompile32-oper_bitwise_and.o `test -f 'operators/oper_bitwise_and.cpp' || echo '$(srcdir)/'`operators/oper_bitwise_and.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_bitwise_and.Tpo operators/$(DEPDIR)/decompile32-oper_bitwise_and.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_bitwise_and.cpp' object='operators/decompile32-oper_bitwise_and.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_bitwise_and.o `test -f 'operators/oper_bitwise_and.cpp' || echo '$(srcdir)/'`operators/oper_bitwise_and.cpp
+
+operators/decompile32-oper_bitwise_and.obj: operators/oper_bitwise_and.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_bitwise_and.obj -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_bitwise_and.Tpo -c -o operators/decompile32-oper_bitwise_and.obj `if test -f 'operators/oper_bitwise_and.cpp'; then $(CYGPATH_W) 'operators/oper_bitwise_and.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_bitwise_and.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile32-oper_bitwise_and.Tpo operators/$(DEPDIR)/decompile32-oper_bitwise_and.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_bitwise_and.cpp' object='operators/decompile32-oper_bitwise_and.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile32-oper_bitwise_and.obj `if test -f 'operators/oper_bitwise_and.cpp'; then $(CYGPATH_W) 'operators/oper_bitwise_and.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_bitwise_and.cpp'; fi`
 
 operators/decompile32-oper_bitwise_or.o: operators/oper_bitwise_or.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile32-oper_bitwise_or.o -MD -MP -MF operators/$(DEPDIR)/decompile32-oper_bitwise_or.Tpo -c -o operators/decompile32-oper_bitwise_or.o `test -f 'operators/oper_bitwise_or.cpp' || echo '$(srcdir)/'`operators/oper_bitwise_or.cpp
@@ -1612,6 +1704,20 @@ operators/decompile64-oper_add.obj: operators/oper_add.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_add.obj `if test -f 'operators/oper_add.cpp'; then $(CYGPATH_W) 'operators/oper_add.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_add.cpp'; fi`
 
+operators/decompile64-oper_left_shift.o: operators/oper_left_shift.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_left_shift.o -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_left_shift.Tpo -c -o operators/decompile64-oper_left_shift.o `test -f 'operators/oper_left_shift.cpp' || echo '$(srcdir)/'`operators/oper_left_shift.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_left_shift.Tpo operators/$(DEPDIR)/decompile64-oper_left_shift.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_left_shift.cpp' object='operators/decompile64-oper_left_shift.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_left_shift.o `test -f 'operators/oper_left_shift.cpp' || echo '$(srcdir)/'`operators/oper_left_shift.cpp
+
+operators/decompile64-oper_left_shift.obj: operators/oper_left_shift.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_left_shift.obj -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_left_shift.Tpo -c -o operators/decompile64-oper_left_shift.obj `if test -f 'operators/oper_left_shift.cpp'; then $(CYGPATH_W) 'operators/oper_left_shift.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_left_shift.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_left_shift.Tpo operators/$(DEPDIR)/decompile64-oper_left_shift.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_left_shift.cpp' object='operators/decompile64-oper_left_shift.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_left_shift.obj `if test -f 'operators/oper_left_shift.cpp'; then $(CYGPATH_W) 'operators/oper_left_shift.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_left_shift.cpp'; fi`
+
 operators/decompile64-oper_sub.o: operators/oper_sub.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_sub.o -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_sub.Tpo -c -o operators/decompile64-oper_sub.o `test -f 'operators/oper_sub.cpp' || echo '$(srcdir)/'`operators/oper_sub.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_sub.Tpo operators/$(DEPDIR)/decompile64-oper_sub.Po
@@ -1639,6 +1745,20 @@ operators/decompile64-oper_assignment.obj: operators/oper_assignment.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_assignment.cpp' object='operators/decompile64-oper_assignment.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_assignment.obj `if test -f 'operators/oper_assignment.cpp'; then $(CYGPATH_W) 'operators/oper_assignment.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_assignment.cpp'; fi`
+
+operators/decompile64-oper_bitwise_and.o: operators/oper_bitwise_and.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_bitwise_and.o -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_bitwise_and.Tpo -c -o operators/decompile64-oper_bitwise_and.o `test -f 'operators/oper_bitwise_and.cpp' || echo '$(srcdir)/'`operators/oper_bitwise_and.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_bitwise_and.Tpo operators/$(DEPDIR)/decompile64-oper_bitwise_and.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_bitwise_and.cpp' object='operators/decompile64-oper_bitwise_and.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_bitwise_and.o `test -f 'operators/oper_bitwise_and.cpp' || echo '$(srcdir)/'`operators/oper_bitwise_and.cpp
+
+operators/decompile64-oper_bitwise_and.obj: operators/oper_bitwise_and.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_bitwise_and.obj -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_bitwise_and.Tpo -c -o operators/decompile64-oper_bitwise_and.obj `if test -f 'operators/oper_bitwise_and.cpp'; then $(CYGPATH_W) 'operators/oper_bitwise_and.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_bitwise_and.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) operators/$(DEPDIR)/decompile64-oper_bitwise_and.Tpo operators/$(DEPDIR)/decompile64-oper_bitwise_and.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='operators/oper_bitwise_and.cpp' object='operators/decompile64-oper_bitwise_and.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o operators/decompile64-oper_bitwise_and.obj `if test -f 'operators/oper_bitwise_and.cpp'; then $(CYGPATH_W) 'operators/oper_bitwise_and.cpp'; else $(CYGPATH_W) '$(srcdir)/operators/oper_bitwise_and.cpp'; fi`
 
 operators/decompile64-oper_bitwise_or.o: operators/oper_bitwise_or.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT operators/decompile64-oper_bitwise_or.o -MD -MP -MF operators/$(DEPDIR)/decompile64-oper_bitwise_or.Tpo -c -o operators/decompile64-oper_bitwise_or.o `test -f 'operators/oper_bitwise_or.cpp' || echo '$(srcdir)/'`operators/oper_bitwise_or.cpp

@@ -1,12 +1,12 @@
-#include "oper_bitwise_or.h"
+#include "oper_bitwise_and.h"
 
-oper_bitwise_or::oper_bitwise_or(variable *a, variable *b)
+oper_bitwise_and::oper_bitwise_and(variable *a, variable *b)
 	: oper2(a, b)
 {
-	p = OPER_LVL12;
+	p = OPER_LVL10;
 }
 
-std::ostream &oper_bitwise_or::print(std::ostream &out)
+std::ostream &oper_bitwise_and::print(std::ostream &out)
 {
 	if (this->get_p() < arg1->get_p())
 	{
@@ -14,7 +14,7 @@ std::ostream &oper_bitwise_or::print(std::ostream &out)
 	}
 	else
 	{
-		out << *arg1 << " | ";
+		out << *arg1 << " & ";
 	}
 	if (this->get_p() < arg2->get_p())
 	{

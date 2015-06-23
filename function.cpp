@@ -91,11 +91,12 @@ void function::gather_instructions(disassembler &disas)
 					add_line(temp);	//add the line to the list of all lines for the function
 					offset += len;	//adjust for the next instruction
 					
-					if (temp->trace_jump != "")
+					if (temp->trace_jump != 0)
 					{
 						std::cout << "Must trace a jump destination [" << temp->trace_jump << "]\n\t"
 								   << temp->comment << "\n";
-					   c_blocks[i]->fprint(std::cout, 2);
+						c_blocks[i]->fprint(std::cout, 2);
+						c_blocks[i]->trace(temp->trace_jump, temp->addr);
 						throw "Cannot trace a jump address";
 					}
 					if ( (temp->destaddra != 0) && (temp->destaddrb != 0) )

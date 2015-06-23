@@ -85,6 +85,24 @@ code_element::~code_element()
 {
 }
 
+void code_element::trace(variable *trc, address location)
+{
+	std::cout << "Tracing variable (" << *trc << ") at address 0x"
+			  << std::hex << location << std::dec << std::endl;
+	int i;
+	for (i = 0; i < lines.size(); i++)
+	{
+		if (lines[i]->addr == location)
+			break;
+	}
+	if (i == lines.size())
+	{
+		throw "Address not in this block";
+	}
+	std::cout << "Found address at line " << i << std::endl
+				<< *lines[i] << std::endl;
+}
+
 int code_element::is_cbranch()
 {	//does this element have a conditional branch at the end
 	if ((a != 0) && (b != 0))

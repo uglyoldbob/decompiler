@@ -40,6 +40,8 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	get->destaddra = temp.targeta;
 	get->destaddrb = temp.targetb;
 	get->len = 4;
+	get->trace_call = 0;
+	get->trace_jump = 0;
 	if ( (get->destaddra != 0) &&
 		 (get->destaddrb != 0) &&
 		 (get->destaddra != get->destaddrb) )
@@ -105,18 +107,21 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 			  >> me;
 		if (shift == 0)
 		{
-			line = arg1 + " = " + arg2 + " & "
-					+ hstring(make_mask(mb, me, 32))
-					+ ";";
+			statement = new oper_assignment(
+				new variable(arg1), 
+				new oper_bitwise_and(
+					new variable(arg2), new variable(hstring(make_mask(mb, me, 32))) ) );
 		}
 		else if (((shift + me) == 31) && (mb == 0))
 		{
-			line = arg1 + " = " + arg2 + "<<" + string(shift) + ";";
+			statement = new oper_assignment(
+				new variable(arg1), new oper_left_shift(new variable(arg2), new variable(string(shift))));
 		}
 		else
 		{
 			line = arg1 + " " + arg2 + " " + string(shift) + " " + string(mb) + " " + string(me) + ";";
 		}
+		std::cout << line << std::endl;
 	}
 	else if (op == "li")
 	{
@@ -147,17 +152,17 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	else if (op == "bctrl")
 	{
 		line = "(*ctr)();";
-		get->trace_call = "ctr";
+		get->trace_call = new variable("ctr");
 	}
 	else if (op == "bctr")
 	{
 		line = "goto (*ctr)";
-		get->trace_jump = "ctr";
+		get->trace_jump = new variable("ctr");
 	}
 	else if (op == "blr")
 	{
 		line = "goto (*lr)";
-			get->trace_jump = "lr";
+		get->trace_jump = new variable("lr");
 	}
 	else if (op == "bl")
 	{
