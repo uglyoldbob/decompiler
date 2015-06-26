@@ -256,38 +256,38 @@ int disass_x86::get_instruction(instr* &get, address addr)
 			}
 			break;
 		default:
-			std::cout << "Unknown move to: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
+			//std::cout << "Unknown move to: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
 			break;
 		}
 		const ud_operand_t *mov_from = ud_insn_opr(&u, 1);
 		switch (mov_from->type)
 		{
 		case UD_OP_MEM:
-			std::cout << "Unknown move from memory reference" << std::endl;
+		/*	std::cout << "Unknown move from memory reference" << std::endl;
 			std::cout << std::hex << addr << ": " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
 					  << " :::: " << ud_insn_asm(&u) << " [" << ud_insn_hex(&u) << "] " 
 					  << ud_insn_len(&u) << " " << get->destaddra << " " << get->destaddrb << " " 
 					  << get->is_cbranch 
 					  << std::dec << std::endl;
-			std::cout << std::hex;
+			std::cout << std::hex;*/
 			//seg:base + index * scale + offset
 			if (u.pfx_seg != UD_NONE)
 			{
-				std::cout << get_type((ud_type_t)u.pfx_seg) << ":";
+			//	std::cout << get_type((ud_type_t)u.pfx_seg) << ":";
 			}
 			if (mov_from->base != UD_NONE)
 			{
-				std::cout << get_type(mov_from->base);
+			//	std::cout << get_type(mov_from->base);
 			}
 			if (mov_from->index != UD_NONE)
 			{
-				if (mov_from->base != UD_NONE)
-					std::cout << " + ";
-				std::cout << get_type(mov_from->index);
+				//if (mov_from->base != UD_NONE)
+				//	std::cout << " + ";
+			//	std::cout << get_type(mov_from->index);
 			}
 			if (mov_from->scale != 0)
 			{
-				std::cout << " * " << mov_from->scale;
+			//	std::cout << " * " << mov_from->scale;
 			}
 			switch (mov_from->offset)
 			{
@@ -296,18 +296,18 @@ int disass_x86::get_instruction(instr* &get, address addr)
 				{
 					if (mov_from->lval.sbyte > 0)
 					{
-						std::cout << " + ";
-						std::cout << (int16_t)mov_from->lval.sbyte;
+					//	std::cout << " + ";
+					//	std::cout << (int16_t)mov_from->lval.sbyte;
 					}
 					else
 					{
-						std::cout << " - ";
-						std::cout << -(int16_t)mov_from->lval.sbyte;
+					//	std::cout << " - ";
+					//	std::cout << -(int16_t)mov_from->lval.sbyte;
 					}
 				}
 				else
 				{
-					std::cout << (int16_t)mov_from->lval.sbyte;
+				//	std::cout << (int16_t)mov_from->lval.sbyte;
 				}
 				break;
 			case 16:
@@ -315,18 +315,18 @@ int disass_x86::get_instruction(instr* &get, address addr)
 				{
 					if (mov_from->lval.sword > 0)
 					{
-						std::cout << " + ";
-						std::cout << (int16_t)mov_from->lval.sword;
+					//	std::cout << " + ";
+					//	std::cout << (int16_t)mov_from->lval.sword;
 					}
 					else
 					{
-						std::cout << " - ";
-						std::cout << -(int16_t)mov_from->lval.sword;
+					//	std::cout << " - ";
+					//	std::cout << -(int16_t)mov_from->lval.sword;
 					}
 				}
 				else
 				{
-					std::cout << (int16_t)mov_from->lval.sword;
+				//	std::cout << (int16_t)mov_from->lval.sword;
 				}
 				break;
 			case 32:
@@ -334,18 +334,18 @@ int disass_x86::get_instruction(instr* &get, address addr)
 				{
 					if (mov_from->lval.sdword > 0)
 					{
-						std::cout << " + ";
-						std::cout << (int16_t)mov_from->lval.sdword;
+					//	std::cout << " + ";
+					//	std::cout << (int16_t)mov_from->lval.sdword;
 					}
 					else
 					{
-						std::cout << " - ";
-						std::cout << -(int16_t)mov_from->lval.sdword;
+					//	std::cout << " - ";
+					//	std::cout << -(int16_t)mov_from->lval.sdword;
 					}
 				}
 				else
 				{
-					std::cout << (int16_t)mov_from->lval.sdword;
+				//	std::cout << (int16_t)mov_from->lval.sdword;
 				}
 				break;
 			case 64:
@@ -353,24 +353,24 @@ int disass_x86::get_instruction(instr* &get, address addr)
 				{
 					if (mov_from->lval.sqword > 0)
 					{
-						std::cout << " + ";
-						std::cout << (int16_t)mov_from->lval.sqword;
+					//	std::cout << " + ";
+					//	std::cout << (int16_t)mov_from->lval.sqword;
 					}
 					else
 					{
-						std::cout << " - ";
-						std::cout << -(int16_t)mov_from->lval.sqword;
+					//	std::cout << " - ";
+					//	std::cout << -(int16_t)mov_from->lval.sqword;
 					}
 				}
 				else
 				{
-					std::cout << (int16_t)mov_from->lval.sqword;
+				//	std::cout << (int16_t)mov_from->lval.sqword;
 				}
 				break;
 			default:
 				break;
 			}
-			std::cout << std::endl;
+			//std::cout << std::endl;
 			break;
 		case UD_OP_PTR:
 			break;
@@ -416,6 +416,10 @@ int disass_x86::get_instruction(instr* &get, address addr)
 		}
 		else
 		{
+			if (from != 0)
+				delete from;
+			if (to != 0)
+				delete to;
 			/*std::cout << std::hex << addr << ": " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
 					  << " :::: " << ud_insn_asm(&u) << " [" << ud_insn_hex(&u) << "] " 
 					  << ud_insn_len(&u) << " " << get->destaddra << " " << get->destaddrb << " " 

@@ -23,7 +23,7 @@ function::function(address addr, const char *n, disassembler &disas)
 	link_blocks();
 	//fprint(std::cout);
 //	simplify();
-	//std::cout << "Done with function " << name << " ?\n";
+//	std::cout << "Done with function " << name << " ?\n";
 	//std::cout << *this << std::endl;
 }
 
@@ -37,10 +37,13 @@ function::~function()
 	unsigned int i;
 	for (i = 0; i < c_blocks.size(); i++)
 		delete c_blocks[i];
+	c_blocks.clear();
 	for (i = 0; i < da_lines.size(); i++)
 		delete da_lines[i];
+	da_lines.clear();
 	for (i = 0; i < xblocks.size(); i++)
 		delete xblocks[i];
+	xblocks.clear();
 }
 
 void function::create_pieces()
@@ -93,7 +96,7 @@ void function::gather_instructions(disassembler &disas)
 					
 					if (temp->trace_jump != 0)
 					{
-						std::cout << "Must trace a jump destination [" << temp->trace_jump << "]\n\t"
+						std::cout << "Must trace a jump destination [" << *temp->trace_jump << "]\n\t"
 								   << temp->comment << "\n";
 						c_blocks[i]->fprint(std::cout, 2);
 						c_blocks[i]->trace(temp->trace_jump, temp->addr);
@@ -139,6 +142,7 @@ void function::gather_instructions(disassembler &disas)
 			c_blocks.erase(c_blocks.begin()+i);
 			code_element *replace = find_block(old->gets());
 			replace_cblock_references(old, replace);
+			delete old;
 			i--;
 		}
 	}
@@ -431,6 +435,7 @@ int function::find_runs()
 				temp->done();
 				found++;
 			}
+			xblocks.push_back(temp);
 		}
 	}
 	return found;

@@ -1,6 +1,7 @@
 #ifndef __VARIABLE_H__
 #define __VARIABLE_H__
 
+class code_element;
 #include "config.h"
 
 #include <cstdint>
@@ -113,6 +114,8 @@ class variable
 		virtual ~variable();
 		std::size_t mysize() { return thesize; }
 		friend std::ostream &operator<<(std::ostream &out, variable &o);
+		virtual variable* trace(variable *trc, code_element *cel, int stmt, int line);
+		bool needs_trace();
 		oper_precedence get_p();
 	protected:
 		virtual std::ostream &print(std::ostream &out);

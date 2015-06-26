@@ -126,7 +126,6 @@ am_decompile64_OBJECTS = decompile64-variable.$(OBJEXT) \
 	operators/decompile64-oper_bitwise_and.$(OBJEXT) \
 	operators/decompile64-oper_bitwise_or.$(OBJEXT) \
 	decompile64-decompile.$(OBJEXT) decompile64-function.$(OBJEXT) \
-	code_elements/decompile64-ce_block.$(OBJEXT) \
 	code_elements/decompile64-code_element.$(OBJEXT) \
 	code_elements/decompile64-code_if_else.$(OBJEXT) \
 	code_elements/decompile64-code_multi_if.$(OBJEXT) \
@@ -310,12 +309,12 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
-decompile16_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}
-decompile32_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}
-decompile64_CFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}
-decompile16_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}
-decompile32_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}
-decompile64_CPPFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir}
+decompile16_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
+decompile32_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
+decompile64_CFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
+decompile16_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
+decompile32_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
+decompile64_CPPFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
 @WINDOWS_TRUE@decompile16_LDFLAGS = -lmingw32
 @WINDOWS_TRUE@decompile32_LDFLAGS = -lmingw32
 @WINDOWS_TRUE@decompile64_LDFLAGS = -lmingw32
@@ -395,7 +394,6 @@ operators/oper_bitwise_and.cpp \
 operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
-code_elements/ce_block.cpp \
 code_elements/code_element.cpp \
 code_elements/code_if_else.cpp \
 code_elements/code_multi_if.cpp \
@@ -623,9 +621,6 @@ operators/decompile64-oper_bitwise_and.$(OBJEXT):  \
 	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile64-oper_bitwise_or.$(OBJEXT):  \
 	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
-code_elements/decompile64-ce_block.$(OBJEXT):  \
-	code_elements/$(am__dirstamp) \
-	code_elements/$(DEPDIR)/$(am__dirstamp)
 code_elements/decompile64-code_element.$(OBJEXT):  \
 	code_elements/$(am__dirstamp) \
 	code_elements/$(DEPDIR)/$(am__dirstamp)
@@ -662,7 +657,6 @@ mostlyclean-compile:
 	-rm -f code_elements/decompile32-code_multi_if.$(OBJEXT)
 	-rm -f code_elements/decompile32-code_run.$(OBJEXT)
 	-rm -f code_elements/decompile32-code_while_loop.$(OBJEXT)
-	-rm -f code_elements/decompile64-ce_block.$(OBJEXT)
 	-rm -f code_elements/decompile64-code_do_while_loop.$(OBJEXT)
 	-rm -f code_elements/decompile64-code_element.$(OBJEXT)
 	-rm -f code_elements/decompile64-code_if_else.$(OBJEXT)
@@ -754,7 +748,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile32-code_multi_if.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile32-code_run.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile32-code_while_loop.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile64-ce_block.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile64-code_do_while_loop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile64-code_element.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile64-code_if_else.Po@am__quote@
@@ -1801,20 +1794,6 @@ decompile64-function.obj: function.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='function.cpp' object='decompile64-function.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile64-function.obj `if test -f 'function.cpp'; then $(CYGPATH_W) 'function.cpp'; else $(CYGPATH_W) '$(srcdir)/function.cpp'; fi`
-
-code_elements/decompile64-ce_block.o: code_elements/ce_block.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/decompile64-ce_block.o -MD -MP -MF code_elements/$(DEPDIR)/decompile64-ce_block.Tpo -c -o code_elements/decompile64-ce_block.o `test -f 'code_elements/ce_block.cpp' || echo '$(srcdir)/'`code_elements/ce_block.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) code_elements/$(DEPDIR)/decompile64-ce_block.Tpo code_elements/$(DEPDIR)/decompile64-ce_block.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='code_elements/ce_block.cpp' object='code_elements/decompile64-ce_block.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/decompile64-ce_block.o `test -f 'code_elements/ce_block.cpp' || echo '$(srcdir)/'`code_elements/ce_block.cpp
-
-code_elements/decompile64-ce_block.obj: code_elements/ce_block.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/decompile64-ce_block.obj -MD -MP -MF code_elements/$(DEPDIR)/decompile64-ce_block.Tpo -c -o code_elements/decompile64-ce_block.obj `if test -f 'code_elements/ce_block.cpp'; then $(CYGPATH_W) 'code_elements/ce_block.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/ce_block.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) code_elements/$(DEPDIR)/decompile64-ce_block.Tpo code_elements/$(DEPDIR)/decompile64-ce_block.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='code_elements/ce_block.cpp' object='code_elements/decompile64-ce_block.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/decompile64-ce_block.obj `if test -f 'code_elements/ce_block.cpp'; then $(CYGPATH_W) 'code_elements/ce_block.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/ce_block.cpp'; fi`
 
 code_elements/decompile64-code_element.o: code_elements/code_element.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/decompile64-code_element.o -MD -MP -MF code_elements/$(DEPDIR)/decompile64-code_element.Tpo -c -o code_elements/decompile64-code_element.o `test -f 'code_elements/code_element.cpp' || echo '$(srcdir)/'`code_elements/code_element.cpp

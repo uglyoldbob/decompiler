@@ -17,6 +17,8 @@ executable::executable()
 
 executable::~executable()
 {
+	for (int i = 0; i < funcs.size(); i++)
+		delete funcs[i];
 	delete exe_object;
 	delete exe_file;
 }
@@ -163,10 +165,6 @@ int executable::load(char *bin_name)
 	}
 
 	exe_file->close();
-	for (int i = 0; i < funcs.size(); i++)
-	{
-		delete (funcs[i]);
-	}
 	return processed;
 }
 

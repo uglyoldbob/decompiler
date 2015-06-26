@@ -19,8 +19,8 @@ code_element::code_element(code_element* in, address start)
 	//		  << in->s << " at 0x" << start << std::endl;
 	//std::cout << std::dec;
 	depth = 0;
-	if (finished)
-		in->done();
+//	if (finished)
+//		in->done();
 	unsigned int i;
 	for (i = 0; i < in->lines.size(); ++i)
 	{
@@ -83,9 +83,77 @@ code_element* code_element::split(address addr)
 
 code_element::~code_element()
 {
+	for (int i = 0; i < lines.size();i++)
+	{
+		for (int j = 0; j < lines[i]->statements.size(); j++)
+		{
+			delete lines[i]->statements[j];
+		}
+		lines[i]->statements.clear();
+		if (lines[i]->trace_call != 0)
+			delete lines[i]->trace_call;
+		if (lines[i]->trace_jump != 0)
+			delete lines[i]->trace_jump;
+//		delete lines[i];
+	}
+	lines.clear();
+	inputs.clear();
+	a = 0;
+	b = 0;
 }
 
-void code_element::trace(variable *trc, address location)
+variable* code_element::trace(variable *trc, int stmt, int line)
+{
+	std::cout << "Tracing variable ce (" << *trc << ") at address 0x"
+			  << std::hex << lines[stmt]->addr << std::dec
+			  << " stmt " << stmt
+			  << " line " << line << std::endl;
+
+	for (int i = stmt; i >= 0; i--)
+	{
+		for (int j = line; j >= 0; j--)
+		{
+			if (lines[i]->statements.size() > j)
+			{
+				std::cout << "CHECKING: [" << *lines[i]->statements[j] << "]" << std::endl;
+				variable *tmp = lines[i]->statements[j]->trace(trc, this, stmt, line);
+				if (tmp != 0)
+				{
+					std::cout << "Found match: " << *tmp << "\n";
+					if (tmp->needs_trace())
+					{
+						std::cout << "YES tracing " << *tmp << "\n";
+						if (j > 0)
+							trace(tmp, i, j-1);
+						else if (i > 0)
+							trace(tmp, i-1, lines[i-1]->statements.size()-1);
+					}
+					else
+					{
+						std::cout << "NO tracing " << *tmp << "\n";
+						return tmp;
+					}
+					goto done;
+				}
+				else
+				{
+					std::cout << "Moving on...\n";
+				}
+			}
+		}
+	}
+done:
+	return 0;
+}
+
+//begin trace at a line of code in a block
+	//look back through previous statements for something that modifies or sets our variable
+	//determine if variable needs to be traced
+	//trace a variable if needed: this results in:
+		//0 - nothing here matters, move along
+		//something - a variable that modifies or sets our original variable
+
+variable* code_element::trace(variable *trc, address location)
 {
 	std::cout << "Tracing variable (" << *trc << ") at address 0x"
 			  << std::hex << location << std::dec << std::endl;
@@ -101,6 +169,16 @@ void code_element::trace(variable *trc, address location)
 	}
 	std::cout << "Found address at line " << i << std::endl
 				<< *lines[i] << std::endl;
+	i--;
+	return trace(trc, i, lines[i]->statements.size()-1);
+}
+
+variable* code_element::trace_prev(variable *trc, int stmt, int line)
+{
+	if (line > 0)
+		trace(trc, stmt, line-1);
+	else if (stmt > 0)
+		trace(trc, stmt-1, lines[stmt-1]->statements.size()-1);
 }
 
 int code_element::is_cbranch()
@@ -269,8 +347,9 @@ void code_element::fprint(std::ostream &dest, int depth)
 	for (unsigned int k = 0; k < lines.size(); k++)
 	{
 		std::stringstream temp;
+		std::string tmpstr(temp.str());
 		temp << tabs(depth);// << "|";
-		lines[k]->preprint = temp.str();
+		lines[k]->preprint = tmpstr;
 		dest << *lines[k] << "\n";
 		lines[k]->preprint = "";
 	}
