@@ -130,32 +130,32 @@ int disass_x86::get_instruction(instr* &get, address addr)
 				break;
 			default:
 	//			std::cout << "Unknown jump address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
-				get->trace_jump = new variable("unknown size??");
+				get->trace_jump = new variable("unknown size??", -1);
 				break;
 			}
 			break;
 		case UD_OP_MEM:
 			std::cout << "Unknown jump memory reference" << std::endl;
-			get->trace_jump = new variable("memory ref??");
+			get->trace_jump = new variable("memory ref??", -1);
 			break;
 		case UD_OP_PTR:
 			get->destaddrb = (jmp_addr->lval.ptr.seg*0x10 + jmp_addr->lval.ptr.off);
 			break;
 		case UD_OP_IMM:
 			std::cout << "Unknown jump immediate" << std::endl;
-			get->trace_jump = new variable("immediate??");
+			get->trace_jump = new variable("immediate??", -1);
 			break;
 		case UD_OP_CONST:
 			std::cout << "Unknown jump const" << std::endl;
-			get->trace_jump = new variable("const??");
+			get->trace_jump = new variable("const??", -1);
 			break;
 		case UD_OP_REG:
 			std::cout << "Unknown jump register" << std::endl;
-			get->trace_jump = new variable(get_type(jmp_addr->base));
+			get->trace_jump = new variable(get_type(jmp_addr->base), -1);
 			break;
 		default:
 			std::cout << "Unknown jump address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
-			get->trace_jump = new variable("not an immediate??");
+			get->trace_jump = new variable("not an immediate??", -1);
 			break;
 		}
 		if (op == "jmp")
@@ -212,13 +212,13 @@ int disass_x86::get_instruction(instr* &get, address addr)
 				break;
 			default:
 	//			std::cout << "Unknown CALL address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
-				get->trace_call = new variable("??");
+				get->trace_call = new variable("??", -1);
 				break;
 			}
 			break;
 		default:
 	//		std::cout << "Unknown CALL address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
-			get->trace_call = new variable("??");
+			get->trace_call = new variable("??", -1);
 			break;
 		}
 	//	std::cout << std::hex << addr << std::dec << ": " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
@@ -252,7 +252,7 @@ int disass_x86::get_instruction(instr* &get, address addr)
 		case UD_OP_REG:
 			{
 			std::string tmp_str = get_type(mov_to->base);
-			to = new variable(get_type(mov_to->base));
+			to = new variable(get_type(mov_to->base), -1);
 			}
 			break;
 		default:
@@ -397,13 +397,13 @@ int disass_x86::get_instruction(instr* &get, address addr)
 				throw "Bad immediate or constant in move instruction";
 				break;
 			}
-			from = new variable(s.str());
+			from = new variable(s.str(), mov_from->size/8);
 			}
 			break;
 		case UD_OP_REG:
 			{
 			std::string tmp_str = get_type(mov_from->base);
-			from = new variable(get_type(mov_from->base));
+			from = new variable(get_type(mov_from->base), -1);
 			}
 			break;
 		default:

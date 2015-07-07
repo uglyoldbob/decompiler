@@ -1,4 +1,5 @@
 #include "code_elements/code_element.h"
+#include "helpers.h"
 #include "oper_assignment.h"
 
 oper_assignment::oper_assignment(variable *a, variable *b)
@@ -7,35 +8,45 @@ oper_assignment::oper_assignment(variable *a, variable *b)
 	p = OPER_LVL15;
 }
 
-variable* oper_assignment::trace(variable *trc, code_element *cel, int stmt, int line)
+variable* oper_assignment::trace(int d, variable *trc, code_element *cel, int stmt, int line)
 {
-	std::cout << "Tracing = " << *arg1 << " and " << *arg2 << " stmt " << stmt
-			  << " line " << line << std::endl;
 	variable *dmy;
-	dmy = arg1->trace(trc, cel, stmt, line);
+	std::cout << tabs(d) << "Tracing (" << *trc << ") (" << *arg1 << "=" << *arg2 << ")\n";
+	dmy = arg1->trace(d+1, trc, cel, stmt, line);
 	if (dmy != 0)
 	{
+		std::cout << tabs(d) << "Assignment trace\n";
 		if (arg2->needs_trace())
 		{
-			std::cout << "Need to trace for = [" << *arg2 << "]" << std::endl;
-			return arg2->trace(arg2, cel, stmt, line);
+			variable *temp = arg2->trace(d+1, arg2, cel, stmt, line);
+			if (temp != 0)
+				std::cout << tabs(d) << "Returning1 (" << *temp << ")\n";
+			else
+				std::cout << tabs(d) << "Returning1 0\n";
+			return temp;
 		}
 		else
 		{
-			std::cout << "DONT Need to trace for = [" << *arg2 << "]" << std::endl;
+			if (arg2 != 0)
+				std::cout << tabs(d) << "Returning2 (" << *arg2 << ")\n";
+			else
+				std::cout << tabs(d) << "Returning2 0\n";
 			return arg2;
 		}
 	}
-	dmy = arg2->trace(trc, cel, stmt, line);
-	if (dmy != 0)
-	{
-		std::cout << "= 1\n";
-		return dmy;
-	}
 	else
 	{
-		std::cout << "= 2\n";
+		std::cout << tabs(d) << "Non Assignment trace\n";
+		dmy = arg2;
+		if (dmy->needs_trace())
+		{
+			dmy = dmy->trace(d+1, trc, cel, stmt, line);
+		}
+		if (dmy != 0)
+			std::cout << tabs(d) << "Returning3 (" << *dmy << ")\n";
+		return dmy;
 	}
+	std::cout << tabs(d) << "No trace\n";
 	return 0;
 }
 

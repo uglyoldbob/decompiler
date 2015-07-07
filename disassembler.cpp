@@ -29,7 +29,7 @@ std::ostream& operator<< (std::ostream& out, instr &a)
 	for (unsigned int i = 0; i < a.statements.size(); i++)
 	{
 		out << a.preprint;
-		out << a.statements[i] << ";";
+		out << *a.statements[i] << ";";
 		if (i == 0)
 		{
 			out << a.comment << " (0x" << std::hex << a.addr << std::dec << ")";

@@ -1,6 +1,7 @@
 #include "variable.h"
 
 #include <cctype>
+#include "helpers.h"
 
 variable::variable()
 {
@@ -8,7 +9,7 @@ variable::variable()
 	isconst = 0;
 }
 
-variable::variable(std::string in)
+variable::variable(std::string in, std::size_t size)
 {
 	p = OPER_LVL0;
 	if (isdigit(in[0]))
@@ -19,13 +20,13 @@ variable::variable(std::string in)
 	{
 		isconst = 0;
 	}
-	sign = 0;
+	sign = VAR_SIGN_SIGNED | VAR_SIGN_UNSIGNED;
 	type = "?";
 	name = in;
 	num_elements = 0;
 	addr = 0;
 	valid_address = 0;
-	thesize = 0;
+	thesize = size;
 }
 
 variable::~variable()
@@ -44,17 +45,14 @@ bool variable::needs_trace()
 	return 1;
 }
 
-variable* variable::trace(variable *trc, code_element *cel, int stmt, int line)
+variable* variable::trace(int d, variable *trc, code_element *cel, int stmt, int line)
 {
-	std::cout << "Tracing variable " << *trc << "\n";
 	if (this->name == trc->name)
 	{
-		std::cout << "\tmatch\n";
 		return this;
 	}
 	else
 	{
-		std::cout << "\tno match\n";
 		return 0;
 	}
 }
@@ -62,6 +60,26 @@ variable* variable::trace(variable *trc, code_element *cel, int stmt, int line)
 oper_precedence variable::get_p()
 {
 	return p;
+}
+
+std::size_t variable::get_size()
+{
+	if (thesize & VAR_SIZE_OTHER)
+		return othersize;
+	else if (thesize & VAR_SIZE_64_BITS)
+		return 8;
+	else if (thesize & VAR_SIZE_32_BITS)
+		return 4;
+	else if (thesize & VAR_SIZE_16_BITS)
+		return 2;
+	else if (thesize & VAR_SIZE_8_BITS)
+		return 1;
+	return 0;
+}
+
+std::string variable::get_name()
+{
+	return name;
 }
 
 std::ostream &variable::print(std::ostream &out)

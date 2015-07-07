@@ -106,29 +106,42 @@ enum oper_precedence
 	OPER_LVL17
 };
 
+#define VAR_SIZE_8_BITS 1
+#define VAR_SIZE_16_BITS 2
+#define VAR_SIZE_32_BITS 4
+#define VAR_SIZE_64_BITS 8
+#define VAR_SIZE_OTHER 16
+
+#define VAR_SIGN_SIGNED 1
+#define VAR_SIGN_UNSIGNED 2
+
+
 class variable
 {
 	public:
 		variable();
-		variable(std::string in);
+		variable(std::string in, std::size_t size);
 		virtual ~variable();
 		std::size_t mysize() { return thesize; }
 		friend std::ostream &operator<<(std::ostream &out, variable &o);
-		virtual variable* trace(variable *trc, code_element *cel, int stmt, int line);
-		bool needs_trace();
+		virtual variable* trace(int d, variable *trc, code_element *cel, int stmt, int line);
+		virtual bool needs_trace();
 		oper_precedence get_p();
+		std::size_t get_size();
+		std::string get_name();
 	protected:
 		virtual std::ostream &print(std::ostream &out);
 		oper_precedence p;
 	private:
 		char isconst;	//is the datatype constant?
-		char sign;	//is the datatype signed (-1), unsigned (1), or irrelevant (0)
+		char sign;
 		std::string type;
 		std::string name;
 		int num_elements;	//for arrays of specific sizes
 		address addr;	//the address of the variable
 		char valid_address;	//not all variables have an address
-		std::size_t thesize;
+		char thesize;
+		std::size_t othersize;
 };
 
 #endif

@@ -66,36 +66,36 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> arg3;
 		if (arg2 == arg3)
 		{
-			statement = new oper_assignment( new variable(arg1), new variable(arg2));
+			statement = new oper_assignment( new variable(arg1, -1), new variable(arg2, -1));
 		}
 		if (arg2 != arg3)
 		{
-			statement = new oper_assignment( new variable(arg1), 
-							new oper_bitwise_or( new variable(arg2), new variable(arg3) ) );
+			statement = new oper_assignment( new variable(arg1, -1), 
+							new oper_bitwise_or( new variable(arg2, -1), new variable(arg3, -1) ) );
 		}
 	}
 	else if (op == "ori")
 	{
 		int rg3;
 		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> arg3;
-		statement = new oper_assignment( new variable(arg1), 
-							new oper_bitwise_or( new variable(arg2), new variable(arg3) ) );
+		statement = new oper_assignment( new variable(arg1, 4), 
+							new oper_bitwise_or( new variable(arg2, 4), new variable(arg3, 4) ) );
 	}
 	else if ((op == "addi") || (op == "add"))
 	{
 		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> arg3;
-		statement = new oper_assignment(new variable(arg1), 
+		statement = new oper_assignment(new variable(arg1, -1), 
 						new oper_add(
-							new variable(arg2),
-							new variable(arg3)));
+							new variable(arg2, -1),
+							new variable(arg3, -1)));
 	}
 	else if ((op == "subi") || (op == "sub"))
 	{
 		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> arg3;
-		statement = new oper_assignment(new variable(arg1), 
+		statement = new oper_assignment(new variable(arg1, -1), 
 						new oper_sub(
-							new variable(arg2),
-							new variable(arg3)));
+							new variable(arg2, -1),
+							new variable(arg3, -1)));
 	}
 	else if (op == "rlwinm")
 	{
@@ -108,14 +108,14 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		if (shift == 0)
 		{
 			statement = new oper_assignment(
-				new variable(arg1), 
+				new variable(arg1, -1), 
 				new oper_bitwise_and(
-					new variable(arg2), new variable(hstring(make_mask(mb, me, 32))) ) );
+					new variable(arg2, -1), new variable(hstring(make_mask(mb, me, 32)), -1) ) );
 		}
 		else if (((shift + me) == 31) && (mb == 0))
 		{
 			statement = new oper_assignment(
-				new variable(arg1), new oper_left_shift(new variable(arg2), new variable(string(shift))));
+				new variable(arg1, -1), new oper_left_shift(new variable(arg2, -1), new variable(string(shift), -1)));
 		}
 		else
 		{
@@ -126,43 +126,43 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	else if (op == "li")
 	{
 		argin >> scanset("^,", arg1) >> dummy >> arg2;
-		statement = new oper_assignment( new variable(arg1), new variable(arg2) );
+		statement = new oper_assignment( new variable(arg1, -1), new variable(arg2, -1) );
 	}
 	else if (op == "lis")
 	{
 		argin >> scanset("^,", arg1) >> dummy >> arg2;
 		arg2 += "0000";
-		statement = new oper_assignment( new variable(arg1), new variable(arg2) );
+		statement = new oper_assignment( new variable(arg1, 4), new variable(arg2, 4) );
 	}
 	else if (op == "mflr")
 	{
 		arg1 = "lr";
-		statement = new oper_assignment( new variable(arg), new variable(arg1));
+		statement = new oper_assignment( new variable(arg, -1), new variable(arg1, -1));
 	}
 	else if (op == "mtlr")
 	{
 		arg1 = "lr";
-		statement = new oper_assignment( new variable(arg1), new variable(arg) );
+		statement = new oper_assignment( new variable(arg1, -1), new variable(arg, -1) );
 	}
 	else if (op == "mtctr")
 	{
 		arg1 = "ctr";
-		statement = new oper_assignment( new variable(arg1), new variable(arg) );
+		statement = new oper_assignment( new variable(arg1, -1), new variable(arg, -1) );
 	}
 	else if (op == "bctrl")
 	{
 		line = "(*ctr)();";
-		get->trace_call = new variable("ctr");
+		get->trace_call = new variable("ctr", -1);
 	}
 	else if (op == "bctr")
 	{
 		line = "goto (*ctr)";
-		get->trace_jump = new variable("ctr");
+		get->trace_jump = new variable("ctr", -1);
 	}
 	else if (op == "blr")
 	{
 		line = "goto (*lr)";
-		get->trace_jump = new variable("lr");
+		get->trace_jump = new variable("lr", -1);
 	}
 	else if (op == "bl")
 	{
@@ -176,17 +176,17 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		variable *mem_ref;
 		if (offset == 0)
 		{
-			mem_ref = new variable(arg3);
+			mem_ref = new variable(arg3, -1);
 		}
 		else if (offset > 0)
 		{
-			mem_ref = new oper_add(new variable(arg3), new variable(hstring(offset)));
+			mem_ref = new oper_add(new variable(arg3, -1), new variable(hstring(offset), -1));
 		}
 		else
 		{
-			mem_ref = new oper_sub(new variable(arg3), new variable(hstring(-offset)));
+			mem_ref = new oper_sub(new variable(arg3, -1), new variable(hstring(-offset), -1));
 		}
-		statement = new oper_assignment(new oper_dereference(mem_ref, 0), new variable(arg1));
+		statement = new oper_assignment(new oper_dereference(mem_ref, 0), new variable(arg1, -1));
 	}
 	else if (op == "lwz")
 	{
@@ -196,17 +196,41 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		variable *mem_ref;
 		if (offset == 0)
 		{
-			mem_ref = new variable(arg3);
+			mem_ref = new variable(arg3, -1);
 		}
 		else if (offset > 0)
 		{
-			mem_ref = new oper_add(new variable(arg3), new variable(hstring(offset)));
+			mem_ref = new oper_add(new variable(arg3, -1), new variable(hstring(offset), -1));
 		}
 		else
 		{
-			mem_ref = new oper_sub(new variable(arg3), new variable(hstring(-offset)));
+			mem_ref = new oper_sub(new variable(arg3, -1), new variable(hstring(-offset), -1));
 		}
-		statement = new oper_assignment(new variable(arg1), new oper_dereference(mem_ref, 0));
+		statement = new oper_assignment(new variable(arg1, -1), new oper_dereference(mem_ref, 0));
+	}
+	else if (op == "lwzu")
+	{
+		int offset;
+		char paren;
+		argin >> scanset("^,", arg1) >> dummy >> hex(offset) >> paren >> scanset("^)", arg3);
+		variable *mem_ref;
+		if (offset == 0)
+		{
+			mem_ref = new variable(arg3, -1);
+		}
+		else if (offset > 0)
+		{
+			mem_ref = new oper_add(new variable(arg3, -1), new variable(hstring(offset), -1));
+		}
+		else
+		{
+			mem_ref = new oper_sub(new variable(arg3, -1), new variable(hstring(-offset), -1));
+		}
+		statement = new oper_assignment(new variable(arg1, -1), new oper_dereference(mem_ref, 0));
+		get->statements.push_back(statement);
+		statement = new oper_assignment(new variable(arg3, -1), mem_ref);
+		get->statements.push_back(statement);
+		statement = 0;
 	}
 	else if (op == "lbz")
 	{
@@ -216,17 +240,17 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		variable *mem_ref;
 		if (offset == 0)
 		{
-			mem_ref = new variable(arg3);
+			mem_ref = new variable(arg3, -1);
 		}
 		else if (offset > 0)
 		{
-			mem_ref = new oper_add(new variable(arg3), new variable(hstring(offset)));
+			mem_ref = new oper_add(new variable(arg3, -1), new variable(hstring(offset), -1));
 		}
 		else
 		{
-			mem_ref = new oper_sub(new variable(arg3), new variable(hstring(-offset)));
+			mem_ref = new oper_sub(new variable(arg3, -1), new variable(hstring(-offset), -1));
 		}
-		statement = new oper_assignment(new variable(arg1), new oper_dereference(mem_ref, 0));
+		statement = new oper_assignment(new variable(arg1, 1), new oper_dereference(mem_ref, 0));
 	}
 	else if (op == "stwu")
 	{
@@ -236,27 +260,27 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		variable *mem_ref;
 		if (offset == 0)
 		{
-			mem_ref = new variable(arg3);
+			mem_ref = new variable(arg3, -1);
 		}
 		else if (offset > 0)
 		{
-			mem_ref = new oper_add(new variable(arg3), new variable(hstring(offset)));
+			mem_ref = new oper_add(new variable(arg3, -1), new variable(hstring(offset), -1));
 		}
 		else
 		{
-			mem_ref = new oper_sub(new variable(arg3), new variable(hstring(-offset)));
+			mem_ref = new oper_sub(new variable(arg3, -1), new variable(hstring(-offset), -1));
 		}
-		statement = new oper_assignment(new oper_dereference(mem_ref, 0), new variable(arg1));
+		statement = new oper_assignment(new oper_dereference(mem_ref, 0), new variable(arg1, -1));
 		get->statements.push_back(statement);
 		if (offset > 0)
 		{
-			mem_ref = new oper_add(new variable(arg3), new variable(hstring(offset)));
+			mem_ref = new oper_add(new variable(arg3, -1), new variable(hstring(offset), -1));
 		}
 		else
 		{
-			mem_ref = new oper_sub(new variable(arg3), new variable(hstring(-offset)));
+			mem_ref = new oper_sub(new variable(arg3, -1), new variable(hstring(-offset), -1));
 		}
-		statement = new oper_assignment(new variable(arg3), mem_ref);
+		statement = new oper_assignment(new variable(arg3, 41), mem_ref);
 		get->statements.push_back(statement);
 		statement = 0;
 	}
@@ -271,20 +295,20 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		{
 			if (offset == 0)
 			{
-				mem_ref = new variable(arg3);
+				mem_ref = new variable(arg3, -1);
 			}
 			else if ((offset+(i-rnum)*4) > 0)
 			{
-				mem_ref = new oper_add(new variable(arg3), new variable(hstring(offset+(i-rnum)*4)));
+				mem_ref = new oper_add(new variable(arg3, -1), new variable(hstring(offset+(i-rnum)*4), -1));
 			}
 			else
 			{
-				mem_ref = new oper_sub(new variable(arg3), new variable(hstring(-offset-(i-rnum)*4)));
+				mem_ref = new oper_sub(new variable(arg3, -1), new variable(hstring(-offset-(i-rnum)*4), -1));
 			}
 			std::stringstream s;
 			s << std::dec;
 			s << 'r' << i;
-			statement = new oper_assignment(new oper_dereference(mem_ref, 0), new variable(s.str()));
+			statement = new oper_assignment(new oper_dereference(mem_ref, 0), new variable(s.str(), 4));
 			get->statements.push_back(statement);
 			statement = 0;
 		}
@@ -296,7 +320,7 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	}
 	if (statement != 0)
 		get->statements.push_back(statement);
-	std::cout << *get << std::endl;
+	//std::cout << *get << std::endl;
 	return 4;
 }
 
