@@ -56,7 +56,8 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man3dir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
-am_decompile16_OBJECTS = decompile16-variable.$(OBJEXT) \
+am_decompile16_OBJECTS = var/decompile16-type.$(OBJEXT) \
+	decompile16-variable.$(OBJEXT) \
 	operators/decompile16-oper1.$(OBJEXT) \
 	operators/decompile16-oper2.$(OBJEXT) \
 	operators/decompile16-oper_dereference.$(OBJEXT) \
@@ -85,7 +86,8 @@ decompile16_OBJECTS = $(am_decompile16_OBJECTS)
 decompile16_LDADD = $(LDADD)
 decompile16_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(decompile16_LDFLAGS) $(LDFLAGS) -o $@
-am_decompile32_OBJECTS = decompile32-variable.$(OBJEXT) \
+am_decompile32_OBJECTS = var/decompile32-type.$(OBJEXT) \
+	decompile32-variable.$(OBJEXT) \
 	operators/decompile32-oper1.$(OBJEXT) \
 	operators/decompile32-oper2.$(OBJEXT) \
 	operators/decompile32-oper_dereference.$(OBJEXT) \
@@ -114,7 +116,8 @@ decompile32_OBJECTS = $(am_decompile32_OBJECTS)
 decompile32_LDADD = $(LDADD)
 decompile32_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(decompile32_LDFLAGS) $(LDFLAGS) -o $@
-am_decompile64_OBJECTS = decompile64-variable.$(OBJEXT) \
+am_decompile64_OBJECTS = var/decompile64-type.$(OBJEXT) \
+	decompile64-variable.$(OBJEXT) \
 	operators/decompile64-oper1.$(OBJEXT) \
 	operators/decompile64-oper2.$(OBJEXT) \
 	operators/decompile64-oper_dereference.$(OBJEXT) \
@@ -319,6 +322,7 @@ decompile64_CPPFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${
 @WINDOWS_TRUE@decompile32_LDFLAGS = -lmingw32
 @WINDOWS_TRUE@decompile64_LDFLAGS = -lmingw32
 decompile16_SOURCES = \
+var/type.cpp \
 variable.cpp \
 operators/oper1.cpp \
 operators/oper2.cpp \
@@ -350,6 +354,7 @@ exceptions.cpp \
 helpers.cpp
 
 decompile32_SOURCES = \
+var/type.cpp \
 variable.cpp \
 operators/oper1.cpp \
 operators/oper2.cpp \
@@ -381,6 +386,7 @@ exceptions.cpp \
 helpers.cpp
 
 decompile64_SOURCES = \
+var/type.cpp \
 variable.cpp \
 operators/oper1.cpp \
 operators/oper2.cpp \
@@ -507,6 +513,14 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+var/$(am__dirstamp):
+	@$(MKDIR_P) var
+	@: > var/$(am__dirstamp)
+var/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) var/$(DEPDIR)
+	@: > var/$(DEPDIR)/$(am__dirstamp)
+var/decompile16-type.$(OBJEXT): var/$(am__dirstamp) \
+	var/$(DEPDIR)/$(am__dirstamp)
 operators/$(am__dirstamp):
 	@$(MKDIR_P) operators
 	@: > operators/$(am__dirstamp)
@@ -560,6 +574,8 @@ code_elements/decompile16-code_while_loop.$(OBJEXT):  \
 decompile16$(EXEEXT): $(decompile16_OBJECTS) $(decompile16_DEPENDENCIES) $(EXTRA_decompile16_DEPENDENCIES) 
 	@rm -f decompile16$(EXEEXT)
 	$(decompile16_LINK) $(decompile16_OBJECTS) $(decompile16_LDADD) $(LIBS)
+var/decompile32-type.$(OBJEXT): var/$(am__dirstamp) \
+	var/$(DEPDIR)/$(am__dirstamp)
 operators/decompile32-oper1.$(OBJEXT): operators/$(am__dirstamp) \
 	operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile32-oper2.$(OBJEXT): operators/$(am__dirstamp) \
@@ -601,6 +617,8 @@ code_elements/decompile32-code_while_loop.$(OBJEXT):  \
 decompile32$(EXEEXT): $(decompile32_OBJECTS) $(decompile32_DEPENDENCIES) $(EXTRA_decompile32_DEPENDENCIES) 
 	@rm -f decompile32$(EXEEXT)
 	$(decompile32_LINK) $(decompile32_OBJECTS) $(decompile32_LDADD) $(LIBS)
+var/decompile64-type.$(OBJEXT): var/$(am__dirstamp) \
+	var/$(DEPDIR)/$(am__dirstamp)
 operators/decompile64-oper1.$(OBJEXT): operators/$(am__dirstamp) \
 	operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile64-oper2.$(OBJEXT): operators/$(am__dirstamp) \
@@ -693,6 +711,9 @@ mostlyclean-compile:
 	-rm -f operators/decompile64-oper_left_shift.$(OBJEXT)
 	-rm -f operators/decompile64-oper_preincrement.$(OBJEXT)
 	-rm -f operators/decompile64-oper_sub.$(OBJEXT)
+	-rm -f var/decompile16-type.$(OBJEXT)
+	-rm -f var/decompile32-type.$(OBJEXT)
+	-rm -f var/decompile64-type.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -784,6 +805,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_left_shift.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_preincrement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_sub.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@var/$(DEPDIR)/decompile16-type.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@var/$(DEPDIR)/decompile32-type.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@var/$(DEPDIR)/decompile64-type.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -800,6 +824,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+var/decompile16-type.o: var/type.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT var/decompile16-type.o -MD -MP -MF var/$(DEPDIR)/decompile16-type.Tpo -c -o var/decompile16-type.o `test -f 'var/type.cpp' || echo '$(srcdir)/'`var/type.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) var/$(DEPDIR)/decompile16-type.Tpo var/$(DEPDIR)/decompile16-type.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='var/type.cpp' object='var/decompile16-type.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o var/decompile16-type.o `test -f 'var/type.cpp' || echo '$(srcdir)/'`var/type.cpp
+
+var/decompile16-type.obj: var/type.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT var/decompile16-type.obj -MD -MP -MF var/$(DEPDIR)/decompile16-type.Tpo -c -o var/decompile16-type.obj `if test -f 'var/type.cpp'; then $(CYGPATH_W) 'var/type.cpp'; else $(CYGPATH_W) '$(srcdir)/var/type.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) var/$(DEPDIR)/decompile16-type.Tpo var/$(DEPDIR)/decompile16-type.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='var/type.cpp' object='var/decompile16-type.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o var/decompile16-type.obj `if test -f 'var/type.cpp'; then $(CYGPATH_W) 'var/type.cpp'; else $(CYGPATH_W) '$(srcdir)/var/type.cpp'; fi`
 
 decompile16-variable.o: variable.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-variable.o -MD -MP -MF $(DEPDIR)/decompile16-variable.Tpo -c -o decompile16-variable.o `test -f 'variable.cpp' || echo '$(srcdir)/'`variable.cpp
@@ -1207,6 +1245,20 @@ decompile16-helpers.obj: helpers.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile16-helpers.obj `if test -f 'helpers.cpp'; then $(CYGPATH_W) 'helpers.cpp'; else $(CYGPATH_W) '$(srcdir)/helpers.cpp'; fi`
 
+var/decompile32-type.o: var/type.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT var/decompile32-type.o -MD -MP -MF var/$(DEPDIR)/decompile32-type.Tpo -c -o var/decompile32-type.o `test -f 'var/type.cpp' || echo '$(srcdir)/'`var/type.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) var/$(DEPDIR)/decompile32-type.Tpo var/$(DEPDIR)/decompile32-type.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='var/type.cpp' object='var/decompile32-type.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o var/decompile32-type.o `test -f 'var/type.cpp' || echo '$(srcdir)/'`var/type.cpp
+
+var/decompile32-type.obj: var/type.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT var/decompile32-type.obj -MD -MP -MF var/$(DEPDIR)/decompile32-type.Tpo -c -o var/decompile32-type.obj `if test -f 'var/type.cpp'; then $(CYGPATH_W) 'var/type.cpp'; else $(CYGPATH_W) '$(srcdir)/var/type.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) var/$(DEPDIR)/decompile32-type.Tpo var/$(DEPDIR)/decompile32-type.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='var/type.cpp' object='var/decompile32-type.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o var/decompile32-type.obj `if test -f 'var/type.cpp'; then $(CYGPATH_W) 'var/type.cpp'; else $(CYGPATH_W) '$(srcdir)/var/type.cpp'; fi`
+
 decompile32-variable.o: variable.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-variable.o -MD -MP -MF $(DEPDIR)/decompile32-variable.Tpo -c -o decompile32-variable.o `test -f 'variable.cpp' || echo '$(srcdir)/'`variable.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/decompile32-variable.Tpo $(DEPDIR)/decompile32-variable.Po
@@ -1612,6 +1664,20 @@ decompile32-helpers.obj: helpers.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='helpers.cpp' object='decompile32-helpers.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o decompile32-helpers.obj `if test -f 'helpers.cpp'; then $(CYGPATH_W) 'helpers.cpp'; else $(CYGPATH_W) '$(srcdir)/helpers.cpp'; fi`
+
+var/decompile64-type.o: var/type.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT var/decompile64-type.o -MD -MP -MF var/$(DEPDIR)/decompile64-type.Tpo -c -o var/decompile64-type.o `test -f 'var/type.cpp' || echo '$(srcdir)/'`var/type.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) var/$(DEPDIR)/decompile64-type.Tpo var/$(DEPDIR)/decompile64-type.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='var/type.cpp' object='var/decompile64-type.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o var/decompile64-type.o `test -f 'var/type.cpp' || echo '$(srcdir)/'`var/type.cpp
+
+var/decompile64-type.obj: var/type.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT var/decompile64-type.obj -MD -MP -MF var/$(DEPDIR)/decompile64-type.Tpo -c -o var/decompile64-type.obj `if test -f 'var/type.cpp'; then $(CYGPATH_W) 'var/type.cpp'; else $(CYGPATH_W) '$(srcdir)/var/type.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) var/$(DEPDIR)/decompile64-type.Tpo var/$(DEPDIR)/decompile64-type.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='var/type.cpp' object='var/decompile64-type.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o var/decompile64-type.obj `if test -f 'var/type.cpp'; then $(CYGPATH_W) 'var/type.cpp'; else $(CYGPATH_W) '$(srcdir)/var/type.cpp'; fi`
 
 decompile64-variable.o: variable.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-variable.o -MD -MP -MF $(DEPDIR)/decompile64-variable.Tpo -c -o decompile64-variable.o `test -f 'variable.cpp' || echo '$(srcdir)/'`variable.cpp
@@ -2321,6 +2387,8 @@ distclean-generic:
 	-rm -f code_elements/$(am__dirstamp)
 	-rm -f operators/$(DEPDIR)/$(am__dirstamp)
 	-rm -f operators/$(am__dirstamp)
+	-rm -f var/$(DEPDIR)/$(am__dirstamp)
+	-rm -f var/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -2332,7 +2400,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-local mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR) operators/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR) operators/$(DEPDIR) var/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -2380,7 +2448,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR) operators/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR) operators/$(DEPDIR) var/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

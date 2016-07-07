@@ -3,13 +3,13 @@
 #include <cctype>
 #include "helpers.h"
 
-variable::variable()
+variable::variable() : var_type("void")
 {
 	p = OPER_LVL0;
 	isconst = 0;
 }
 
-variable::variable(std::string in, std::size_t size)
+variable::variable(std::string in, std::size_t size) : var_type("void")
 {
 	p = OPER_LVL0;
 	if (isdigit(in[0]))
@@ -21,7 +21,6 @@ variable::variable(std::string in, std::size_t size)
 		isconst = 0;
 	}
 	sign = VAR_SIGN_SIGNED | VAR_SIGN_UNSIGNED;
-	type = "?";
 	name = in;
 	num_elements = 0;
 	addr = 0;

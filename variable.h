@@ -8,6 +8,8 @@ class code_element;
 #include <iostream>
 #include <string>
 
+#include "var/type.h"
+
 //order of operations
 //http://en.cppreference.com/w/cpp/language/operator_precedence
 
@@ -135,7 +137,7 @@ class variable
 	private:
 		char isconst;	//is the datatype constant?
 		char sign;
-		std::string type;
+		type var_type;
 		std::string name;
 		int num_elements;	//for arrays of specific sizes
 		address addr;	//the address of the variable

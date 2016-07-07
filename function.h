@@ -7,16 +7,17 @@
 
 #include "code_elements/code_element.h"
 #include "config.h"
+#include "var/type.h"
 
 class function
 {
 	public:
-		function(address addr, const char *n, disassembler &disas);
-		function(address addr, disassembler &disas);
+		function(address addr, const char *t, const char *n, disassembler &disas);
 		~function();
 		std::vector<address> get_calls();	//get a list of addresses called as functions
 		void simplify();
 		void set_name(const char *to);
+		void set_type(type t);
 		void output_graph_data(std::string fld_name);
 		void output_code(std::string fld_name);
 		std::string get_name();
@@ -25,6 +26,7 @@ class function
 	private:
 		std::string name;
 		address s;
+		type ret_type;
 		std::vector<instr*> da_lines;	//all the lines of code for the function (delete these when done)
 		std::vector<code_element *> c_blocks;	//the basic blocks of instructions (delete these when done)
 		std::vector<code_element *> xblocks; //extra blocks created to simplify logic (delete these when done)

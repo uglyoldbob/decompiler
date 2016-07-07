@@ -16,6 +16,7 @@ decompile32_LDFLAGS = -lmingw32
 decompile64_LDFLAGS = -lmingw32
 endif
 decompile16_SOURCES = \
+var/type.cpp \
 variable.cpp \
 operators/oper1.cpp \
 operators/oper2.cpp \
@@ -48,6 +49,7 @@ helpers.cpp
 
 
 decompile32_SOURCES = \
+var/type.cpp \
 variable.cpp \
 operators/oper1.cpp \
 operators/oper2.cpp \
@@ -79,6 +81,7 @@ exceptions.cpp \
 helpers.cpp
 
 decompile64_SOURCES = \
+var/type.cpp \
 variable.cpp \
 operators/oper1.cpp \
 operators/oper2.cpp \

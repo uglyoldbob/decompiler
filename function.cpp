@@ -12,8 +12,8 @@
 #include "code_elements/code_element.h"
 #include "exceptions.h"
 
-function::function(address addr, const char *n, disassembler &disas)
-	: name(n)
+function::function(address addr, const char *t, const char *n, disassembler &disas)
+	: name(n), ret_type(t)
 {
 	s = addr;
 	//std::cout << "Function " << name
@@ -22,14 +22,9 @@ function::function(address addr, const char *n, disassembler &disas)
 	create_pieces();
 	link_blocks();
 	//fprint(std::cout);
-//	simplify();
+	simplify();
 //	std::cout << "Done with function " << name << " ?\n";
 	//std::cout << *this << std::endl;
-}
-
-function::function(address addr, disassembler &disas)
-{
-	function(addr, "unknown", disas);
 }
 
 function::~function()
@@ -280,6 +275,11 @@ void function::set_name(const char *to)
 	name = to;
 }
 
+void function::set_type(type t)
+{
+	ret_type = t;
+}
+
 std::string function::get_name()
 {
 	return name;
@@ -366,7 +366,7 @@ void function::fprint(std::ostream &output)
 {	//print the code to the output for examination
 	unsigned int i;
 	//output << "//There are " << pieces.size() << " blocks\n";
-	output << "? " << name << "(?)\n{\n";
+	output << ret_type.get_name() << " " << name << "(void)\n{\n";
 	for (i = 0; i < pieces.size(); i++)
 	{
 		//output << "***************************** " << i << " ";
