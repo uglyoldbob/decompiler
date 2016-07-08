@@ -1,8 +1,6 @@
 
-addons:
- apt:
-  packages:
-  - default-jdk
+jdk:
+ - oraclejdk8
 
 language: cpp
 
