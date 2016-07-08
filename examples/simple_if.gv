@@ -1,9 +1,19 @@
 digraph simple_if{
-	a -> b;
-	a -> c;
-	b -> c;
-	a[label="if some condition"];
-	b[label="do this if true"];
-	c[label="then do this"];
-}
+ others_1 -> start;
+ others_2 -> start;
+ others_3 -> start;
+ start[shape=rectangle];
+ when_true[shape=rectangle];
+ start -> when_true;
+ start -> end;
+ when_true -> end;
+ end -> others_4;
+ end -> others_5;
 
+ others1 -> simplified;
+ others2 -> simplified;
+ others3 -> simplified;
+ simplified -> simple_end;
+ simple_end -> others4;
+ simple_end -> others5;
+}
