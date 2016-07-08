@@ -35,7 +35,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = decompile16$(EXEEXT) decompile32$(EXEEXT) \
-	decompile64$(EXEEXT)
+	decompile64$(EXEEXT) test$(EXEEXT)
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(dist_man_MANS) \
 	$(srcdir)/Doxyfile.in $(srcdir)/Makefile.am \
@@ -146,19 +146,26 @@ decompile64_OBJECTS = $(am_decompile64_OBJECTS)
 decompile64_DEPENDENCIES = libudis86.a
 decompile64_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(decompile64_LDFLAGS) $(LDFLAGS) -o $@
+am_test_OBJECTS = example.$(OBJEXT)
+test_OBJECTS = $(am_test_OBJECTS)
+test_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
 SOURCES = $(decompile16_SOURCES) $(decompile32_SOURCES) \
-	$(decompile64_SOURCES)
+	$(decompile64_SOURCES) $(test_SOURCES)
 DIST_SOURCES = $(decompile16_SOURCES) $(decompile32_SOURCES) \
-	$(decompile64_SOURCES)
+	$(decompile64_SOURCES) $(test_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -352,15 +359,14 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS = udis86-1.7.2
+test_SOURCES = example.c
 decompile16_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
 decompile32_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
 decompile64_CFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
 decompile16_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
 decompile32_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
 decompile64_CPPFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
-decompile16_BUILT_SOURCES = libudis86.a
-decompile32_BUILT_SOURCES = libudis86.a
-decompile64_BUILT_SOURCES = libudis86.a
+BUILT_SOURCES = libudis86.a
 decompile16_LDADD = libudis86.a
 decompile32_LDADD = libudis86.a
 decompile64_LDADD = libudis86.a
@@ -466,11 +472,11 @@ helpers.cpp
 @HAVE_DOXYGEN_TRUE@directory = $(top_srcdir)/docs/man/man3/
 @HAVE_DOXYGEN_TRUE@dist_man_MANS = $(directory)/man_page_1.3 $(directory)/man_page_2.3
 @HAVE_DOXYGEN_TRUE@CLEANFILES = doxyfile.stamp
-all: ac_config.h
+all: $(BUILT_SOURCES) ac_config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .cpp .o .obj
+.SUFFIXES: .c .cpp .o .obj
 am--refresh: Makefile
 	@:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -706,6 +712,9 @@ code_elements/decompile64-code_while_loop.$(OBJEXT):  \
 decompile64$(EXEEXT): $(decompile64_OBJECTS) $(decompile64_DEPENDENCIES) $(EXTRA_decompile64_DEPENDENCIES) 
 	@rm -f decompile64$(EXEEXT)
 	$(decompile64_LINK) $(decompile64_OBJECTS) $(decompile64_LDADD) $(LIBS)
+test$(EXEEXT): $(test_OBJECTS) $(test_DEPENDENCIES) $(EXTRA_test_DEPENDENCIES) 
+	@rm -f test$(EXEEXT)
+	$(LINK) $(test_OBJECTS) $(test_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -803,6 +812,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-function.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-helpers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-variable.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/example.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile16-code_do_while_loop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile16-code_element.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile16-code_if_else.Po@am__quote@
@@ -854,6 +864,22 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@var/$(DEPDIR)/decompile16-type.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@var/$(DEPDIR)/decompile32-type.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@var/$(DEPDIR)/decompile64-type.Po@am__quote@
+
+.c.o:
+@am__fastdepCC_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(COMPILE) -c -o $@ $<
+
+.c.obj:
+@am__fastdepCC_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -2506,7 +2532,8 @@ distcleancheck: distclean
 	       $(distcleancheck_listfiles) ; \
 	       exit 1; } >&2
 check-am: all-am
-check: check-recursive
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-recursive
 @HAVE_DOXYGEN_FALSE@all-local:
 all-am: Makefile $(PROGRAMS) $(MANS) ac_config.h all-local
 installdirs: installdirs-recursive
@@ -2514,7 +2541,8 @@ installdirs-am:
 	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man3dir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
-install: install-recursive
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
 uninstall: uninstall-recursive
@@ -2551,6 +2579,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 @HAVE_DOXYGEN_FALSE@clean-local:
 clean: clean-recursive
 
@@ -2626,8 +2655,9 @@ uninstall-am: uninstall-binPROGRAMS uninstall-man
 
 uninstall-man: uninstall-man3
 
-.MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) all \
-	ctags-recursive install-am install-strip tags-recursive
+.MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) all check \
+	ctags-recursive install install-am install-strip \
+	tags-recursive
 
 .PHONY: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) CTAGS GTAGS \
 	all all-am all-local am--refresh check check-am clean \
