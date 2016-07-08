@@ -366,7 +366,8 @@ decompile64_CFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${to
 decompile16_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
 decompile32_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
 decompile64_CPPFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
-BUILT_SOURCES = libudis86.a
+
+#BUILT_SOURCES = libudis86.a
 decompile16_LDADD = libudis86.a
 decompile32_LDADD = libudis86.a
 decompile64_LDADD = libudis86.a
@@ -472,7 +473,7 @@ helpers.cpp
 @HAVE_DOXYGEN_TRUE@directory = $(top_srcdir)/docs/man/man3/
 @HAVE_DOXYGEN_TRUE@dist_man_MANS = $(directory)/man_page_1.3 $(directory)/man_page_2.3
 @HAVE_DOXYGEN_TRUE@CLEANFILES = doxyfile.stamp
-all: $(BUILT_SOURCES) ac_config.h
+all: ac_config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
@@ -2532,8 +2533,7 @@ distcleancheck: distclean
 	       $(distcleancheck_listfiles) ; \
 	       exit 1; } >&2
 check-am: all-am
-check: $(BUILT_SOURCES)
-	$(MAKE) $(AM_MAKEFLAGS) check-recursive
+check: check-recursive
 @HAVE_DOXYGEN_FALSE@all-local:
 all-am: Makefile $(PROGRAMS) $(MANS) ac_config.h all-local
 installdirs: installdirs-recursive
@@ -2541,8 +2541,7 @@ installdirs-am:
 	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man3dir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
-install: $(BUILT_SOURCES)
-	$(MAKE) $(AM_MAKEFLAGS) install-recursive
+install: install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
 uninstall: uninstall-recursive
@@ -2579,7 +2578,6 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 @HAVE_DOXYGEN_FALSE@clean-local:
 clean: clean-recursive
 
@@ -2655,9 +2653,8 @@ uninstall-am: uninstall-binPROGRAMS uninstall-man
 
 uninstall-man: uninstall-man3
 
-.MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) all check \
-	ctags-recursive install install-am install-strip \
-	tags-recursive
+.MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) all \
+	ctags-recursive install-am install-strip tags-recursive
 
 .PHONY: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) CTAGS GTAGS \
 	all all-am all-local am--refresh check check-am clean \
