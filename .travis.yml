@@ -2,7 +2,7 @@
 addons:
   apt:
     packages:
-      - oracle-java8-installer
+      - default-jre
 
 language: cpp
 
