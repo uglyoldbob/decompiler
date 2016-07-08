@@ -366,7 +366,18 @@ void function::fprint(std::ostream &output)
 {	//print the code to the output for examination
 	unsigned int i;
 	//output << "//There are " << pieces.size() << " blocks\n";
-	output << ret_type.get_name() << " " << name << "(void)\n{\n";
+	output << ret_type.get_name() << " " << name << "(";
+
+	if (arguments.size() > 0)
+	{
+		output << arguments[0];
+	}
+	for (i = 1; i < arguments.size(); i++)
+	{
+		output << ", ", arguments[i];
+	}
+
+	output << ")\n{\n";
 	for (i = 0; i < pieces.size(); i++)
 	{
 		//output << "***************************** " << i << " ";

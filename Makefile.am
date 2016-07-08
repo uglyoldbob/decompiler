@@ -1,5 +1,10 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
+SUBDIRS = udis86-1.7.2
+
+libudis86.a: udis86-1.7.2/libudis86/.libs/libudis86.a
+	cp udis86-1.7.2/libudis86/.libs/libudis86.a libudis86.a
+
 bin_PROGRAMS = decompile16 decompile32 decompile64
 
 decompile16_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
@@ -9,6 +14,14 @@ decompile64_CFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${to
 decompile16_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
 decompile32_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
 decompile64_CPPFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
+
+decompile16_BUILT_SOURCES = libudis86.a
+decompile32_BUILT_SOURCES = libudis86.a
+decompile64_BUILT_SOURCES = libudis86.a
+
+decompile16_LDADD = libudis86.a
+decompile32_LDADD = libudis86.a
+decompile64_LDADD = libudis86.a
 
 if WINDOWS
 decompile16_LDFLAGS = -lmingw32

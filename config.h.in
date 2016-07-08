@@ -12,9 +12,6 @@
 /* Define to 1 if you have the `Cocoa' framework (-lCocoa). */
 #undef HAVE_LIBCOCOA
 
-/* Define to 1 if you have the `udis86' library (-ludis86). */
-#undef HAVE_LIBUDIS86
-
 /* Define to 1 if you have the `ws2_32' library (-lws2_32). */
 #undef HAVE_LIBWS2_32
 

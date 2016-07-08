@@ -27,6 +27,7 @@ class function
 		std::string name;
 		address s;
 		type ret_type;
+		std::vector<variable> arguments;	//the arguments of the function
 		std::vector<instr*> da_lines;	//all the lines of code for the function (delete these when done)
 		std::vector<code_element *> c_blocks;	//the basic blocks of instructions (delete these when done)
 		std::vector<code_element *> xblocks; //extra blocks created to simplify logic (delete these when done)
