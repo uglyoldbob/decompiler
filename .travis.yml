@@ -3,3 +3,5 @@ language: cpp
 install:
  - wget https://github.com/vmt/udis86/archive/v1.7.2.tar.gz
  - tar -xzvf v1.7.2.tar.gz
+ - pushd udis86-1.7.2 && ./autogen.sh && popd
+
