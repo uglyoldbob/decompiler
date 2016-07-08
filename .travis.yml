@@ -1,6 +1,5 @@
 language: cpp
 
 install:
- - git clone https://github.com/uglyoldbob/decompiler.git libudis86-1.7.2
- - pushd libudis86-1.7.2 && git checkout v1.7.2 && popd
-
+ - wget https://github.com/vmt/udis86/archive/v1.7.2.tar.gz
+ - tar -xzvf v1.7.2.tar.gz
