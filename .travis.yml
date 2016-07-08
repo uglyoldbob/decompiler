@@ -1,3 +1,9 @@
+
+addons:
+ apt:
+  packages:
+  - default-jdk
+
 language: cpp
 
 install:
