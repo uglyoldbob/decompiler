@@ -1,6 +1,13 @@
 
 language: cpp
 
+addons:
+  apt:
+    sources:
+      - debian-sid
+    packages:
+      - libssl1.0.0
+
 script:
  - jdk_switcher use oraclejdk8
  - ./configure
