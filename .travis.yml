@@ -3,12 +3,11 @@ language: cpp
 
 script:
  - jdk_switcher use oraclejdk8
+ - ./configure
+ - tools/travis-sonarqube.sh make VERBOSE=1 && ctest --output-on-failure --timeout 100
 
 install:
  - wget https://github.com/vmt/udis86/archive/v1.7.2.tar.gz
  - tar -xzvf v1.7.2.tar.gz
  - pushd udis86-1.7.2 && ./autogen.sh && popd
 
-deploy:
- provider: script
- script: tools/travis-sonarqube.sh

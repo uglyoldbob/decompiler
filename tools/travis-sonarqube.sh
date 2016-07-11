@@ -26,7 +26,16 @@ installSonarQubeScanner() {
   export PATH=$SONAR_SCANNER_HOME/bin:$PATH
   export SONAR_SCANNER_OPTS="-server"
 }
+installBuildWrapper() {
+  curl -LsS https://nemo.sonarqube.org/static/cpp/build-wrapper-linux-x86.zip > build-wrapper-linux-x86.zip
+  unzip build-wrapper-linux-x86.zip
+}
+
 installSonarQubeScanner
+installBuildWrapper
+
+# triggers the compilation through the build wrapper to gather compilation database
+./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir wrap "$@"
 
 # and finally execute the actual SonarQube analysis (the SONAR_TOKEN is set from the travis web interface, to not expose it)
 sonar-scanner -Dsonar.host.url=https://nemo.sonarqube.org -Dsonar.login=$SONARQUBE_KEY
