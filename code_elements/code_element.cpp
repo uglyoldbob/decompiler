@@ -102,17 +102,14 @@ code_element::~code_element()
 	b = 0;
 }
 
-int code_element::is_cbranch()
+bool code_element::is_cbranch()
 {	//does this element have a conditional branch at the end
-	if ((a != 0) && (b != 0))
+	if (lines.size() == 0)
 	{
-		if (a != b)
-			return 1;
-		else
-			return 0;
+		return false;
 	}
-	else
-		return 0;
+	instr end = lines.back();
+	return end.is_cbranch;
 }
 
 int code_element::is_done()
@@ -122,20 +119,10 @@ int code_element::is_done()
 
 int code_element::contains(address addr)
 {
-	if (lines.size() == 0)
+	for (unsigned int i = 0; i < lines.size(); ++i)
 	{
-		if (s == addr)	//the block for this address has not had any lines added to it yet
-			return 1;	//but it does exist
-	}
-	else
-	{
-		if (lines[0].addr == addr)
-			return 1;	//the block for this address already exists
-		for (unsigned int i = 1; i < lines.size(); ++i)
-		{
-			if (lines[i].addr == addr)
-				return -1;	//the block starting at this address exists inside another block
-		}
+		if (lines[i].addr == addr)
+			return -1;	//the block starting at this address exists inside another block
 	}
 	return 0;
 }
@@ -150,7 +137,11 @@ bool code_element::should_be_added(address addr)
 			return false;
 	}
 	instr end = lines.back();
-	if (end.is_cbranch == 0)
+	if (end.is_branch)
+	{
+		return false;
+	}
+	else
 	{
 		if (end.destaddra == addr)
 		{
@@ -160,10 +151,6 @@ bool code_element::should_be_added(address addr)
 		{
 			return false;
 		}
-	}
-	else
-	{
-		return false;
 	}
 }
 
@@ -251,34 +238,23 @@ void code_element::copy_inputs(code_element *src)
 
 void code_element::print_graph(std::ostream &dest)
 {
-	instr end = lines.back();
-	if (!end.is_ret)
-		dest << "\tX" << s// << "_" << pieces[i] 
-			 << " -> X" << end.destaddra // << "_" << pieces[i]->ga()  
-			 << " [ label=a ];\n";
-	if (end.is_cbranch)
-		dest << "\tX" << s// << "_" << pieces[i] 
-			 << " -> X" << end.destaddrb// << "_" << pieces[i]->gb() 
-			 << " [ label=b ];\n";
-	dest << "\tX" << s << ";\n";
+	if (lines.size() > 0)
+	{
+		instr end = lines.back();
+		if (!end.is_ret)
+			dest << "\tX" << s// << "_" << pieces[i] 
+				 << " -> X" << end.destaddra // << "_" << pieces[i]->ga()  
+				 << " [ label=a ];\n";
+		if (end.is_cbranch)
+			dest << "\tX" << s// << "_" << pieces[i] 
+				 << " -> X" << end.destaddrb// << "_" << pieces[i]->gb() 
+				 << " [ label=b ];\n";
+		dest << "\tX" << s << ";\n";
+	}
 }
 
 void code_element::fprint(std::ostream &dest, int depth)
 {
-	/*dest << tabs(depth) << "/------";
-	if (depth == 0)
-	{
-		dest << std::hex << s << std::dec << " (" << inputs.size() << " input)";
-	}
-	else
-	{
-		dest << std::hex << s << std::dec << " (" << inputs.size() << " input) ";
-	}
-	for (int i = 0; i < inputs.size(); i++)
-	{
-		dest << std::hex << inputs[i]->gets() << std::dec << " ";  
-	}
-	dest << "\n";*/
 	for (unsigned int k = 0; k < lines.size(); k++)
 	{
 		std::stringstream temp;
@@ -288,50 +264,6 @@ void code_element::fprint(std::ostream &dest, int depth)
 		dest << lines[k] << "\n";
 		lines[k].preprint = "";
 	}
-	/*dest << tabs(depth) << "\\------ ";
-	if (depth == 0)
-	{
-		if (a != 0)
-		{
-			dest << std::hex << a->gets() << std::dec << " ";
-			dest << std::hex << a << std::dec << " ";
-		}
-		else
-		{
-			dest << "NULL ";
-		}
-		if (b != 0)
-		{
-			dest << std::hex << b->gets() << std::dec << " ";
-			dest << std::hex << b << std::dec << " ";
-		}
-		else
-		{
-			dest << "NULL ";
-		}
-	}
-	else
-	{
-		if (a != 0)
-		{
-			dest << std::hex << a->gets() << std::dec << " ";
-			dest << std::hex << a << std::dec << " ";
-		}
-		else
-		{
-			dest << "NULL ";
-		}
-		if (b != 0)
-		{
-			dest << std::hex << b->gets() << std::dec << " ";
-			dest << std::hex << b << std::dec << " ";
-		}
-		else
-		{
-			dest << "NULL ";
-		}
-	}
-	dest << "\n";*/
 }
 
 address code_element::gets()

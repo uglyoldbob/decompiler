@@ -37,7 +37,7 @@ class code_element
 		void copy_inputs(code_element *src);
 		void add_input(code_element *ref);
 		void remove_input(code_element *me);	//remove input element
-		int is_cbranch();	//does this element have a conditional branch at the end
+		bool is_cbranch();	//does this element have a conditional branch at the end
 		int is_done();
 		
 		code_element* split(address addr);
