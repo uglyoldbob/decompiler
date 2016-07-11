@@ -90,8 +90,9 @@ int disass_x86::get_instruction(instr* &get, address addr)
 	
 	get = new class instr;
 	get->addr = addr;
-	get->ins = 0;
 	get->is_cbranch = 0;
+	get->is_branch = false;
+	get->is_ret = false;
 	get->destaddra = addr + ud_insn_len(&u);
 	get->destaddrb = addr + ud_insn_len(&u);
 	get->comment = std::string("\t//") + ud_insn_asm(&u);
@@ -105,6 +106,7 @@ int disass_x86::get_instruction(instr* &get, address addr)
 		(op == "loopz") || 	(op == "loopne") || (op == "loopnz") )
 	{
 		const ud_operand_t *jmp_addr = ud_insn_opr(&u, 0);
+		get->is_branch = true;
 	//	std::cout << "JUMP Operator is " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) 
 	//			  << std::endl;
 		switch (jmp_addr->type)
@@ -231,6 +233,7 @@ int disass_x86::get_instruction(instr* &get, address addr)
 	{
 		get->destaddra = 0;
 		get->destaddrb = 0;
+		get->is_ret = true;
 	}
 	else if (op == "mov")
 	{

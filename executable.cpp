@@ -132,17 +132,17 @@ int executable::load(char *bin_name)
 	start->output_graph_data(folder);
 	start->output_code(folder);
 	funcs.push_back(start);
-	std::vector<address> temp = funcs.back()->get_calls();
-	std::cout << std::hex;
-	for (unsigned int i = 0; i < temp.size(); i++)
-	{
-		if (check_func_list(temp[i]))
-		{
-			//std::cout << "\tNew function at 0x" << temp[i] << std::endl;
-			function_addresses.push_back(temp[i]);
-		}
-	}
-	std::cout << std::dec;
+//	std::vector<address> temp = funcs.back()->get_calls();
+//	std::cout << std::hex;
+//	for (unsigned int i = 0; i < temp.size(); i++)
+//	{
+//		if (check_func_list(temp[i]))
+//		{
+//			//std::cout << "\tNew function at 0x" << temp[i] << std::endl;
+//			function_addresses.push_back(temp[i]);
+//		}
+//	}
+//	std::cout << std::dec;
 	while (function_addresses.size() > 0)
 	{
 		std::stringstream name;
@@ -152,16 +152,16 @@ int executable::load(char *bin_name)
 		tfunc->output_code(folder);
 		funcs.push_back(tfunc);
 		function_addresses.erase(function_addresses.begin());
-		std::vector<address> temp = funcs.back()->get_calls();
-		std::cout << std::hex;
-		for (unsigned int i = 0; i < temp.size(); i++)
-		{
-			if (check_func_list(temp[i]))
-			{
-				//std::cout << "\tNew function at 0x" << temp[i] << std::endl;
-				function_addresses.push_back(temp[i]);
-			}
-		}
+//		std::vector<address> temp = funcs.back()->get_calls();
+//		std::cout << std::hex;
+//		for (unsigned int i = 0; i < temp.size(); i++)
+//		{
+//			if (check_func_list(temp[i]))
+//			{
+//				//std::cout << "\tNew function at 0x" << temp[i] << std::endl;
+//				function_addresses.push_back(temp[i]);
+//			}
+//		}
 	}
 
 	exe_file->close();

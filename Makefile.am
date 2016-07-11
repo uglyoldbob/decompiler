@@ -49,6 +49,7 @@ code_elements/code_multi_if.cpp \
 code_elements/code_run.cpp \
 code_elements/code_do_while_loop.cpp \
 code_elements/code_while_loop.cpp \
+code_elements/related_code.cpp \
 executable.cpp \
 exe_loader.cpp \
 exe_elf.cpp \
@@ -82,6 +83,7 @@ code_elements/code_multi_if.cpp \
 code_elements/code_run.cpp \
 code_elements/code_do_while_loop.cpp \
 code_elements/code_while_loop.cpp \
+code_elements/related_code.cpp \
 executable.cpp \
 exe_loader.cpp \
 exe_elf.cpp \
@@ -114,6 +116,7 @@ code_elements/code_multi_if.cpp \
 code_elements/code_run.cpp \
 code_elements/code_do_while_loop.cpp \
 code_elements/code_while_loop.cpp \
+code_elements/related_code.cpp \
 executable.cpp \
 exe_loader.cpp \
 exe_elf.cpp \

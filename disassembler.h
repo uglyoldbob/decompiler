@@ -13,8 +13,9 @@ struct instr
 	std::string preprint;
 	std::vector<variable *> statements;
 	std::string comment;
-	int ins;	//increase when control is branched to here
 	int is_cbranch;	//set when it is a conditional branch statement
+	bool is_branch;	//is this a branch of any kind?
+	bool is_ret;	//is this an instruction to return from a function?
 	char len;	//length of the instruction
 	address destaddra;	//stores the dest of the conditional branch statement
 	address destaddrb;	//stores the other dest

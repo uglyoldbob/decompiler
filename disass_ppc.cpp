@@ -34,7 +34,6 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 
 	get = new instr;
 	get->addr = addr;
-	get->ins = 0;
 	get->is_cbranch = 0;
 	get->call = temp.call;
 	get->destaddra = temp.targeta;

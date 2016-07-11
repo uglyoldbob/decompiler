@@ -24,7 +24,7 @@ code_element::code_element(code_element* in, address start)
 	unsigned int i;
 	for (i = 0; i < in->lines.size(); ++i)
 	{
-		if (in->lines[i]->addr == start)
+		if (in->lines[i].addr == start)
 			break;
 	}
 	while (i < in->lines.size())
@@ -85,15 +85,15 @@ code_element::~code_element()
 {
 	for (int i = 0; i < lines.size();i++)
 	{
-		for (int j = 0; j < lines[i]->statements.size(); j++)
+		for (int j = 0; j < lines[i].statements.size(); j++)
 		{
-			delete lines[i]->statements[j];
+			delete lines[i].statements[j];
 		}
-		lines[i]->statements.clear();
-		if (lines[i]->trace_call != 0)
-			delete lines[i]->trace_call;
-		if (lines[i]->trace_jump != 0)
-			delete lines[i]->trace_jump;
+		lines[i].statements.clear();
+		if (lines[i].trace_call != 0)
+			delete lines[i].trace_call;
+		if (lines[i].trace_jump != 0)
+			delete lines[i].trace_jump;
 //		delete lines[i];
 	}
 	lines.clear();
@@ -129,32 +129,72 @@ int code_element::contains(address addr)
 	}
 	else
 	{
-		if (lines[0]->addr == addr)
+		if (lines[0].addr == addr)
 			return 1;	//the block for this address already exists
 		for (unsigned int i = 1; i < lines.size(); ++i)
 		{
-			if (lines[i]->addr == addr)
+			if (lines[i].addr == addr)
 				return -1;	//the block starting at this address exists inside another block
 		}
 	}
 	return 0;
 }
 
-instr *code_element::getline(int num)
-{	//-1 means get last line
-	if ( (lines.size() == 0) || (num < -1) )
+bool code_element::should_be_added(address addr)
+{	//returns true if the address should be added to this block
+	if (lines.size() == 0)
 	{
-		return NULL;
+		if (s == addr)
+			return true;
+		else
+			return false;
 	}
-	else if (num == -1)
+	instr end = lines.back();
+	if (end.is_cbranch == 0)
 	{
-		return lines[lines.size()-1];
+		if (end.destaddra == addr)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
-	else if ((unsigned int)num < lines.size())
+	else
 	{
-		return lines[num];
+		return false;
 	}
-	return 0;
+}
+
+bool code_element::no_end()
+{	//returns true if this block does not have a proper end
+	if (lines.size() == 0)
+	{
+		return true;
+	}
+	instr end = lines.back();
+	return (!end.is_branch && !end.is_ret);
+}
+
+//Returns the addresses this element might flow to
+std::vector<address> code_element::get_nexts()
+{
+	std::vector<address> ret;
+
+	if (lines.size() != 0)
+	{
+		instr end = lines.back();
+		if (!end.is_ret)
+		{
+			ret.push_back(end.destaddra);
+		}
+		if (end.is_cbranch)
+		{
+			ret.push_back(end.destaddrb);
+		}	
+	}
+	return ret;
 }
 
 void code_element::done()
@@ -176,46 +216,24 @@ void code_element::set_b(code_element *nwb)
 	b = nwb;
 }
 
+code_element *code_element::ga()
+{
+	return a;
+}
+
+code_element *code_element::gb()
+{
+	return b;
+}
+
 int code_element::gins()	//get ins
 {
 	return inputs.size();
 }
 
-code_element *code_element::ga()
-{
-	if (a == 0)
-		return b;
-	else
-		return a;
-}
-
-int code_element::gains()
-{
-	if (a == 0)
-		return b->gins();
-	else
-		return a->gins();
-}
-
-code_element *code_element::gb()
-{
-	if (a == 0)
-		return a;
-	else
-		return b;
-}
-
-int code_element::gbins()
-{
-	if (a == 0)
-		return a->gins();
-	else
-		return b->gins();
-}
-
 void code_element::add_line(instr *addme)
 {
-	lines.push_back(addme);
+	lines.push_back(*addme);
 }
 
 void code_element::replace_references(code_element *old, code_element *nw)
@@ -233,16 +251,16 @@ void code_element::copy_inputs(code_element *src)
 
 void code_element::print_graph(std::ostream &dest)
 {
-	if (a != 0)
+	instr end = lines.back();
+	if (!end.is_ret)
 		dest << "\tX" << s// << "_" << pieces[i] 
-			 << " -> X" << a->gets()// << "_" << pieces[i]->ga()  
+			 << " -> X" << end.destaddra // << "_" << pieces[i]->ga()  
 			 << " [ label=a ];\n";
-	if ((b != 0) && (a != b))
+	if (end.is_cbranch)
 		dest << "\tX" << s// << "_" << pieces[i] 
-			 << " -> X" << b->gets()// << "_" << pieces[i]->gb() 
+			 << " -> X" << end.destaddrb// << "_" << pieces[i]->gb() 
 			 << " [ label=b ];\n";
-	if ( (a == 0) && (b == 0) )
-		dest << "\tX" << s << ";\n";
+	dest << "\tX" << s << ";\n";
 }
 
 void code_element::fprint(std::ostream &dest, int depth)
@@ -266,9 +284,9 @@ void code_element::fprint(std::ostream &dest, int depth)
 		std::stringstream temp;
 		std::string tmpstr(temp.str());
 		temp << tabs(depth);// << "|";
-		lines[k]->preprint = tmpstr;
-		dest << *lines[k] << "\n";
-		lines[k]->preprint = "";
+		lines[k].preprint = tmpstr;
+		dest << lines[k] << "\n";
+		lines[k].preprint = "";
 	}
 	/*dest << tabs(depth) << "\\------ ";
 	if (depth == 0)

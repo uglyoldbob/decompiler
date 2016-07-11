@@ -18,6 +18,10 @@ class code_element
 		virtual ~code_element();
 		
 		address gets();		//gets s
+		bool should_be_added(address);
+		bool no_end();
+		std::vector<address> get_nexts();
+
 		void replace_references(code_element *old, code_element *nw);
 		void set_a(code_element *nwa);
 		void set_b(code_element *nwb);
@@ -42,7 +46,7 @@ class code_element
 	protected:
 		std::vector<code_element*>inputs;	//list of blocks that lead to this one
 		address s;	//the starting address
-		std::vector<instr*> lines;
+		std::vector<instr> lines;
 		int depth;
 		code_element *a;	//next element
 		code_element *b;	//other next element (if a decision has to be made)
