@@ -10,7 +10,6 @@ addons:
 
 script:
  - jdk_switcher use oraclejdk8
- - ./configure
  - tools/travis-sonarqube.sh make VERBOSE=1 && ctest --output-on-failure --timeout 100
 
 install:
