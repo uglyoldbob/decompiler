@@ -126,8 +126,6 @@ class variable
 		virtual ~variable();
 		std::size_t mysize() { return thesize; }
 		friend std::ostream &operator<<(std::ostream &out, variable &o);
-		virtual variable* trace(int d, variable *trc, code_element *cel, int stmt, int line);
-		virtual bool needs_trace();
 		oper_precedence get_p();
 		std::size_t get_size();
 		std::string get_name();

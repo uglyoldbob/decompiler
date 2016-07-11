@@ -96,22 +96,6 @@ void function::gather_instructions(disassembler &disas)
 						std::cout << "--------------------------------\n";
 						c_blocks[i]->fprint(std::cout, 2);
 						std::cout << "--------------------------------\n";
-						variable *traced = c_blocks[i]->trace(1, temp->trace_jump, temp->addr);
-						if (traced == 0)
-						{
-							std::cout << "Cannot trace a jump address\n";
-							c_blocks[i]->fprint(std::cout, 2);
-							throw "Cannot trace a jump address";
-						}
-						else
-						{
-							std::cout << "Traced a jump destination to " << *traced << std::endl;
-							std::stringstream ss;
-							ss << *traced;
-							char dummy;
-							ss >> dummy >> dummy;
-							ss >> std::hex >> temp->destaddrb;
-						}
 					}
 					if ( (temp->destaddra != 0) && (temp->destaddrb != 0) )
 					{	//it is the end of the block if the instruction has two destinations

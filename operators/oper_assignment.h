@@ -10,7 +10,6 @@ class oper_assignment : public oper2
 {
 	public:
 		oper_assignment(variable *a, variable *b);
-		virtual variable* trace(int d, variable *trc, code_element *cel, int stmt, int line);
 	protected:
 		virtual std::ostream &print(std::ostream &out);
 	private:

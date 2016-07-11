@@ -102,82 +102,6 @@ code_element::~code_element()
 	b = 0;
 }
 
-variable* code_element::trace(int d, variable *trc, int stmt, int line)
-{
-	std::cout << tabs(d) << "Tracing2 (" << *trc << ") " 
-			  << stmt << " " << line << "\n";
-	for (int i = stmt; i >= 0; i--)
-	{
-		for (int j = line; j >= 0; j--)
-		{
-			if (lines[i]->statements.size() > j)
-			{
-				//std::cout << *lines[i] << std::endl;
-				variable *tmp = lines[i]->statements[j]->trace(d+1, trc, this, stmt, line);
-				if (tmp != 0)
-				{
-					if (tmp->needs_trace())
-					{	//tracing to further clarify results
-						variable *temp;
-						if (j > 0)
-							temp = trace(d+1, tmp, i, j-1);
-						else if (i > 0)
-							temp = trace(d+1, tmp, i-1, lines[i-1]->statements.size()-1);
-						if (temp != 0)
-						{	//no need to trace because this item is done being traced
-							std::cout << tabs(d) << "Succeeded trace (" << *trc << ") ("
-									  << *temp << ")\n";
-							return temp;
-						}
-					}
-					else
-					{	//no need to trace because this item is done being traced
-						std::cout << tabs(d) << "Succeeded trace (" << *trc << ") ("
-								  << *tmp << ")\n";
-						return tmp;
-					}
-					goto done;
-				}
-				//moving on to find results
-			}
-		}
-	}
-done:
-	std::cout << tabs(d) << "Unable to trace " << *trc << std::endl;
-	return 0;
-}
-
-//begin trace at a line of code in a block
-	//look back through previous statements for something that modifies or sets our variable
-	//determine if variable needs to be traced
-	//trace a variable if needed: this results in:
-		//0 - nothing here matters, move along
-		//something - a variable that modifies or sets our original variable
-
-variable* code_element::trace(int d, variable *trc, address location)
-{
-	int i;
-	for (i = 0; i < lines.size(); i++)
-	{
-		if (lines[i]->addr == location)
-			break;
-	}
-	if (i == lines.size())
-	{
-		throw "Address not in this block";
-	}
-	i--;
-	return trace(d, trc, i, lines[i]->statements.size()-1);
-}
-
-variable* code_element::trace_prev(int d, variable *trc, int stmt, int line)
-{
-	if (line > 0)
-		trace(d, trc, stmt, line-1);
-	else if (stmt > 0)
-		trace(d, trc, stmt-1, lines[stmt-1]->statements.size()-1);
-}
-
 int code_element::is_cbranch()
 {	//does this element have a conditional branch at the end
 	if ((a != 0) && (b != 0))
@@ -218,11 +142,7 @@ int code_element::contains(address addr)
 
 instr *code_element::getline(int num)
 {	//-1 means get last line
-	if (lines.size() == 0)
-	{
-		return NULL;
-	}
-	else if (num < -1)
+	if ( (lines.size() == 0) || (num < -1) )
 	{
 		return NULL;
 	}

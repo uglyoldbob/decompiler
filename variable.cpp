@@ -37,25 +37,6 @@ std::ostream &operator<<(std::ostream &out, variable &o)
 	return o.print(out);
 }
 
-bool variable::needs_trace()
-{
-	if (isconst==1)
-		return 0;
-	return 1;
-}
-
-variable* variable::trace(int d, variable *trc, code_element *cel, int stmt, int line)
-{
-	if (this->name == trc->name)
-	{
-		return this;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
 oper_precedence variable::get_p()
 {
 	return p;
