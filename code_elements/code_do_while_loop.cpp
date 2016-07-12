@@ -14,6 +14,11 @@ code_do_while_loop::code_do_while_loop(code_element *f)
 		a = f->ga();
 }
 
+bool code_do_while_loop::check(code_element *e)
+{
+	return false;
+}
+
 code_do_while_loop::~code_do_while_loop()
 {
 }

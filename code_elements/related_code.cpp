@@ -1,5 +1,7 @@
 #include "related_code.h"
 
+#include "code_do_while_loop.h"
+
 related_code::related_code()
 {
 }
@@ -69,6 +71,24 @@ void related_code::gather_instructions(disassembler &disas)
 		}
 		chunks.erase(chunks.begin());
 	}
+	finalize_blocks();
+}
+
+code_element *related_code::get_block(address a)
+{
+	for (int i = 0; i < blocks.size(); i++)
+	{
+		if (blocks[i]->gets() == a)
+			return blocks[i];
+	}
+	return (code_element*)0;
+}
+
+void related_code::finalize_blocks()
+{
+	for (int i = 0; i < blocks.size(); i++)
+	{
+	}
 }
 
 void related_code::fprint(std::ostream &dest, int depth)
@@ -89,6 +109,18 @@ void related_code::print_graph(std::ostream &dest)
 	for (int i = 0; i < blocks.size(); i++)
 	{
 		blocks[i]->print_graph(dest);
+	}
+}
+
+void related_code::simplify()
+{
+	std::cout << "Simplifying" << std::endl;
+	for (int i = 0; i < blocks.size(); i++)
+	{
+		if (code_do_while_loop::check(blocks[i]))
+		{
+			std::cout << "Found a do while loop" << std::endl;
+		}
 	}
 }
 

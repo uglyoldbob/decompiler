@@ -15,8 +15,11 @@ class related_code
 		void gather_instructions(disassembler &disas);
 		void fprint(std::ostream &dest, int depth);
 		void print_graph(std::ostream &dest);
+		void simplify();
 	private:
 		std::vector<code_element *> blocks;	//The basic elements of code
+		void finalize_blocks();
+		code_element *get_block(address a);	//return the block starting with address a
 };
 
 #endif

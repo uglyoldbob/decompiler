@@ -51,6 +51,7 @@ std::string function::get_name()
 
 void function::simplify()
 {
+	code.simplify();
 }
 
 inline std::ostream& operator << (std::ostream& output, function &me)

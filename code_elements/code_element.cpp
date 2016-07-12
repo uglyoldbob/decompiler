@@ -9,19 +9,12 @@ code_element::code_element(address addr)
 	a = 0;
 	b = 0;
 	depth = 0;
-	finished = 0;
 	is_branch = false;
 }
 
 code_element::code_element(code_element* in, address start)
 {
-	//std::cout << std::hex;
-	//std::cout << "Split block Init block 0x" 
-	//		  << in->s << " at 0x" << start << std::endl;
-	//std::cout << std::dec;
 	depth = 0;
-//	if (finished)
-//		in->done();
 	unsigned int i;
 	for (i = 0; i < in->lines.size(); ++i)
 	{
@@ -75,7 +68,6 @@ code_element* code_element::split(address addr)
 	
 	code_element *ret;
 	ret = new code_element(this, addr);
-	ret->finished = this->finished;
 
 	//fprint(std::cout, 1);
 	//ret->fprint(std::cout, 1);
@@ -112,11 +104,6 @@ bool code_element::is_cbranch()
 	}
 	instr end = lines.back();
 	return end.is_cbranch;
-}
-
-int code_element::is_done()
-{
-	return finished;
 }
 
 int code_element::contains(address addr)
@@ -184,15 +171,6 @@ std::vector<address> code_element::get_nexts()
 		}	
 	}
 	return ret;
-}
-
-void code_element::done()
-{
-	//fprint(std::cout, 0);
-//	std::cout << std::hex;
-//	std::cout << "Block at 0x" << s << " being marked as done\n";
-//	std::cout << std::dec;
-	finished = 1;
 }
 
 void code_element::set_a(code_element *nwa)
@@ -275,9 +253,6 @@ address code_element::gets()
 
 void code_element::add_input(code_element *ref)
 {
-//	std::cout << std::hex;
-//	std::cout << "Add 0x" << ref->gets() << " to 0x" << s << std::endl;
-//	std::cout << std::dec;
 	char add = 1;
 	for (unsigned int i = 0; i < inputs.size(); ++i)
 	{
@@ -293,10 +268,6 @@ void code_element::add_input(code_element *ref)
 
 void code_element::remove_input(code_element *me)	//decrease ins
 {
-//	std::cout << std::hex;
-//	std::cout << "Remove 0x" << me->gets() << " from 0x" << s << std::endl;
-//	std::cout << std::dec;
-	
 	for (unsigned int i = 0; i < inputs.size(); ++i)
 	{
 		if (inputs[i] == me)
@@ -305,6 +276,4 @@ void code_element::remove_input(code_element *me)	//decrease ins
 			break;
 		}
 	}
-	//cout << "Reduce ins of " << std::hex << s << std::dec << " (" << ins << ") by " << by << "\n";
-	//ins -= by;
 }
