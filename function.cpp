@@ -10,13 +10,7 @@ function::function(address addr, const char *t, const char *n, disassembler &dis
 	: name(n), ret_type(t)
 {
 	s = addr;
-	//std::cout << "Function " << name
-	//		  << " at address 0x" << std::hex << s << std::dec << "\n";
 	gather_instructions(disas);
-	//fprint(std::cout);
-	simplify();
-//	std::cout << "Done with function " << name << " ?\n";
-	//std::cout << *this << std::endl;
 }
 
 function::~function()
@@ -104,7 +98,6 @@ void function::output_graph_data(std::string fld_name)
 
 void function::output_code(std::string fld_name)
 {
-	simplify();
 	std::string outname = fld_name + "/" + name + ".c";
 	std::ofstream output;
 	output.open(outname, std::ios::out);

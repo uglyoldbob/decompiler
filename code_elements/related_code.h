@@ -20,6 +20,7 @@ class related_code
 		std::vector<code_element *> blocks;	//The basic elements of code
 		void finalize_blocks();
 		code_element *get_block(address a);	//return the block starting with address a
+		void replace_element(code_element* old, code_element *n);
 };
 
 #endif

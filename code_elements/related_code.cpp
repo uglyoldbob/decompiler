@@ -1,5 +1,6 @@
 #include "related_code.h"
 
+#include "ce_basic.h"
 #include "code_do_while_loop.h"
 
 related_code::related_code()
@@ -8,6 +9,7 @@ related_code::related_code()
 
 void related_code::gather_instructions(disassembler &disas)
 {
+	std::vector<ce_basic *> gath;
 	std::vector<address> chunks;
 	chunks.push_back(start_address);
 
@@ -19,7 +21,7 @@ void related_code::gather_instructions(disassembler &disas)
 		bool dont_add = false;
 		disas.get_instruction(temp, cur_addr);
 
-		for (int i = 0; i < blocks.size(); i++)
+		for (int i = 0; i < gath.size(); i++)
 		{
 			//find if the address is already part of an existing block
 				//find if the address is already the start of a block
@@ -28,12 +30,13 @@ void related_code::gather_instructions(disassembler &disas)
 				//add the address to the existing block
 			//else
 				//create a new block and add the address to the existing block
-			if (blocks[i]->contains(cur_addr) != 0)
+			if (gath[i]->contains(cur_addr) != 0)
 			{	//this address already exists in this block
-				if (blocks[i]->gets() != cur_addr)
+				if (gath[i]->gets() != cur_addr)
 				{	//only do something if it is necessary to split the block
-					code_element *sp = blocks[i]->split(cur_addr);
-					blocks.push_back(sp);
+					ce_basic *sp = gath[i]->second_half(cur_addr);
+					gath.push_back(sp);
+					gath[i] = gath[i]->first_half(cur_addr);
 					dont_add = true;
 				}
 				else
@@ -42,34 +45,38 @@ void related_code::gather_instructions(disassembler &disas)
 				}
 			}
 		}
-		for (int i = 0; i < blocks.size(); i++)
+		for (int i = 0; i < gath.size(); i++)
 		{
-			if (blocks[i]->should_be_added(cur_addr))
+			if (gath[i]->should_be_added(cur_addr))
 			{	//add the address to the existing block
 				belongs_to = i;
 			}
 		}
-		if (blocks.size() == 0)
+		if (gath.size() == 0)
 		{
-			blocks.push_back(new code_element(cur_addr));
+			gath.push_back(new ce_basic(cur_addr));
 			belongs_to = 0;
 		}
 		if ((belongs_to == -1) && !dont_add)
 		{
-			code_element *temp = new code_element(cur_addr);
-			blocks.push_back(temp);
-			belongs_to = blocks.size() - 1;
+			ce_basic *temp = new ce_basic(cur_addr);
+			gath.push_back(temp);
+			belongs_to = gath.size() - 1;
 		}
 		if ((belongs_to != -1) && !dont_add)
 		{	//add the line to the given block
-			blocks[ belongs_to]->add_line(temp);
-			std::vector<address> p = blocks[belongs_to]->get_nexts();
+			gath[ belongs_to]->add_line(temp);
+			std::vector<address> p = gath[belongs_to]->get_nexts();
 			for (int i = 0; i < p.size(); i++)
 			{
 				chunks.push_back(p[i]);
 			}
 		}
 		chunks.erase(chunks.begin());
+	}
+	for (int i = 0; i < gath.size(); i++)
+	{
+		blocks.push_back(gath[i]);
 	}
 	finalize_blocks();
 }
@@ -88,6 +95,15 @@ void related_code::finalize_blocks()
 {
 	for (int i = 0; i < blocks.size(); i++)
 	{
+		std::vector<address> p = blocks[i]->get_nexts();
+		if (p.size() > 0)
+		{
+			blocks[i]->a = get_block(p[0]);
+		}
+		if (p.size() > 1)
+		{
+			blocks[i]->b = get_block(p[1]);
+		}
 	}
 }
 
@@ -112,6 +128,21 @@ void related_code::print_graph(std::ostream &dest)
 	}
 }
 
+void related_code::replace_element(code_element* old, code_element *n)
+{
+	for (int i = 0; i < blocks.size(); i++)
+	{
+		blocks[i]->replace_references(old, n);
+	}
+	for (int i = 0; i < blocks.size(); i++)
+	{
+		if (blocks[i] == old)
+		{
+			blocks[i] = n;
+		}
+	}
+}
+
 void related_code::simplify()
 {
 	std::cout << "Simplifying" << std::endl;
@@ -119,7 +150,9 @@ void related_code::simplify()
 	{
 		if (code_do_while_loop::check(blocks[i]))
 		{
-			std::cout << "Found a do while loop" << std::endl;
+			std::cout << "Found a do while loop 0x" << std::hex << blocks[i]->gets() << std::dec << std::endl;
+			code_do_while_loop *new_element = new code_do_while_loop(blocks[i]);
+			replace_element(blocks[i], new_element);
 		}
 	}
 }

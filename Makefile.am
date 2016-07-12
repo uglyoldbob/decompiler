@@ -43,6 +43,7 @@ operators/oper_bitwise_and.cpp \
 operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
+code_elements/ce_basic.cpp \
 code_elements/code_element.cpp \
 code_elements/code_if_else.cpp \
 code_elements/code_multi_if.cpp \
@@ -77,6 +78,7 @@ operators/oper_bitwise_and.cpp \
 operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
+code_elements/ce_basic.cpp \
 code_elements/code_element.cpp \
 code_elements/code_if_else.cpp \
 code_elements/code_multi_if.cpp \
@@ -110,6 +112,7 @@ operators/oper_bitwise_and.cpp \
 operators/oper_bitwise_or.cpp \
 decompile.cpp \
 function.cpp \
+code_elements/ce_basic.cpp \
 code_elements/code_element.cpp \
 code_elements/code_if_else.cpp \
 code_elements/code_multi_if.cpp \
