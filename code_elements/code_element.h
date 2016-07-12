@@ -24,31 +24,19 @@ class code_element
 		int contains(address addr);
 
 		void replace_references(code_element *old, code_element *nw);
-		void set_a(code_element *nwa);
-		void set_b(code_element *nwb);
-		code_element *ga();
-		int gains();
-		code_element *gb();
-		int gbins();
 		virtual void fprint(std::ostream &dest, int depth);
 		virtual void print_graph(std::ostream &dest);
-		int gins();	//get ins
-		
-		void copy_inputs(code_element *src);
-		void add_input(code_element *ref);
-		void remove_input(code_element *me);	//remove input element
-		bool is_cbranch();	//does this element have a conditional branch at the end
 		
 		code_element* split(address addr);
 		void add_line(instr *addme);
+
+		code_element *a;	//next element
+		code_element *b;	//other next element (if a decision has to be made)
 	protected:
-		std::vector<code_element*>inputs;	//list of blocks that lead to this one
 		address s;	//the starting address
 		bool is_branch;	//used to declare this element branches and is a finished block
 		std::vector<instr> lines;
 		int depth;
-		code_element *a;	//next element
-		code_element *b;	//other next element (if a decision has to be made)
 };
 
 #endif

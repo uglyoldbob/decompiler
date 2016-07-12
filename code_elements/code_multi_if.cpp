@@ -18,7 +18,6 @@ void code_multi_if::add(code_element *ad)
 	ifs.push_back(ad);
 	if (ifs.size() == 1)
 	{
-		copy_inputs(ad);
 		s = ad->gets();
 	}
 }
@@ -26,42 +25,19 @@ void code_multi_if::add(code_element *ad)
 void code_multi_if::common(code_element *c)
 {
 	common_block = c;
-	if (ifs.back()->gb() != c)
+	if (ifs.back()->b != c)
 	{
-		a = ifs.back()->gb();
+		a = ifs.back()->b;
 	}
-	else if (ifs.back()->ga() != c)
+	else if (ifs.back()->a != c)
 	{
-		a = ifs.back()->ga();
+		a = ifs.back()->a;
 	}
-
-/*	if (c->ga() != a)
-	{
-		b = c->ga();
-	}
-	else
-	{
-		c->ga()->dins(1);
-	}*/
 }
 
 void code_multi_if::fprint(std::ostream &dest, int depth)
 {
 	unsigned int i;
-	/*dest << tabs(depth) << "/------";
-	if (depth == 0)
-	{
-		dest << std::hex << s << std::dec << " (" << inputs.size() << " input)";
-	}
-	else
-	{
-		dest << std::hex << s << std::dec << " (" << inputs.size() << " input) ";
-	}
-	for (int i = 0; i < inputs.size(); i++)
-	{
-		dest << std::hex << inputs[i]->gets() << std::dec << " ";  
-	}
-	dest << "\n";*/
 	ifs[0]->fprint(dest, depth);
 	dest << tabs(depth) << "if ( (?)";
 	if (form == AND_NO_ELSE)
@@ -94,30 +70,6 @@ void code_multi_if::fprint(std::ostream &dest, int depth)
 	{
 		thefinal->fprint(dest, depth);
 	}
-	/*dest << tabs(depth) << "\\------ ";
-	if (depth == 0)
-	{
-		if (a != 0)
-			dest << std::hex << a->gets() << std::dec << " ";
-		else
-			dest << "NULL ";
-		if (b != 0)
-			dest << std::hex << b->gets() << std::dec << " ";
-		else
-			dest << "NULL ";
-	}
-	else
-	{
-		if (a != 0)
-			dest << std::hex << a->gets() << std::dec << " ";
-		else
-			dest << "NULL ";
-		if (b != 0)
-			dest << std::hex << b->gets() << std::dec << " ";
-		else
-			dest << "NULL ";
-	}
-	dest << "\n";*/
 }
 
 #ifdef PROVE_SIMPLIFY
@@ -145,17 +97,6 @@ void code_multi_if::set_else(code_element *e)
 
 void code_multi_if::set_final(code_element *f)
 {
-	if (f->gins() == 1)
-	{
-		thefinal = f;
-		a = f->ga();
-		b = f->gb();
-	}
-	else if (f->gins() > 1)
-	{
-		a = f;
-		b = 0;
-	}
 }
 
 void code_multi_if::finish_and_no_else()

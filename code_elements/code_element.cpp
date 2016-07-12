@@ -13,6 +13,7 @@ code_element::code_element(address addr)
 }
 
 code_element::code_element(code_element* in, address start)
+	: s(start)
 {
 	depth = 0;
 	unsigned int i;
@@ -30,24 +31,11 @@ code_element::code_element(code_element* in, address start)
 	//save the original destinations
 	a = in->a;
 	b = in->b;
-	s = start;
-	if (a != 0)
-	{
-		a->remove_input(in);
-		a->add_input(this);
-	}
-	if (b != 0)
-	{
-		b->remove_input(in);
-		b->add_input(this);
-	}
-	
 
 	//now overwrite them
 	in->a = this;
 	in->b = 0;
 	in->is_branch = true;
-	inputs.push_back(in);
 }
 
 code_element::code_element()
@@ -60,18 +48,8 @@ code_element::code_element()
 
 code_element* code_element::split(address addr)
 {
-	//std::cout << std::hex;
-	//std::cout << "Split block Init block 0x" 
-	//		  << s << " at 0x" << addr << std::endl;
-	//std::cout << std::dec;
-	//fprint(std::cout, 0);
-	
 	code_element *ret;
 	ret = new code_element(this, addr);
-
-	//fprint(std::cout, 1);
-	//ret->fprint(std::cout, 1);
-	
 	return ret;
 }
 
@@ -88,22 +66,10 @@ code_element::~code_element()
 			delete lines[i].trace_call;
 		if (lines[i].trace_jump != 0)
 			delete lines[i].trace_jump;
-//		delete lines[i];
 	}
 	lines.clear();
-	inputs.clear();
 	a = 0;
 	b = 0;
-}
-
-bool code_element::is_cbranch()
-{	//does this element have a conditional branch at the end
-	if (lines.size() == 0)
-	{
-		return false;
-	}
-	instr end = lines.back();
-	return end.is_cbranch;
 }
 
 int code_element::contains(address addr)
@@ -173,31 +139,6 @@ std::vector<address> code_element::get_nexts()
 	return ret;
 }
 
-void code_element::set_a(code_element *nwa)
-{
-	a = nwa;
-}
-
-void code_element::set_b(code_element *nwb)
-{
-	b = nwb;
-}
-
-code_element *code_element::ga()
-{
-	return a;
-}
-
-code_element *code_element::gb()
-{
-	return b;
-}
-
-int code_element::gins()	//get ins
-{
-	return inputs.size();
-}
-
 void code_element::add_line(instr *addme)
 {
 	lines.push_back(*addme);
@@ -209,11 +150,6 @@ void code_element::replace_references(code_element *old, code_element *nw)
 		a = nw;
 	if (b == old)
 		b = nw;
-}
-
-void code_element::copy_inputs(code_element *src)
-{
-	inputs = src->inputs;
 }
 
 void code_element::print_graph(std::ostream &dest)
@@ -239,7 +175,7 @@ void code_element::fprint(std::ostream &dest, int depth)
 	{
 		std::stringstream temp;
 		std::string tmpstr(temp.str());
-		temp << tabs(depth);// << "|";
+		temp << tabs(depth);
 		lines[k].preprint = tmpstr;
 		dest << lines[k] << "\n";
 		lines[k].preprint = "";
@@ -251,29 +187,3 @@ address code_element::gets()
 	return s;
 }
 
-void code_element::add_input(code_element *ref)
-{
-	char add = 1;
-	for (unsigned int i = 0; i < inputs.size(); ++i)
-	{
-		if (inputs[i] == ref)
-		{
-			add = 0;
-			break;
-		}
-	}
-	if (add)
-		inputs.push_back(ref);
-}
-
-void code_element::remove_input(code_element *me)	//decrease ins
-{
-	for (unsigned int i = 0; i < inputs.size(); ++i)
-	{
-		if (inputs[i] == me)
-		{
-			inputs.erase(inputs.begin() + i);
-			break;
-		}
-	}
-}

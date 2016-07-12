@@ -16,7 +16,6 @@ void code_if_else::add_lcb(code_element *add)
 	lcb.push_back(add);
 	if (lcb.size() == 1)
 	{
-		copy_inputs(add);
 		s = add->gets();
 	}
 }
@@ -34,35 +33,19 @@ void code_if_else::set_else(code_element *h)
 void code_if_else::set_last(code_element *l)
 {
 	next = l;
-	a = l->ga();
-	b = l->gb();
+	a = l->a;
+	b = l->b;
 }
 
 void code_if_else::set_next(code_element *n)
 {
 	a = n;
-	for (unsigned int i = 0; i < lcb.size(); ++i)
-		a->remove_input(lcb[i]);
 	b = 0;
 }
 
 void code_if_else::fprint(std::ostream &dest, int depth)
 {
 	unsigned int i;
-	/*dest << tabs(depth) << "/------";
-	if (depth == 0)
-	{
-		dest << std::hex << s << std::dec << " (" << inputs.size() << " input)";
-	}
-	else
-	{
-		dest << std::hex << s << std::dec << " (" << inputs.size() << " input) ";
-	}
-	for (int i = 0; i < inputs.size(); i++)
-	{
-		dest << std::hex << inputs[i]->gets() << std::dec << " ";  
-	}
-	dest << "\n";*/
 	lcb[0]->fprint(dest, depth);
 	dest << tabs(depth) << "if (?)\n";
 	dest << tabs(depth) << "{\n";
@@ -86,30 +69,6 @@ void code_if_else::fprint(std::ostream &dest, int depth)
 	{
 		next->fprint(dest, depth);
 	}
-/*	dest << tabs(depth) << "\\------ ";
-	if (depth == 0)
-	{
-		if (a != 0)
-			dest << std::hex << a->gets() << std::dec << " ";
-		else
-			dest << "NULL ";
-		if (b != 0)
-			dest << std::hex << b->gets() << std::dec << " ";
-		else
-			dest << "NULL ";
-	}
-	else
-	{
-		if (a != 0)
-			dest << std::hex << a->gets() << std::dec << " ";
-		else
-			dest << "NULL ";
-		if (b != 0)
-			dest << std::hex << b->gets() << std::dec << " ";
-		else
-			dest << "NULL ";
-	}
-	dest << "\n";*/
 }
 
 #ifdef PROVE_SIMPLIFY
