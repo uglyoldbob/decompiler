@@ -33,17 +33,18 @@ void related_code::gather_instructions(disassembler &disas)
 					code_element *sp = blocks[i]->split(cur_addr);
 					blocks.push_back(sp);
 					dont_add = true;
-					break;
 				}
 				else
 				{
 					dont_add = true;
 				}
 			}
-			else if (blocks[i]->should_be_added(cur_addr))
+		}
+		for (int i = 0; i < blocks.size(); i++)
+		{
+			if (blocks[i]->should_be_added(cur_addr))
 			{	//add the address to the existing block
 				belongs_to = i;
-				break;
 			}
 		}
 		if (blocks.size() == 0)

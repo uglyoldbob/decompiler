@@ -46,6 +46,7 @@ class code_element
 	protected:
 		std::vector<code_element*>inputs;	//list of blocks that lead to this one
 		address s;	//the starting address
+		bool is_branch;	//used to declare this element branches and is a finished block
 		std::vector<instr> lines;
 		int depth;
 		code_element *a;	//next element

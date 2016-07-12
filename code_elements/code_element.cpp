@@ -10,6 +10,7 @@ code_element::code_element(address addr)
 	b = 0;
 	depth = 0;
 	finished = 0;
+	is_branch = false;
 }
 
 code_element::code_element(code_element* in, address start)
@@ -52,6 +53,7 @@ code_element::code_element(code_element* in, address start)
 	//now overwrite them
 	in->a = this;
 	in->b = 0;
+	in->is_branch = true;
 	inputs.push_back(in);
 }
 
@@ -137,7 +139,7 @@ bool code_element::should_be_added(address addr)
 			return false;
 	}
 	instr end = lines.back();
-	if (end.is_branch)
+	if ((end.is_branch) || (this->is_branch))
 	{
 		return false;
 	}
