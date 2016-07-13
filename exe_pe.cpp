@@ -1,7 +1,7 @@
 #include "exe_pe.h"
 
-#include "disass_ppc.h"
-#include "disass_x86.h"
+#include "disassembly/disass_ppc.h"
+#include "disassembly/disass_x86.h"
 #include "exceptions.h"
 #include "executable.h"
 

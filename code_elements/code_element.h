@@ -2,7 +2,7 @@
 #define __CODE_ELEMENT_H__
 
 #include "config.h"
-#include "disassembler.h"
+#include "disassembly/disassembler.h"
 #include <iostream>
 #include <vector>
 

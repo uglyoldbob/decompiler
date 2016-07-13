@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "disassembler.h"
+#include "disassembly/disassembler.h"
 #include "code_element.h"
 
 class related_code

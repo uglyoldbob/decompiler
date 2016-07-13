@@ -1,6 +1,6 @@
 #include "exe_loader.h"
 
-#include "disassembler.h"
+#include "disassembly/disassembler.h"
 
 exe_loader::exe_loader()
 {

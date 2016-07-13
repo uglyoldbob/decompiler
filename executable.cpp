@@ -1,6 +1,6 @@
 #include <sys/stat.h>
 
-#include "disassembler.h"
+#include "disassembly/disassembler.h"
 #include "exceptions.h"
 #include "executable.h"
 #include "exe_elf.h"

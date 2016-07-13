@@ -1,6 +1,6 @@
 #include "exe_elf.h"
 
-#include "disass_x86.h"
+#include "disassembly/disass_x86.h"
 #include "exceptions.h"
 #include <iostream>
 

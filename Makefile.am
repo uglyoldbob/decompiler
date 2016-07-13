@@ -1,3 +1,4 @@
+
 AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = udis86-1.7.2
@@ -9,13 +10,13 @@ test_SOURCES = example.c
 
 bin_PROGRAMS = decompile16 decompile32 decompile64 test
 
-decompile16_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
-decompile32_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
-decompile64_CFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
+decompile16_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+decompile32_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+decompile64_CFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
 
-decompile16_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
-decompile32_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
-decompile64_CPPFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall
+decompile16_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+decompile32_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+decompile64_CPPFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
 
 #BUILT_SOURCES = libudis86.a
 
@@ -56,9 +57,9 @@ exe_loader.cpp \
 exe_elf.cpp \
 exe_macho.cpp \
 exe_pe.cpp \
-disassembler.cpp \
-disass_x86.cpp \
-disass_ppc.cpp \
+src/disassembly/disassembler.cpp \
+src/disassembly/disass_x86.cpp \
+src/disassembly/disass_ppc.cpp \
 exceptions.cpp \
 helpers.cpp
 
@@ -91,9 +92,9 @@ exe_loader.cpp \
 exe_elf.cpp \
 exe_macho.cpp \
 exe_pe.cpp \
-disassembler.cpp \
-disass_x86.cpp \
-disass_ppc.cpp \
+src/disassembly/disassembler.cpp \
+src/disassembly/disass_x86.cpp \
+src/disassembly/disass_ppc.cpp \
 exceptions.cpp \
 helpers.cpp
 
@@ -125,9 +126,9 @@ exe_loader.cpp \
 exe_elf.cpp \
 exe_macho.cpp \
 exe_pe.cpp \
-disassembler.cpp \
-disass_x86.cpp \
-disass_ppc.cpp \
+src/disassembly/disassembler.cpp \
+src/disassembly/disass_x86.cpp \
+src/disassembly/disass_ppc.cpp \
 exceptions.cpp \
 helpers.cpp
 
