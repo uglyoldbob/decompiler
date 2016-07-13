@@ -154,10 +154,22 @@ bool element_present(std::vector<code_element*> gr, address a)
 	return false;
 }
 
+bool no_dead_ends(std::vector<code_element*> gr)
+{
+	for (int i = 0; i < gr.size(); i++)
+	{
+		if ((gr[i]->a == 0) && (gr[i]->b == 0) )
+			return false;
+	}
+	return true;
+}
+
 //processes a group of code_elements, returning the number of elements not in the group that point into the group 
 int related_code::external_inputs(std::vector<code_element *> gr)
 {
 	std::vector<code_element*>out_mods;
+	//blocks = combination of gr and out_mods
+	std::vector<code_element*> refed_mods;	//a subset of gr that is referenced from elements not in gr
 	//add all modules not in the group
 	for (int i = 0; i < blocks.size(); i++)
 	{
@@ -166,6 +178,62 @@ int related_code::external_inputs(std::vector<code_element *> gr)
 			out_mods.push_back(blocks[i]);
 		}
 	}
+	for (int i = 0; i < out_mods.size(); i++)
+	{
+		if (out_mods[i]->a != 0)
+		{
+			address temp = out_mods[i]->a->gets();
+			if (element_present(gr, temp) && !element_present(refed_mods, temp))
+			{
+				refed_mods.push_back(out_mods[i]->a);
+			}
+		}
+		if (out_mods[i]->b != 0)
+		{
+			address temp = out_mods[i]->b->gets();
+			if (element_present(gr, temp) && !element_present(refed_mods, temp))
+			{
+				refed_mods.push_back(out_mods[i]->b);
+			}
+		}
+	}
+	return refed_mods.size();
+}
+
+//processes a group of code_elements, returning the number of references that are not in that group
+int related_code::outside_references(std::vector<code_element *> gr)
+{
+	std::vector<code_element*>out_mods;
+	//blocks = combination of gr and out_mods
+	std::vector<code_element*> refed_mods;	//a subset of gr that is referenced from elements not in gr
+	//add all modules not in the group
+	for (int i = 0; i < blocks.size(); i++)
+	{
+		if (!element_present(gr, blocks[i]->gets()))
+		{
+			out_mods.push_back(blocks[i]);
+		}
+	}
+	for (int i = 0; i < gr.size(); i++)
+	{
+		if (gr[i]->a != 0)
+		{
+			address temp = gr[i]->a->gets();
+			if (element_present(out_mods, temp) && !element_present(refed_mods, temp))
+			{
+				refed_mods.push_back(gr[i]->a);
+			}
+		}
+		if (gr[i]->b != 0)
+		{
+			address temp = gr[i]->b->gets();
+			if (element_present(out_mods, temp) && !element_present(refed_mods, temp))
+			{
+				refed_mods.push_back(gr[i]->b);
+			}
+		}
+	}
+	return refed_mods.size();
 }
 
 std::vector<unsigned int> make_combination(int num)
@@ -239,35 +307,27 @@ int related_code::process_blocks(int n)
 	do
 	{
 		apply_combination(cur_combo, group);
-		std::cout << "\tCur combo: ";
-		for (int i = 0; i < cur_combo.size(); i++)
+		int ext_in = external_inputs(group);
+		int ext_out = outside_references(group);
+		if ( (ext_in == 1) && (ext_out == 1) && no_dead_ends(group))
 		{
-			std::cout << cur_combo[i] << ", ";
+			std::cout << "\tCur combo: ";
+			for (int i = 0; i < cur_combo.size(); i++)
+			{
+				std::cout << cur_combo[i] << ", ";
+			}
+			std::cout << "\t...\t" << std::hex;
+			for (int i = 0; i < cur_combo.size(); i++)
+			{
+				std::cout << "0x" << group[i]->gets() << ", ";
+			}
+			std::cout << " ****** " << ext_in << " ***** " << ext_out << " ***** ";
+			std::cout << std::dec << std::endl;
 		}
-		std::cout << std::endl;
+		
 	} while (next_combo(cur_combo));
 	std::cout << "End processing" << std::endl;
 	return 0;
-}
-
-//processes a group of code_elements, returning the number of references that are not in that group
-int related_code::outside_references(std::vector<code_element *> gr)
-{
-	int outside_refs = 0;
-	for (int i = 0; i < gr.size(); i++)
-	{
-		bool internal_ref = false;
-		for (int j = 0; j < gr.size(); j++)
-		{
-			if ( (gr[i]->a == gr[j]) || (gr[i]->b == gr[j]) )
-				internal_ref = true;
-		}
-		if (!internal_ref)
-		{
-			outside_refs++;
-		}
-	}
-	return outside_refs;
 }
 
 void related_code::simplify()
@@ -287,7 +347,7 @@ void related_code::simplify()
 				blocks_done++;
 			}
 		}
-		blocks_done += process_blocks(3);
+		blocks_done += process_blocks(2);
 	} while (blocks_done > 0);
 }
 
