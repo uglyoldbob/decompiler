@@ -12,6 +12,7 @@ class code_if_else : public code_element
 		code_if_else();
 		virtual ~code_if_else();
 		void fprint(std::ostream &dest, int depth);
+		static bool check(code_element *e);
 		void add_lcb(code_element *add);
 		void add_ecb(code_element *add);
 		void set_else(code_element *h);

@@ -11,6 +11,11 @@ code_if_else::~code_if_else()
 {
 }
 
+bool code_if_else::check(code_element *e)
+{
+	return false;
+}
+
 void code_if_else::add_lcb(code_element *add)
 {
 	lcb.push_back(add);

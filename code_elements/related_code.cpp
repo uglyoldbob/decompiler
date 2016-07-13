@@ -143,17 +143,151 @@ void related_code::replace_element(code_element* old, code_element *n)
 	}
 }
 
+//returns true if an element startting with this address is present in the given group
+bool element_present(std::vector<code_element*> gr, address a)
+{
+	for (int i = 0; i < gr.size(); i++)
+	{
+		if (gr[i]->gets() == a)
+			return true;
+	}
+	return false;
+}
+
+//processes a group of code_elements, returning the number of elements not in the group that point into the group 
+int related_code::external_inputs(std::vector<code_element *> gr)
+{
+	std::vector<code_element*>out_mods;
+	//add all modules not in the group
+	for (int i = 0; i < blocks.size(); i++)
+	{
+		if (!element_present(gr, blocks[i]->gets()))
+		{
+			out_mods.push_back(blocks[i]);
+		}
+	}
+}
+
+std::vector<unsigned int> make_combination(int num)
+{
+	std::vector<unsigned int> ret;
+	for (int i = 0; i < num; i++)
+	{
+		ret.push_back(i);
+	}
+	return ret;
+}
+
+std::vector<code_element *> make_group(int num)
+{
+	std::vector<code_element*> ret;
+	for (int i = 0; i < num; i++)
+	{
+		ret.push_back(0);
+	}
+	return ret;
+}
+
+bool related_code::next_combo(std::vector<unsigned int> &cmb)
+{
+	int i = cmb.size();
+	bool done = false;
+	
+	while (!done)
+	{
+	
+		if ((cmb[i-1]+1) < (blocks.size() - cmb.size() + i))
+		{
+			cmb[i-1]++;
+			if (i < cmb.size())
+			{
+				for (int j = i; j < cmb.size(); j++)
+				{
+					cmb[j] = cmb[j-1]+1;
+				}
+			}
+			done = true;
+		}
+		else
+		{
+			if (i > 1)
+			{
+				i--;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+void related_code::apply_combination(std::vector<unsigned int> cmb, std::vector<code_element *> &gr)
+{	//retrieves combination "number" of all possibilities that have quant items of the blocks group
+	for (int i = 0; i < gr.size(); i++)
+	{
+		gr[i] = blocks[cmb[i]];
+	}
+}
+
+int related_code::process_blocks(int n)
+{
+	std::cout << "Start processing " << n << ", " << blocks.size() << std::endl;
+	std::vector<unsigned int> cur_combo = make_combination(n);
+	std::vector<code_element *> group = make_group(n);
+	do
+	{
+		apply_combination(cur_combo, group);
+		std::cout << "\tCur combo: ";
+		for (int i = 0; i < cur_combo.size(); i++)
+		{
+			std::cout << cur_combo[i] << ", ";
+		}
+		std::cout << std::endl;
+	} while (next_combo(cur_combo));
+	std::cout << "End processing" << std::endl;
+	return 0;
+}
+
+//processes a group of code_elements, returning the number of references that are not in that group
+int related_code::outside_references(std::vector<code_element *> gr)
+{
+	int outside_refs = 0;
+	for (int i = 0; i < gr.size(); i++)
+	{
+		bool internal_ref = false;
+		for (int j = 0; j < gr.size(); j++)
+		{
+			if ( (gr[i]->a == gr[j]) || (gr[i]->b == gr[j]) )
+				internal_ref = true;
+		}
+		if (!internal_ref)
+		{
+			outside_refs++;
+		}
+	}
+	return outside_refs;
+}
+
 void related_code::simplify()
 {
 	std::cout << "Simplifying" << std::endl;
-	for (int i = 0; i < blocks.size(); i++)
+	int blocks_done;
+	do
 	{
-		if (code_do_while_loop::check(blocks[i]))
+		blocks_done = 0;
+		for (int i = 0; i < blocks.size(); i++)
 		{
-			std::cout << "Found a do while loop 0x" << std::hex << blocks[i]->gets() << std::dec << std::endl;
-			code_do_while_loop *new_element = new code_do_while_loop(blocks[i]);
-			replace_element(blocks[i], new_element);
+			if (code_do_while_loop::check(blocks[i]))
+			{
+				std::cout << "Found a do while loop 0x" << std::hex << blocks[i]->gets() << std::dec << std::endl;
+				code_do_while_loop *new_element = new code_do_while_loop(blocks[i]);
+				replace_element(blocks[i], new_element);
+				blocks_done++;
+			}
 		}
-	}
+		blocks_done += process_blocks(3);
+	} while (blocks_done > 0);
 }
 

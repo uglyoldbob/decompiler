@@ -21,6 +21,11 @@ class related_code
 		void finalize_blocks();
 		code_element *get_block(address a);	//return the block starting with address a
 		void replace_element(code_element* old, code_element *n);
+		int outside_references(std::vector<code_element *> gr);
+		int external_inputs(std::vector<code_element *> gr);
+		void apply_combination(std::vector<unsigned int> cmb, std::vector<code_element *> &gr);
+		bool next_combo(std::vector<unsigned int> &cmb);
+		int process_blocks(int n);
 };
 
 #endif
