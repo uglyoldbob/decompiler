@@ -38,5 +38,5 @@ installBuildWrapper
 ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir wrap "$@"
 
 # and finally execute the actual SonarQube analysis (the SONAR_TOKEN is set from the travis web interface, to not expose it)
-sonar-scanner -Dsonar.host.url=https://nemo.sonarqube.org -Dsonar.login=$SONARQUBE_KEY
+sonar-scanner -Dsonar.host.url=https://sonarqube.com -Dsonar.login=$SONARQUBE_KEY
 
