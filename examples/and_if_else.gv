@@ -1,0 +1,28 @@
+digraph and_if_else{
+ others_1 -> start;
+ others_2 -> start;
+ others_3 -> start;
+ start[shape=rectangle];
+ start1[shape=rectangle];
+ start2[shape=rectangle];
+ when_true[shape=rectangle];
+ else[shape=rectangle];
+ start -> else;
+ start1 -> else;
+ start2 -> when_true;
+ start -> start1;
+ start1 -> start2;
+ start2 -> else;
+ else -> end;
+ when_true -> end;
+ end -> others_4;
+ end -> others_5;
+
+ others1 -> simplified;
+ others2 -> simplified;
+ others3 -> simplified;
+ simplified -> simple_end;
+ simple_end -> others4;
+ simple_end -> others5;
+}
+
