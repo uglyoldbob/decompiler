@@ -5,6 +5,7 @@
 
 ce_basic::ce_basic(address addr) : code_element(addr)
 {
+	is_branch = false;
 }
 
 ce_basic *ce_basic::first_half(address addr)
