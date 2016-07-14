@@ -424,25 +424,26 @@ const char *disass_ppc::regname[] = {
 void disass_ppc::ill()
 {
 #if 1
-    o->mnemonic[0] = o->operands[0] = '\0';
+    o->mnemonic[0] = '\0';
+    o->operands[0] = '\0';
     throw invalid_instruction(o->pc);
 #else
     strcpy(o->mnemonic, ".word");
-    sprintf(o->operands, HEX1 "%08X" HEX2, Instr);
-#endif
+    snprintf(o->operands, sizeof(o->operands),  HEX1 "%08X" HEX2, Instr);
     o->iclass = PPC_DISA_ILLEGAL;
+#endif
 }
 
 // Smart SIMM formatting (if hex=1, then force HEX; if s=1, use sign)
 char * disass_ppc::simm(int val, int hex, int s)
 {
     static char out[16];
-    if( ((val >= -256) && (val <= 256)) && !hex) sprintf(out, "%i", val);
+    if( ((val >= -256) && (val <= 256)) && !hex) snprintf(out, sizeof(out),  "%i", val);
     else
     {
         uint16_t hexval = (uint16_t)val;
-        if((hexval & 0x8000) && s) sprintf(out, "-" HEX1 "%04X" HEX2, ((~hexval) & 0xffff) + 1);
-        else sprintf(out, HEX1 "%04X" HEX2, hexval);
+        if((hexval & 0x8000) && s) snprintf(out, sizeof(out),  "-" HEX1 "%04X" HEX2, ((~hexval) & 0xffff) + 1);
+        else snprintf(out, sizeof(out),  HEX1 "%04X" HEX2, hexval);
     }
     return out;
 }
@@ -464,17 +465,17 @@ void disass_ppc::trap(int L, int imm)
 #ifdef  SIMPLIFIED
     if(t_cond[rd] != NULL)
     {
-        sprintf(o->mnemonic, "t%c%s%c", t_mode[L & 1], t_cond[rd], imm ? 'i' : 0);
-        if(imm) sprintf(o->operands, "%s" COMMA "%s", REGA, simm(DIS_SIMM, 0, s));
-        else sprintf(o->operands, "%s" COMMA "%s", REGA, REGB);
+        snprintf(o->mnemonic, sizeof(o->mnemonic),  "t%c%s%c", t_mode[L & 1], t_cond[rd], imm ? 'i' : 0);
+        if(imm) snprintf(o->operands, sizeof(o->operands),  "%s" COMMA "%s", REGA, simm(DIS_SIMM, 0, s));
+        else snprintf(o->operands, sizeof(o->operands),  "%s" COMMA "%s", REGA, REGB);
         o->iclass |= PPC_DISA_SIMPLIFIED;
     }
     else
 #endif
     {
-        sprintf(o->mnemonic, "t%c%c", t_mode[L & 1], imm ? 'i' : 0);
-        if(imm) sprintf(o->operands, "%i" COMMA "%s" COMMA "%s", rd, REGA, simm(DIS_SIMM, 0, s));
-        else sprintf(o->operands, "%i" COMMA "%s" COMMA "%s", rd, REGA, REGB);
+        snprintf(o->mnemonic, sizeof(o->mnemonic),  "t%c%c", t_mode[L & 1], imm ? 'i' : 0);
+        if(imm) snprintf(o->operands, sizeof(o->operands),  "%i" COMMA "%s" COMMA "%s", rd, REGA, simm(DIS_SIMM, 0, s));
+        else snprintf(o->operands, sizeof(o->operands),  "%i" COMMA "%s" COMMA "%s", rd, REGA, REGB);
     }
     if(L) o->iclass |= PPC_DISA_64;
     o->r[1] = DIS_RA; if(!imm) o->r[2] = DIS_RB;
@@ -615,11 +616,11 @@ void disass_ppc::cmp(const char *l, const char *i)
     }
 
 #ifdef  SIMPLIFIED
-    sprintf(mnem, "cmp%s%c%s", l, (rd & 1) ? 'd' : 'w', i);
+    snprintf(mnem, sizeof(mnem),  "cmp%s%c%s", l, (rd & 1) ? 'd' : 'w', i);
     integer(mnem, (*i == 'i') ? 'D' : 'X', DAB_A|DAB_B, 0, 1, (rd >> 2) ? 1 : 0, 0);
     o->iclass |= PPC_DISA_SIMPLIFIED;
 #else
-    sprintf(mnem, "cmp%s%s", l, i);
+    snprintf(mnem, sizeof(mnem),  "cmp%s%s", l, i);
     integer(mnem, (*i == 'i') ? 'D' : 'X', DAB_A|DAB_B, 0, 1, 1, 1);
 #endif
 }
@@ -644,7 +645,7 @@ void disass_ppc::addi(const char *suffix)
     }
     if(DIS_UIMM & 0x8000)
     {
-        sprintf(mnem, "subi%s", suffix);
+        snprintf(mnem, sizeof(mnem),  "subi%s", suffix);
 
         // Fix immediate field.
         uint16_t value = (uint16_t)(~(DIS_UIMM) + 1);
@@ -655,11 +656,11 @@ void disass_ppc::addi(const char *suffix)
     }
     else
     {
-        sprintf(mnem, "addi%s", suffix);
+        snprintf(mnem, sizeof(mnem),  "addi%s", suffix);
         integer(mnem, 'D', DAB_D|DAB_A, 0, 0);
     }
 #else
-    sprintf(mnem, "addi%s", suffix);
+    snprintf(mnem, sizeof(mnem),  "addi%s", suffix);
     integer(mnem, 'D', DAB_D|DAB_A);
 #endif
 }
@@ -711,11 +712,11 @@ void disass_ppc::bcx(int Disp, int L)
 	}
 	else if (L)
 	{
-		sprintf(r, "lr");
+		snprintf(r, sizeof(r),  "lr");
 	}
 	else
 	{
-		sprintf(r, "ctr");
+		snprintf(r, sizeof(r),  "ctr");
 	}
     char *ptr = o->operands;
 
@@ -743,7 +744,7 @@ void disass_ppc::bcx(int Disp, int L)
         if(bo & 16)         // Branch always                            // BO[0]
         {
 #ifdef  SIMPLIFIED
-            sprintf(o->mnemonic, "b%s%s", r, b_opt[Disp ? AALK : LK]);
+            snprintf(o->mnemonic, sizeof(o->mnemonic),  "b%s%s", r, b_opt[Disp ? AALK : LK]);
             if(Disp) ptr = place_target(ptr, 0);
             o->iclass |= PPC_DISA_SIMPLIFIED;
             return;
@@ -756,7 +757,7 @@ void disass_ppc::bcx(int Disp, int L)
             const char *cond = b_cond[((bo & 8) >> 1) | (bi & 3)];
             if(cond != NULL)                                            // BO[1]
             {
-                sprintf(o->mnemonic, "b%s%s%s%c", cond, r, b_opt[Disp ? AALK : LK], y);
+                snprintf(o->mnemonic, sizeof(o->mnemonic),  "b%s%s%s%c", cond, r, b_opt[Disp ? AALK : LK], y);
                 if(bi >= 4) ptr += sprintf(ptr, "%s%i", crname, bi >> 2);
                 if(Disp) ptr = place_target(ptr, bi >= 4);
                 o->iclass |= PPC_DISA_SIMPLIFIED;
@@ -772,7 +773,7 @@ void disass_ppc::bcx(int Disp, int L)
 #ifdef  SIMPLIFIED
         if(b_ctr[bo >> 1])
         {
-            sprintf(o->mnemonic, "b%s%s%s%c", b_ctr[bo >> 1], r, b_opt[Disp ? AALK : LK], y);
+            snprintf(o->mnemonic, sizeof(o->mnemonic),  "b%s%s%s%c", b_ctr[bo >> 1], r, b_opt[Disp ? AALK : LK], y);
             if(!(bo & 16)) ptr += sprintf(ptr, "%i", bi);
             if(Disp) ptr = place_target(ptr, !(bo & 16));
             o->iclass |= PPC_DISA_SIMPLIFIED;
@@ -782,7 +783,7 @@ void disass_ppc::bcx(int Disp, int L)
     }
 
     // Not simplified standard form
-    sprintf(o->mnemonic, "bc%s%s", r, b_opt[Disp ? AALK : LK]);
+    snprintf(o->mnemonic, sizeof(o->mnemonic),  "bc%s%s", r, b_opt[Disp ? AALK : LK]);
     ptr += sprintf(ptr, "%i" COMMA "%i", bo, bi);
     if(Disp) ptr = place_target(ptr, 1);
 }
@@ -796,7 +797,7 @@ void disass_ppc::bx(void)
     o->targeta = (AA ? 0 : DIS_PC) + bd;
  
     o->iclass |= PPC_DISA_BRANCH;
-    sprintf(o->mnemonic, "b%s", b_opt[AALK]);
+    snprintf(o->mnemonic, sizeof(o->mnemonic),  "b%s", b_opt[AALK]);
     place_target(o->operands, 0);
     if (Instr & 1)
     {
@@ -810,7 +811,7 @@ void disass_ppc::mcrf(void)
 {
     if(Instr & 0x63f801) { ill(); return; }
     strncpy(o->mnemonic, "mcrf", sizeof(o->mnemonic));
-    sprintf(o->operands, "%s%i" COMMA "%s%i", crname, DIS_RD >> 2, crname, DIS_RA >> 2);
+    snprintf(o->operands, sizeof(o->operands),  "%s%i" COMMA "%s%i", crname, DIS_RD >> 2, crname, DIS_RA >> 2);
 }
 
 // CR logic operations
@@ -825,24 +826,24 @@ void disass_ppc::crop(const char *name, const char *simp="", int ddd=0, int daa=
     {
         if( (crfD == crfA) && ddd )
         {
-            sprintf(o->mnemonic, "cr%s", simp);
-            sprintf(o->operands, "%i", crfD);
+            snprintf(o->mnemonic, sizeof(o->mnemonic),  "cr%s", simp);
+            snprintf(o->operands, sizeof(o->operands),  "%i", crfD);
             o->r[0] = crfD;
             o->iclass |= PPC_DISA_SIMPLIFIED;
             return;
         }
         if( daa )
         {
-            sprintf(o->mnemonic, "cr%s", simp);
-            sprintf(o->operands, "%i" COMMA "%i", crfD, crfA);
+            snprintf(o->mnemonic, sizeof(o->mnemonic),  "cr%s", simp);
+            snprintf(o->operands, sizeof(o->operands),  "%i" COMMA "%i", crfD, crfA);
             o->r[0] = crfD; o->r[1] = crfA;
             o->iclass |= PPC_DISA_SIMPLIFIED;
             return;
         }
     }
 #endif
-    sprintf(o->mnemonic, "cr%s", name);
-    sprintf(o->operands, "%i" COMMA "%i" COMMA "%i", crfD, crfA, crfB);
+    snprintf(o->mnemonic, sizeof(o->mnemonic),  "cr%s", name);
+    snprintf(o->operands, sizeof(o->operands),  "%i" COMMA "%i" COMMA "%i", crfD, crfA, crfB);
     o->r[0] = crfD; o->r[1] = crfA; o->r[2] = crfB;
 }
 
@@ -851,7 +852,7 @@ void disass_ppc::rlw(const char *name, int rb, int ins=0)
 {
     int mb = DIS_MB, me = DIS_ME;
     char * ptr = o->operands;
-    sprintf(o->mnemonic, "rlw%s%c", name, Rc ? '.' : '\0');
+    snprintf(o->mnemonic, sizeof(o->mnemonic),  "rlw%s%c", name, Rc ? '.' : '\0');
     ptr += sprintf(ptr, "%s" COMMA "%s" COMMA, REGA, REGS);
     if(rb) ptr += sprintf(ptr, "%s" COMMA, REGB);
     else   ptr += sprintf(ptr, "%i" COMMA, DIS_RB);     // sh
@@ -877,7 +878,7 @@ void disass_ppc::rld(char *name, int rb, int mtype)
     if(Instr & 0x02) n += 32;   // sh
 
     char * ptr = o->operands;
-    sprintf(o->mnemonic, "rld%s%c", name, Rc ? '.' : '\0');
+    snprintf(o->mnemonic, sizeof(o->mnemonic),  "rld%s%c", name, Rc ? '.' : '\0');
     ptr += sprintf(ptr, "%s" COMMA "%s" COMMA, REGA, REGS);
     if(rb) ptr += sprintf(ptr, "%s" COMMA, REGB);
     else   ptr += sprintf(ptr, "%i" COMMA, n);
@@ -943,7 +944,7 @@ void disass_ppc::movesr(const char *name, int from, int L, int xform)
     if(xform)
     {
         if(Instr & 0x001F0001) { ill(); return; }
-        sprintf(o->operands, "%s" COMMA "%s", regname[reg], regname[regb]);
+        snprintf(o->operands, sizeof(o->operands),  "%s" COMMA "%s", regname[reg], regname[regb]);
         o->r[0] = reg;
         o->r[1] = regb;
     }
@@ -952,13 +953,13 @@ void disass_ppc::movesr(const char *name, int from, int L, int xform)
         if(Instr & 0x0010F801) { ill(); return; }
         if(from)
         {
-            sprintf(o->operands, "%s" COMMA "%i", regname[reg], sreg);
+            snprintf(o->operands, sizeof(o->operands),  "%s" COMMA "%i", regname[reg], sreg);
             o->r[0] = reg;
             o->r[1] = sreg;
         }
         else
         {
-            sprintf(o->operands, "%i" COMMA "%s", sreg, regname[reg]);
+            snprintf(o->operands, sizeof(o->operands),  "%i" COMMA "%s", sreg, regname[reg]);
             o->r[0] = sreg;
             o->r[1] = reg;
         }
@@ -976,13 +977,13 @@ void disass_ppc::mtcrf(void)
     if(crm == 0xFF)
     {
         strncpy(o->mnemonic, "mtcr", sizeof(o->mnemonic));
-        sprintf(o->operands, "%s", regname[rs]);
+        snprintf(o->operands, sizeof(o->operands),  "%s", regname[rs]);
     }
     else
 #endif
     {
         strncpy(o->mnemonic, "mtcrf", sizeof(o->mnemonic));
-        sprintf(o->operands, HEX1 "%02X" HEX2 COMMA "%s", crm, regname[rs]);
+        snprintf(o->operands, sizeof(o->operands),  HEX1 "%02X" HEX2 COMMA "%s", crm, regname[rs]);
     }
     o->r[0] = rs;
 }
@@ -1089,7 +1090,7 @@ const char *disass_ppc::spr_name(int n)
 #endif
     }
 
-    sprintf(def, "%u", n);
+    snprintf(def, sizeof(def),  "%u", n);
     return def;
 }
 
@@ -1104,7 +1105,7 @@ const char *disass_ppc::tbr_name(int n)
         case 269: return "TBU";
     }
 
-    sprintf(def, "%u", n);
+    snprintf(def, sizeof(def),  "%u", n);
     return def;
 }
 
@@ -1116,10 +1117,10 @@ void disass_ppc::movespr(int from)
     if( !((spr == 1) || (spr == 8) || (spr == 9)) ) o->iclass |= PPC_DISA_OEA;
 
     // Handle simplified mnemonic
-    if (spr == 1) { sprintf(fix, "xer"); o->iclass |= PPC_DISA_SIMPLIFIED; }
-    else if (spr == 8) { sprintf(fix, "lr"); o->iclass |= PPC_DISA_SIMPLIFIED; }
-    else if (spr == 9) { sprintf(fix, "ctr"); o->iclass |= PPC_DISA_SIMPLIFIED; }
-    else { sprintf(fix, "spr"); f = 0; }
+    if (spr == 1) { snprintf(fix, sizeof(fix),  "xer"); o->iclass |= PPC_DISA_SIMPLIFIED; }
+    else if (spr == 8) { snprintf(fix, sizeof(fix),  "lr"); o->iclass |= PPC_DISA_SIMPLIFIED; }
+    else if (spr == 9) { snprintf(fix, sizeof(fix),  "ctr"); o->iclass |= PPC_DISA_SIMPLIFIED; }
+    else { snprintf(fix, sizeof(fix),  "spr"); f = 0; }
 
     // Mnemonics and operands.
     sprintf (o->mnemonic, "m%c%s", from ? 'f' : 't', fix);
@@ -1317,9 +1318,9 @@ void disass_ppc::ps_cmpx(int n)
 {
     static char *fix[] = { "u0", "o0", "u1", "o1" };
     if(Instr & 0x00600001) { ill(); return; }
-    sprintf(o->mnemonic, "ps_cmp%s", fix[n]);
+    snprintf(o->mnemonic, sizeof(o->mnemonic),  "ps_cmp%s", fix[n]);
     o->r[0] = DIS_RD>>2; o->r[1] = DIS_RA; o->r[2] = DIS_RB;
-    sprintf(o->operands, "%s%d" COMMA "%s%d" COMMA "%s%d", crname, o->r[0], fregname, o->r[1], fregname, o->r[2]);
+    snprintf(o->operands, sizeof(o->operands),  "%s%d" COMMA "%s%d" COMMA "%s%d", crname, o->r[0], fregname, o->r[1], fregname, o->r[2]);
     o->iclass = PPC_DISA_FPU | PPC_DISA_SPECIFIC; 
 }
 
@@ -1335,12 +1336,12 @@ char *disass_ppc::ps_ldst_offs(unsigned long val)
     {
         if(val <= 128)
         {
-            sprintf(buf, "%i", val);
+            snprintf(buf, sizeof(buf),  "%i", val);
             return buf;
         }
 
-        if(val & 0x800) sprintf(buf, "-" HEX1 "%03X" HEX2, ((~val) & 0xfff) + 1);
-        else sprintf(buf, HEX1 "%03X" HEX2, val);
+        if(val & 0x800) snprintf(buf, sizeof(buf),  "-" HEX1 "%03X" HEX2, ((~val) & 0xfff) + 1);
+        else snprintf(buf, sizeof(buf),  HEX1 "%03X" HEX2, val);
 
         return buf;
     }
@@ -1349,8 +1350,8 @@ char *disass_ppc::ps_ldst_offs(unsigned long val)
 void disass_ppc::ps_ldst(char *fix)
 {
   int s = DIS_RS, a = DIS_RA, d = (Instr & 0xfff);
-  sprintf(o->mnemonic, "psq_%s", fix);  
-  sprintf( o->operands, "%s%i" COMMA "%s" LPAREN "%s" RPAREN COMMA "%i" COMMA "%i",
+  snprintf(o->mnemonic, sizeof(o->mnemonic),  "psq_%s", fix);  
+  snprintf( o->operands, sizeof( o->operands),  "%s%i" COMMA "%s" LPAREN "%s" RPAREN COMMA "%i" COMMA "%i",
            fregname, s, ps_ldst_offs(d), regname[a], (Instr >> 15) & 1, (Instr >> 12) & 7 );
   o->r[0] = s; o->r[1] = a; o->r[2] = DIS_RB >> 1;
   o->immed = d & 0x800 ? d | 0xFFFFF000 : d;
@@ -1361,8 +1362,8 @@ void disass_ppc::ps_ldstx(char *fix)
 {
     int d = DIS_RD, a = DIS_RA, b = DIS_RB;
     if(Instr & 1) { ill(); return; }
-    sprintf(o->mnemonic, "psq_%s", fix);
-    sprintf(o->operands, "%s%i" COMMA "%s" COMMA "%s" COMMA "%i" COMMA "%i", fregname, d, regname[a], regname[b], (Instr >> 10) & 1, (Instr >> 7) & 7);
+    snprintf(o->mnemonic, sizeof(o->mnemonic),  "psq_%s", fix);
+    snprintf(o->operands, sizeof(o->operands),  "%s%i" COMMA "%s" COMMA "%s" COMMA "%i" COMMA "%i", fregname, d, regname[a], regname[b], (Instr >> 10) & 1, (Instr >> 7) & 7);
     o->r[0] = d; o->r[1] = a; o->r[2] = b; o->r[3] = DIS_RC >> 1;
     o->iclass = PPC_DISA_FPU | PPC_DISA_LDST | PPC_DISA_SPECIFIC; 
 }
@@ -1370,8 +1371,8 @@ void disass_ppc::ps_ldstx(char *fix)
 void disass_ppc::ps_dacb(char *fix)
 {
     int a = DIS_RA, b = DIS_RB, c = DIS_RC, d = DIS_RD;
-    sprintf(o->mnemonic, "ps_%s%c", fix, Rc ? '.' : 0);
-    sprintf(o->operands, "%s%i" COMMA "%s%i" COMMA "%s%i" COMMA "%s%i", fregname, d, fregname, a, fregname, c, fregname, b);
+    snprintf(o->mnemonic, sizeof(o->mnemonic),  "ps_%s%c", fix, Rc ? '.' : 0);
+    snprintf(o->operands, sizeof(o->operands),  "%s%i" COMMA "%s%i" COMMA "%s%i" COMMA "%s%i", fregname, d, fregname, a, fregname, c, fregname, b);
     o->r[0] = d; o->r[1] = a; o->r[2] = c; o->r[3] = b; 
     o->iclass = PPC_DISA_FPU | PPC_DISA_SPECIFIC;
 }
@@ -1380,8 +1381,8 @@ void disass_ppc::ps_dac(char *fix)
 {
     int a = DIS_RA, c = DIS_RC, d = DIS_RD;
     if(Instr & 0x0000F800) { ill(); return; }
-    sprintf(o->mnemonic, "ps_%s%c", fix, Rc ? '.' : 0);
-    sprintf(o->operands, "%s%i" COMMA "%s%i" COMMA "%s%i", fregname, d, fregname, a, fregname, c);
+    snprintf(o->mnemonic, sizeof(o->mnemonic),  "ps_%s%c", fix, Rc ? '.' : 0);
+    snprintf(o->operands, sizeof(o->operands),  "%s%i" COMMA "%s%i" COMMA "%s%i", fregname, d, fregname, a, fregname, c);
     o->r[0] = d; o->r[1] = a; o->r[2] = c;
     o->iclass = PPC_DISA_FPU | PPC_DISA_SPECIFIC;
 }
@@ -1390,8 +1391,8 @@ void disass_ppc::ps_dab(char *fix, int unmask=0)
 {
     int d = DIS_RD, a = DIS_RA, b = DIS_RB;
     if(Instr & 0x000007C0 && !unmask) { ill(); return; }
-    sprintf(o->mnemonic, "ps_%s%c", fix, Rc ? '.' : 0);
-    sprintf(o->operands, "%s%i" COMMA "%s%i" COMMA "%s%i", fregname, d, fregname, a, fregname, b);
+    snprintf(o->mnemonic, sizeof(o->mnemonic),  "ps_%s%c", fix, Rc ? '.' : 0);
+    snprintf(o->operands, sizeof(o->operands),  "%s%i" COMMA "%s%i" COMMA "%s%i", fregname, d, fregname, a, fregname, b);
     o->r[0] = d; o->r[1] = a; o->r[2] = b;
     o->iclass = PPC_DISA_FPU | PPC_DISA_SPECIFIC;
 }
@@ -1401,8 +1402,8 @@ void disass_ppc::ps_db(char *fix, int aonly=0)
     int d = DIS_RD, b = DIS_RB;
     if(aonly) { if(Instr & 0x001F0000) { ill(); return; } }
     else  { if(Instr & 0x001F07C0) { ill(); return; } }
-    sprintf(o->mnemonic, "ps_%s%c", fix, Rc ? '.' : 0);
-    sprintf(o->operands, "%s%i" COMMA "%s%i", fregname, d, fregname, b);
+    snprintf(o->mnemonic, sizeof(o->mnemonic),  "ps_%s%c", fix, Rc ? '.' : 0);
+    snprintf(o->operands, sizeof(o->operands),  "%s%i" COMMA "%s%i", fregname, d, fregname, b);
     o->r[0] = d; o->r[1] = b;
     o->iclass = PPC_DISA_FPU | PPC_DISA_SPECIFIC;
 }
@@ -2108,6 +2109,6 @@ char *disass_ppc::PPCDisasmSimple(uint64_t pc, uint32_t instr)
     dis_out.instr = instr;
 
     PPCDisasm(&dis_out);
-    sprintf(output, "%08llX  %08X  %-10s %s", pc, instr, dis_out.mnemonic, dis_out.operands);
+    snprintf(output, sizeof(output),  "%08llX  %08X  %-10s %s", pc, instr, dis_out.mnemonic, dis_out.operands);
     return output;
 }
