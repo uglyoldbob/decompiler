@@ -15,10 +15,6 @@ disass_ppc::disass_ppc(exe_loader *own)
 {
 }
 
-disass_ppc::~disass_ppc()
-{
-}
-
 int disass_ppc::get_instruction(instr* &get, address addr)
 {
 	owner->goto_address(addr);
@@ -55,7 +51,10 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	std::string op(temp.mnemonic);
 	std::string arg(temp.operands);
 	std::string line;
-	std::string arg1, arg2, arg3, arg4, arg5, dummy;
+	std::string arg1;
+	std::string arg2;
+	std::string arg3;
+	std::string dummy;
 	std::stringstream argin(std::stringstream::in | std::stringstream::out);
 	variable *statement = 0;
 	argin << temp.operands;
@@ -75,7 +74,6 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	}
 	else if (op == "ori")
 	{
-		int rg3;
 		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> arg3;
 		statement = new oper_assignment( new variable(arg1, 4), 
 							new oper_bitwise_or( new variable(arg2, 4), new variable(arg3, 4) ) );
@@ -98,7 +96,9 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	}
 	else if (op == "rlwinm")
 	{
-		int shift, mb, me;
+		int shift;
+		int mb;
+		int me;
 		argin >> scanset("^,", arg1) >> dummy
 			  >> scanset("^,", arg2) >> dummy
 			  >> shift >> dummy
@@ -1429,13 +1429,17 @@ void disass_ppc::PPCDisasm(PPCD_CB *discb)
 
     // Reset output parameters
     o->iclass = PPC_DISA_OTHER;
-    o->r[0] = o->r[1] = o->r[2] = o->r[3] = 0;
+    o->r[0] = 0;
+    o->r[1] = 0;
+    o->r[2] = 0;
+    o->r[3] = 0;
     o->immed = 0;
     o->targeta = 0;
 	o->targetb = o->pc + 4;
 	o->call = 0;
 	o->trace_call = 0;
-    o->mnemonic[0] = o->operands[0] = '\0';
+    o->mnemonic[0] = '\0';
+    o->operands[0] = '\0';
 
     // Lets go!
 
@@ -1745,8 +1749,9 @@ void disass_ppc::PPCDisasm(PPCD_CB *discb)
         case 03054: ldst("lhbrx", 1); break;                                // lhbrx
         case 03060: integer("sraw", 'Z', ASB_A|ASB_S|ASB_B); break;         // srawx
         case 03061: integer("sraw.", 'Z', ASB_A|ASB_S|ASB_B); break;
-        case 03160: srawi(); break;                                         // srawi
-        case 03161: srawi(); break;
+        case 03160:
+        	case 03161:
+        		srawi(); break;                                         // srawi
         case 03254: put("eieio", 0x03FFF800, 0); break;                     // eieio
         case 03454: ldst("sthbrx", 1, 0); break;                            // sthbrx
         case 03464: if(DIS_RB) ill();                                       // extshx

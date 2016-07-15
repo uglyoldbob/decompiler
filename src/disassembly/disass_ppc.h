@@ -44,7 +44,6 @@ class disass_ppc : public disassembler
 {
 	public:
 		disass_ppc(exe_loader *own);
-		~disass_ppc();
 		int get_instruction(instr* &get, address addr);
 		std::string trace_value(std::string &val);
 	private:
