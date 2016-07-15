@@ -86,22 +86,24 @@ int executable::load(char *bin_name)
 		throw file_open_failed(bin_name);
 	}
 
-	int reverse;
-	if ((reverse = exe_elf::check(exe_file)) != 0)
+	int reverse = exe_elf::check(exe_file);
+	if (reverse != 0)
 	{
 		exe_type = EXEC_TYPE_ELF;
 		exe_object = new exe_elf();
 		if (reverse < 0)
 			rbo = 1;
 	}
-	if ((reverse = exe_macho::check(exe_file)) != 0)
+	reverse = exe_macho::check(exe_file);
+	if (reverse != 0)
 	{
 		exe_type = EXEC_TYPE_MACHO32;
 		exe_object = new exe_macho();
 		if (reverse < 0)
 			rbo = 1;
 	}
-	if ((reverse = exe_pe::check(exe_file)) != 0)
+	reverse = exe_pe::check(exe_file);
+	if (reverse != 0)
 	{
 		exe_type = EXEC_TYPE_PE;
 		exe_object = new exe_pe();

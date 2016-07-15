@@ -66,7 +66,7 @@ void function::fprint(std::ostream &output)
 	}
 	for (i = 1; i < arguments.size(); i++)
 	{
-		output << ", ", arguments[i];
+		output << ", " << arguments[i];
 	}
 
 	output << ")\n{\n";
