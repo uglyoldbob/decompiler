@@ -7,6 +7,8 @@ test/*
 *.pdf
 decompile32
 decompile64
+udis86-1.7.2
+autom4te.cache
 stupid.c
 .cproject
 .directory

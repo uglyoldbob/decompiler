@@ -31,8 +31,8 @@ class executable
 	public:
 		executable();
 		~executable();
-		int load(char *bin_name);
-		int output(char *fld_name);
+		int load(const char *bin_name);
+		int output(const char *fld_name);
 	private:
 		int check_pe(std::istream *me);
 		int rbo;	//used to signal reversed byte order

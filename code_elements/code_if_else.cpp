@@ -11,9 +11,26 @@ code_if_else::~code_if_else()
 {
 }
 
-bool code_if_else::check(code_element *e)
+code_element *code_if_else::simplify(std::vector<code_element *> grp, code_element *end)
 {
-	return false;
+	//first item must point to two elements to be an if else
+	code_if_else *ret = 0;
+	if (grp[0]->is_branch())
+	{
+		if (grp[0]->branches_to(end))
+		{	//possibly just an if when one element points to *end
+			ret = new code_if_else();
+			ret->add_lcb(grp[0]);
+			ret->add_ecb(grp[0]->other_branch(end));
+			ret->set_next(end);
+			std::cout << "Possibly an if" << std::endl;
+		}
+		else if (grp[0]->a->jumps_to(end) && grp[0]->b->jumps_to(end))
+		{
+			std::cout << "Possibly an if else" << std::endl;
+		}
+	}
+	return ret;
 }
 
 void code_if_else::add_lcb(code_element *add)

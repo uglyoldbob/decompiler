@@ -35,6 +35,38 @@ std::vector<address> code_element::get_nexts()
 	return ret;
 }
 
+bool code_element::is_branch()
+{
+	return ((a != 0) && (b != 0)); 
+}
+
+bool code_element::jumps_to(code_element *m)
+{
+	return (!is_branch() && 
+		( (a == m) || (b == m) ) 
+		);		
+}
+
+bool code_element::branches_to(code_element *m)
+{
+	return (is_branch() && 
+		( (a == m) || (b == m) ) 
+		);
+}
+
+code_element *code_element::other_branch(code_element *m)
+{
+	code_element *ret = 0;
+	if (is_branch())
+	{
+		if (a != m)
+			ret = a;
+		else if (b != m)
+			ret = b;
+	}
+	return ret;
+}
+
 void code_element::replace_references(code_element *old, code_element *nw)
 {
 	if (a == old)

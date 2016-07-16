@@ -19,6 +19,10 @@ class code_element
 		
 		address gets();		//gets s
 		virtual std::vector<address> get_nexts();
+		bool is_branch();
+		bool jumps_to(code_element *m);
+		bool branches_to(code_element *m);
+		code_element *other_branch(code_element *m);
 
 		void replace_references(code_element *old, code_element *nw);
 		virtual void fprint(std::ostream &dest, int depth);

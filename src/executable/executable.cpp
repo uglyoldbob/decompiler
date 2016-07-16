@@ -17,7 +17,7 @@ executable::executable()
 
 executable::~executable()
 {
-	for (int i = 0; i < funcs.size(); i++)
+	for (unsigned int i = 0; i < funcs.size(); i++)
 		delete funcs[i];
 	delete exe_object;
 	delete exe_file;
@@ -56,7 +56,7 @@ int executable::check_pe(std::istream *me)
 	return 0;
 }
 
-int executable::output(char *fld_name)
+int executable::output(const char *fld_name)
 {
 	std::cout << "Writing outputs to folder " << fld_name << std::endl;
 	folder = fld_name;
@@ -76,7 +76,7 @@ int executable::output(char *fld_name)
 	return status;
 }
 
-int executable::load(char *bin_name)
+int executable::load(const char *bin_name)
 {
 	int processed = 0;
 	exe_file->open(bin_name, std::ios::binary);
