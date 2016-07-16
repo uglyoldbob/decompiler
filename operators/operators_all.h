@@ -4,6 +4,8 @@
 #include "oper_bitwise_and.h"
 #include "oper_bitwise_or.h"
 #include "oper_left_shift.h"
+#include "oper_right_shift.h"
 #include "oper_sub.h"
 #include "oper_preincrement.h"
 #include "oper_dereference.h"
+#include "oper_segbase.h"

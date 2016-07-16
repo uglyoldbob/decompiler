@@ -185,7 +185,7 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		{
 			mem_ref = new oper_sub(new variable(arg3, -1), new variable(hstring(-offset), -1));
 		}
-		statement = new oper_assignment(new oper_dereference(mem_ref, 0), new variable(arg1, -1));
+		statement = new oper_assignment(new oper_dereference(mem_ref), new variable(arg1, -1));
 	}
 	else if (op == "lwz")
 	{
@@ -205,7 +205,7 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		{
 			mem_ref = new oper_sub(new variable(arg3, -1), new variable(hstring(-offset), -1));
 		}
-		statement = new oper_assignment(new variable(arg1, -1), new oper_dereference(mem_ref, 0));
+		statement = new oper_assignment(new variable(arg1, -1), new oper_dereference(mem_ref));
 	}
 	else if (op == "lwzu")
 	{
@@ -225,7 +225,7 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		{
 			mem_ref = new oper_sub(new variable(arg3, -1), new variable(hstring(-offset), -1));
 		}
-		statement = new oper_assignment(new variable(arg1, -1), new oper_dereference(mem_ref, 0));
+		statement = new oper_assignment(new variable(arg1, -1), new oper_dereference(mem_ref));
 		get->statements.push_back(statement);
 		statement = new oper_assignment(new variable(arg3, -1), mem_ref);
 		get->statements.push_back(statement);
@@ -249,7 +249,7 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		{
 			mem_ref = new oper_sub(new variable(arg3, -1), new variable(hstring(-offset), -1));
 		}
-		statement = new oper_assignment(new variable(arg1, 1), new oper_dereference(mem_ref, 0));
+		statement = new oper_assignment(new variable(arg1, 1), new oper_dereference(mem_ref));
 	}
 	else if (op == "stwu")
 	{
@@ -269,7 +269,7 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		{
 			mem_ref = new oper_sub(new variable(arg3, -1), new variable(hstring(-offset), -1));
 		}
-		statement = new oper_assignment(new oper_dereference(mem_ref, 0), new variable(arg1, -1));
+		statement = new oper_assignment(new oper_dereference(mem_ref), new variable(arg1, -1));
 		get->statements.push_back(statement);
 		if (offset > 0)
 		{
@@ -307,7 +307,7 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 			std::stringstream s;
 			s << std::dec;
 			s << 'r' << i;
-			statement = new oper_assignment(new oper_dereference(mem_ref, 0), new variable(s.str(), 4));
+			statement = new oper_assignment(new oper_dereference(mem_ref), new variable(s.str(), 4));
 			get->statements.push_back(statement);
 			statement = 0;
 		}

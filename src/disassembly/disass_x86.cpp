@@ -86,28 +86,43 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 	switch (m->type)
 	{
 	case UD_OP_MEM:
+		{
+		variable *seg = 0;
+		variable *base = 0;
+		variable *index = 0;
+		variable *scale = 0;
+		variable *offset = 0;
 		//seg:base + index * scale + offset
 		if (u.pfx_seg != UD_NONE)
 		{
-		//	std::cout << get_type((ud_type_t)u.pfx_seg) << ":";
+			seg = new variable(get_type((ud_type_t)u.pfx_seg), -1);
 		}
 		if (m->base != UD_NONE)
 		{
-		//	std::cout << get_type(mov_from->base);
+			base = new variable(get_type(m->base), -1);
 		}
 		if (m->index != UD_NONE)
 		{
 			//if (mov_from->base != UD_NONE)
 			//	std::cout << " + ";
-		//	std::cout << get_type(mov_from->index);
+			index = new variable(get_type(m->index), -1);
 		}
 		if (m->scale != 0)
 		{
-		//	std::cout << " * " << mov_from->scale;
+			std::stringstream s;
+			s << std::dec;
+			s << m->scale << std::flush;
+			scale = new variable(s.str(), -1);
 		}
 		switch (m->offset)
 		{
 		case 8:
+			{
+			std::stringstream s;
+			s << std::dec;
+			s << m->lval.sbyte << std::flush;
+			offset = new variable(s.str(), 1);
+
 			if ((m->index != UD_NONE) || (m->base != UD_NONE))
 			{
 				if (m->lval.sbyte > 0)
@@ -125,8 +140,14 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 			{
 			//	std::cout << (int16_t)mov_from->lval.sbyte;
 			}
+			}
 			break;
 		case 16:
+			{
+			std::stringstream s;
+			s << std::dec;
+			s << m->lval.sword << std::flush;
+			offset = new variable(s.str(), 2);
 			if ((m->index != UD_NONE) || (m->base != UD_NONE))
 			{
 				if (m->lval.sword > 0)
@@ -144,8 +165,14 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 			{
 			//	std::cout << (int16_t)mov_from->lval.sword;
 			}
+			}
 			break;
 		case 32:
+			{
+			std::stringstream s;
+			s << std::dec;
+			s << m->lval.sdword << std::flush;
+			offset = new variable(s.str(), 4);
 			if ((m->index != UD_NONE) || (m->base != UD_NONE))
 			{
 				if (m->lval.sdword > 0)
@@ -163,8 +190,14 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 			{
 			//	std::cout << (int16_t)mov_from->lval.sdword;
 			}
+			}
 			break;
 		case 64:
+			{
+			std::stringstream s;
+			s << std::dec;
+			s << m->lval.sqword << std::flush;
+			offset = new variable(s.str(), 1);
 			if ((m->index != UD_NONE) || (m->base != UD_NONE))
 			{
 				if (m->lval.sqword > 0)
@@ -182,18 +215,65 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 			{
 			//	std::cout << (int16_t)mov_from->lval.sqword;
 			}
+			}
 			break;
 		default:
 			break;
+		}
+		if ( (seg != 0) || (base != 0) || (index != 0) || (scale != 0) || (offset != 0) )
+		{
+			if ( (seg != 0) || (base != 0) )
+			{
+				if (base == 0)
+				{
+					base = new variable("0", -1);
+				}
+				ret = new oper_segbase(seg, base);
+			}
+			if (index != 0)
+			{
+				if (ret == 0)
+				{
+					ret = index;
+				}
+				else
+				{
+					ret = new oper_add(ret, index);
+				}
+			}
+			if (scale != 0)
+			{
+				if (ret == 0)
+				{
+					ret = scale;
+				}
+				else
+				{
+					ret = new oper_add(ret, scale);
+				}
+			}
+			if (offset != 0)
+			{
+				if (ret == 0)
+				{
+					ret = offset;
+				}
+				else
+				{
+					ret = new oper_add(ret, offset);
+				}
+			}
+			if (ret != 0)
+			{
+				ret = new oper_dereference(ret);
+			}
+		}
 		}
 		break;
 	case UD_OP_PTR:
 		break;
 	case UD_OP_REG:
-		{
-		std::string tmp_str = get_type(m->base);
 		ret = new variable(get_type(m->base), -1);
-		}
 		break;
 	case UD_OP_IMM:
 	case UD_OP_CONST:
@@ -202,9 +282,6 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 		s << std::dec;
 		switch (m->size)
 		{
-		case 8:
-			s << ((int16_t)m->lval.sbyte) << std::flush;
-			break;
 		case 16:
 			s << ((int16_t)m->lval.sword) << std::flush;
 			break;
@@ -215,7 +292,7 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 			s << ((int64_t)m->lval.sqword) << std::flush;
 			break;
 		default:
-			throw "Bad immediate or constant in move instruction";
+			s << ((int16_t)m->lval.sbyte) << std::flush;
 			break;
 		}
 		ret = new variable(s.str(), m->size/8);
@@ -425,6 +502,47 @@ int disass_x86::get_instruction(instr* &get, address addr)
 				delete to;
 		}
 	}
+	else if (op == "shr")
+	{
+		get->destaddra = addr + ud_insn_len(&u);
+		get->destaddrb = 0;
+		variable *to = interpret_operand(ud_insn_opr(&u, 0));
+		variable *from = interpret_operand(ud_insn_opr(&u, 1));
+		
+		if ((from != 0) && (to != 0))
+		{
+			get->valid = true;
+			get->statements.push_back(new oper_assignment(to, new oper_right_shift(to, from)));
+		}
+		else
+		{
+			if (from != 0)
+				delete from;
+			if (to != 0)
+				delete to;
+		}
+	}
+	else if (op == "shl")
+	{
+		get->destaddra = addr + ud_insn_len(&u);
+		get->destaddrb = 0;
+		variable *to = interpret_operand(ud_insn_opr(&u, 0));
+		variable *from = interpret_operand(ud_insn_opr(&u, 1));
+		
+		if ((from != 0) && (to != 0))
+		{
+			get->valid = true;
+			get->statements.push_back(new oper_assignment(to, new oper_left_shift(to, from)));
+		}
+		else
+		{
+			if (from != 0)
+				delete from;
+			if (to != 0)
+				delete to;
+		}
+	}
+
 	else
 	{
 		get->destaddra = addr + ud_insn_len(&u);

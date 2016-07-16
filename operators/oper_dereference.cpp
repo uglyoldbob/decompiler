@@ -3,21 +3,21 @@
 #include "code_elements/code_element.h"
 #include "helpers.h"
 
-oper_dereference::oper_dereference(variable *a, variable *b)
-	: oper2(a, b)
+oper_dereference::oper_dereference(variable *a)
+	: oper1(a)
 {
 	p = OPER_LVL3;
 }
 
 std::ostream &oper_dereference::print(std::ostream &out)
 {
-	if (this->get_p() < arg1->get_p())
+	if (this->get_p() < arg->get_p())
 	{	//parentheses required to have correct order
-		out << "*(" << *arg1 << ")";
+		out << "*(" << *arg << ")";
 	}
 	else
 	{
-		out << "*" << *arg1;
+		out << "*" << *arg;
 	}
 	return out;
 }

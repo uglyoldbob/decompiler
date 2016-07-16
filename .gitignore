@@ -10,6 +10,7 @@ decompile64
 udis86-1.7.2
 autom4te.cache
 stupid.c
+*.png
 .cproject
 .directory
 .metadata/*
