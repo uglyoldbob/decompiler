@@ -111,14 +111,26 @@ void related_code::finalize_blocks()
 
 void related_code::fprint(std::ostream &dest, int depth)
 {
-	for (unsigned int i = 0; i < blocks.size(); i++)
+	if (simplified())
 	{
-		std::vector<address> p = blocks[i]->get_nexts();
-		if (p.size() > 1)
+		code_element *ref = blocks[0];
+		while (ref != 0)
 		{
-			dest << "#error Unfinished block" << std::endl;
+			ref->fprint(dest, depth);
+			ref = ref->a;
 		}
-		blocks[i]->fprint(dest, depth);
+	}
+	else
+	{
+		for (unsigned int i = 0; i < blocks.size(); i++)
+		{
+			std::vector<address> p = blocks[i]->get_nexts();
+			if (p.size() > 1)
+			{
+				dest << "#error Unfinished block" << std::endl;
+			}
+			blocks[i]->fprint(dest, depth);
+		}
 	}
 }
 
@@ -380,6 +392,26 @@ int related_code::process_blocks(int n)
 	} while (next_combo(cur_combo));
 	std::cout << "End processing" << std::endl;
 	return result;
+}
+
+bool related_code::simplified()
+{
+	bool ret = false;
+	//all elements must be non-branching
+	bool all_nonbranch = true;
+	for (unsigned int i = 0; i < blocks.size(); i++)
+	{
+		if (blocks[i]->is_branch())
+		{
+			all_nonbranch = false;
+		}
+	}
+	if (all_nonbranch)
+	{
+		ret = true;
+	}
+	
+	return ret;
 }
 
 void related_code::simplify()

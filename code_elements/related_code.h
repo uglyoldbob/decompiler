@@ -27,6 +27,7 @@ class related_code
 		void apply_combination(std::vector<unsigned int> cmb, std::vector<code_element *> &gr);
 		bool next_combo(std::vector<unsigned int> &cmb);
 		int process_blocks(int n);
+		bool simplified();
 };
 
 #endif
