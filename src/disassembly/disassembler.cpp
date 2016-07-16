@@ -1,4 +1,5 @@
 #include "disassembler.h"
+#include "helpers.h"
 
 #include <sstream>
 
@@ -32,7 +33,7 @@ std::ostream& operator<< (std::ostream& out, instr &a)
 		out << *a.statements[i] << ";";
 		if (i == 0)
 		{
-			out << a.comment << " (0x" << std::hex << a.addr << std::dec << ")";
+			out << tabs(1) << a.comment << " (0x" << std::hex << a.addr << std::dec << ")";
 		}
 		if (a.trace_call != 0)
 		{

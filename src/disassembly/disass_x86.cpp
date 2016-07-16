@@ -95,7 +95,7 @@ int disass_x86::get_instruction(instr* &get, address addr)
 	get->is_ret = false;
 	get->destaddra = addr + ud_insn_len(&u);
 	get->destaddrb = addr + ud_insn_len(&u);
-	get->comment = std::string("\t//") + ud_insn_asm(&u);
+	get->comment = std::string("//") + ud_insn_asm(&u);
 	get->call = 0;
 	get->len = ud_insn_len(&u);
 	get->trace_call = 0;

@@ -103,8 +103,8 @@ void ce_basic::fprint(std::ostream &dest, int depth)
 	for (unsigned int k = 0; k < lines.size(); k++)
 	{
 		std::stringstream temp;
-		std::string tmpstr(temp.str());
 		temp << tabs(depth);
+		std::string tmpstr(temp.str());
 		lines[k].preprint = tmpstr;
 		dest << lines[k] << "\n";
 		lines[k].preprint = "";
