@@ -10,6 +10,7 @@ class code_run : public code_element
 	public:
 		code_run();
 		~code_run();
+		static code_element *simplify(std::vector<code_element *> grp, code_element *end);
 		void add_element(code_element *add);
 		void done();
 		void fprint(std::ostream &dest, int depth);

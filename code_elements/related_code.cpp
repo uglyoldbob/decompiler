@@ -3,6 +3,7 @@
 #include "ce_basic.h"
 #include "code_do_while_loop.h"
 #include "code_if_else.h"
+#include "code_run.h"
 
 related_code::related_code()
 {
@@ -319,6 +320,7 @@ void related_code::apply_combination(std::vector<unsigned int> cmb, std::vector<
 
 int related_code::process_blocks(int n)
 {
+	int result = 0;
 	std::cout << "Start processing " << n << ", " << blocks.size() << std::endl;
 	std::vector<unsigned int> cur_combo = make_combination(n);
 	std::vector<code_element *> group = make_group(n);
@@ -353,6 +355,15 @@ int related_code::process_blocks(int n)
 			if (temp != 0)
 			{
 				std::cout << "Found an if/else statement" << std::endl;
+				result++;
+				replace_group(group, temp);
+			}
+			
+			temp = code_run::simplify(group, ex_out[0]);
+			if (temp != 0)
+			{
+				std::cout << "Found a run" << std::endl;
+				result++;
 				replace_group(group, temp);
 			}
 			std::cout << std::dec << std::endl;
@@ -360,7 +371,7 @@ int related_code::process_blocks(int n)
 		
 	} while (next_combo(cur_combo));
 	std::cout << "End processing" << std::endl;
-	return 0;
+	return result;
 }
 
 void related_code::simplify()

@@ -23,7 +23,6 @@ code_element *code_if_else::simplify(std::vector<code_element *> grp, code_eleme
 			ret->add_lcb(grp[0]);
 			ret->add_ecb(grp[0]->other_branch(end));
 			ret->set_next(end);
-			std::cout << "Possibly an if" << std::endl;
 		}
 		else if (grp[0]->a->jumps_to(end) && grp[0]->b->jumps_to(end))
 		{
