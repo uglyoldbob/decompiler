@@ -366,6 +366,14 @@ int related_code::process_blocks(int n)
 				result++;
 				replace_group(group, temp);
 			}
+			
+			temp = code_do_while_loop::simplify(group, ex_out[0]);
+			if (temp != 0)
+			{
+				std::cout << "Found a do while loop" << std::endl;
+				result++;
+				replace_group(group, temp);
+			}
 			std::cout << std::dec << std::endl;
 		}
 		

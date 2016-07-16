@@ -22,6 +22,10 @@ code_element *code_run::simplify(std::vector<code_element *> grp, code_element *
 			all_nonbranch = false;
 		}
 	}
+	if (grp.size() == 1)
+	{
+		all_nonbranch = false;
+	}
 	if (all_nonbranch)
 	{
 		ret = new code_run();
