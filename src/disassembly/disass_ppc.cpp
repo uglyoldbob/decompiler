@@ -331,11 +331,6 @@ uint64_t disass_ppc::make_mask(int mb, int me, int numbits)
 	return ret;
 }
 
-std::string disass_ppc::trace_value(std::string &val)
-{
-	return "error";
-}
-
 // Very accurate PowerPC Architecture disassembler (both 32 and 64-bit instructions are supported)
 
 // Branch Target in output parameters is NOT relative. Its already precalculated

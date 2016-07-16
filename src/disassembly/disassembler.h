@@ -16,6 +16,7 @@ struct instr
 	int is_cbranch;	//set when it is a conditional branch statement
 	bool is_branch;	//is this a branch of any kind?
 	bool is_ret;	//is this an instruction to return from a function?
+	bool valid;
 	char len;	//length of the instruction
 	address destaddra;	//stores the dest of the conditional branch statement
 	address destaddrb;	//stores the other dest
@@ -40,7 +41,6 @@ class disassembler
 		virtual ~disassembler();
 		
 		virtual int get_instruction(instr* &get, address addr) = 0;
-		virtual std::string trace_value(std::string &val) = 0;
 	protected:
 		exe_loader *owner;
 };

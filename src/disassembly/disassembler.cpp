@@ -16,6 +16,10 @@ std::ostream& operator<< (std::ostream& out, instr &a)
 {
 	if (a.statements.size() == 0)
 	{
+		if (!a.valid)
+		{
+			out << a.preprint << "#error Untranslated code\n";
+		}
 		out << a.preprint;
 		out << a.comment << " (0x" << std::hex << a.addr << std::dec << ")";
 		if (a.trace_call != 0)
@@ -29,6 +33,10 @@ std::ostream& operator<< (std::ostream& out, instr &a)
 	}
 	for (unsigned int i = 0; i < a.statements.size(); i++)
 	{
+		if (!a.valid)
+		{
+			out << a.preprint << "#error Untranslated code\n";
+		}
 		out << a.preprint;
 		out << *a.statements[i] << ";";
 		if (i == 0)

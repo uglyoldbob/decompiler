@@ -12,11 +12,12 @@ class disass_x86 : public disassembler
 		disass_x86(exe_loader *own);
 		~disass_x86();
 		int get_instruction(instr* &get, address addr); 
-		std::string trace_value(std::string &val);
 	private:
 		ud_t u;
 		address shift_cs;
 		address shift_ss;
+
+		variable *interpret_operand(const ud_operand_t *m);
 };
 
 #endif

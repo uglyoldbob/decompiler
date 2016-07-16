@@ -45,7 +45,6 @@ class disass_ppc : public disassembler
 	public:
 		disass_ppc(exe_loader *own);
 		int get_instruction(instr* &get, address addr);
-		std::string trace_value(std::string &val);
 	private:
 		int ppc_type;	//32, 64, gekko, broadway
 		static const char * t_cond[32];
