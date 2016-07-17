@@ -31,9 +31,18 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	get = new instr;
 	get->addr = addr;
 	get->is_cbranch = 0;
+	get->valid = false;
 	get->call = temp.call;
-	get->destaddra = temp.targeta;
-	get->destaddrb = temp.targetb;
+	if (temp.targeta != 0)
+	{
+		get->destaddra = temp.targeta;
+		get->destaddrb = temp.targetb;
+	}
+	else
+	{
+		get->destaddra = temp.targetb;
+		get->destaddrb = temp.targeta;
+	}
 	get->len = 4;
 	get->trace_call = 0;
 	get->trace_jump = 0;
@@ -229,6 +238,7 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		get->statements.push_back(statement);
 		statement = new oper_assignment(new variable(arg3, -1), mem_ref);
 		get->statements.push_back(statement);
+		get->valid = true;
 		statement = 0;
 	}
 	else if (op == "lbz")
@@ -281,6 +291,7 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		}
 		statement = new oper_assignment(new variable(arg3, 41), mem_ref);
 		get->statements.push_back(statement);
+		get->valid = true;
 		statement = 0;
 	}
 	else if (op == "stmw")
@@ -309,6 +320,7 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 			s << 'r' << i;
 			statement = new oper_assignment(new oper_dereference(mem_ref), new variable(s.str(), 4));
 			get->statements.push_back(statement);
+			get->valid = true;
 			statement = 0;
 		}
 	}
@@ -317,8 +329,15 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		argin >> scanset("^,", arg1) >> dummy >> arg2;
 		line = arg1 + " = (int16_t)" + arg2 + ";";
 	}
+	else if (op == "trap")
+	{
+		get->is_ret = true;
+	}
 	if (statement != 0)
+	{
+		get->valid = true;
 		get->statements.push_back(statement);
+	}
 	//std::cout << *get << std::endl;
 	return 4;
 }

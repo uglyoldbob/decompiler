@@ -103,8 +103,6 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 		}
 		if (m->index != UD_NONE)
 		{
-			//if (mov_from->base != UD_NONE)
-			//	std::cout << " + ";
 			index = new variable(get_type(m->index), -1);
 		}
 		if (m->scale != 0)
@@ -120,9 +118,8 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 			{
 			std::stringstream s;
 			s << std::dec;
-			s << m->lval.sbyte << std::flush;
+			s << (int16_t)m->lval.sbyte << std::flush;
 			offset = new variable(s.str(), 1);
-
 			if ((m->index != UD_NONE) || (m->base != UD_NONE))
 			{
 				if (m->lval.sbyte > 0)
@@ -197,7 +194,7 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 			std::stringstream s;
 			s << std::dec;
 			s << m->lval.sqword << std::flush;
-			offset = new variable(s.str(), 1);
+			offset = new variable(s.str(), 8);
 			if ((m->index != UD_NONE) || (m->base != UD_NONE))
 			{
 				if (m->lval.sqword > 0)
@@ -226,7 +223,8 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 			{
 				if (base == 0)
 				{
-					base = new variable("0", -1);
+					base = offset;
+					offset = 0;
 				}
 				ret = new oper_segbase(seg, base);
 			}
@@ -462,6 +460,30 @@ int disass_x86::get_instruction(instr* &get, address addr)
 				delete to;
 		}
 	}
+	else if (op == "inc")
+	{
+		get->destaddra = addr + ud_insn_len(&u);
+		get->destaddrb = 0;
+		variable *to = interpret_operand(ud_insn_opr(&u, 0));
+	
+		if (to != 0)
+		{
+			get->valid = true;
+			get->statements.push_back(new oper_assignment(to, new oper_add(to, new variable("1", -1))));
+		}
+	}
+	else if (op == "dec")
+	{
+		get->destaddra = addr + ud_insn_len(&u);
+		get->destaddrb = 0;
+		variable *to = interpret_operand(ud_insn_opr(&u, 0));
+	
+		if (to != 0)
+		{
+			get->valid = true;
+			get->statements.push_back(new oper_assignment(to, new oper_sub(to, new variable("1", -1))));
+		}
+	}
 	else if (op == "add")
 	{
 		get->destaddra = addr + ud_insn_len(&u);
@@ -473,6 +495,26 @@ int disass_x86::get_instruction(instr* &get, address addr)
 		{
 			get->valid = true;
 			get->statements.push_back(new oper_assignment(to, new oper_add(to, from)));
+		}
+		else
+		{
+			if (from != 0)
+				delete from;
+			if (to != 0)
+				delete to;
+		}
+	}
+	else if (op == "sub")
+	{
+		get->destaddra = addr + ud_insn_len(&u);
+		get->destaddrb = 0;
+		variable *to = interpret_operand(ud_insn_opr(&u, 0));
+		variable *from = interpret_operand(ud_insn_opr(&u, 1));
+		
+		if ((from != 0) && (to != 0))
+		{
+			get->valid = true;
+			get->statements.push_back(new oper_assignment(to, new oper_sub(to, from)));
 		}
 		else
 		{
