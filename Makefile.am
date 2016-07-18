@@ -62,6 +62,10 @@ src/executable/exe_pe.cpp \
 src/disassembly/disassembler.cpp \
 src/disassembly/disass_x86.cpp \
 src/disassembly/disass_ppc.cpp \
+src/project/autotools.cpp \
+src/project/build_system.cpp \
+src/project/project.cpp \
+src/project/source_file.cpp \
 exceptions.cpp \
 helpers.cpp
 
@@ -99,6 +103,10 @@ src/executable/exe_pe.cpp \
 src/disassembly/disassembler.cpp \
 src/disassembly/disass_x86.cpp \
 src/disassembly/disass_ppc.cpp \
+src/project/autotools.cpp \
+src/project/build_system.cpp \
+src/project/project.cpp \
+src/project/source_file.cpp \
 exceptions.cpp \
 helpers.cpp
 
@@ -135,6 +143,10 @@ src/executable/exe_pe.cpp \
 src/disassembly/disassembler.cpp \
 src/disassembly/disass_x86.cpp \
 src/disassembly/disass_ppc.cpp \
+src/project/autotools.cpp \
+src/project/build_system.cpp \
+src/project/project.cpp \
+src/project/source_file.cpp \
 exceptions.cpp \
 helpers.cpp
 

@@ -1,3 +1,4 @@
+#include <cstring>
 #include <sys/stat.h>
 
 #include "disassembly/disassembler.h"
@@ -17,8 +18,6 @@ executable::executable()
 
 executable::~executable()
 {
-	for (unsigned int i = 0; i < funcs.size(); i++)
-		delete funcs[i];
 	delete exe_object;
 	delete exe_file;
 }
@@ -58,7 +57,6 @@ int executable::check_pe(std::istream *me)
 
 int executable::output(const char *fld_name)
 {
-	std::cout << "Writing outputs to folder " << fld_name << std::endl;
 	folder = fld_name;
 	int status = mkdir(fld_name, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	if (status == -1)
@@ -74,6 +72,54 @@ int executable::output(const char *fld_name)
 		}	
 	}
 	return status;
+}
+
+void executable::set_name(const char* n)
+{
+	std::string temp(n);
+	int folder_index = 0;
+	for (unsigned int i = 0; i < strlen(n); i++)
+	{
+		if (n[i] == '/')
+		{
+			folder_index = i+1;
+		}
+	}
+	exe_name = temp.substr(folder_index, temp.size() - folder_index);
+}
+
+std::string executable::get_name()
+{
+	return exe_name;
+}
+
+std::vector<source_file*> executable::get_sources()
+{
+	return sources;
+}
+
+void executable::write_sources(std::string n)
+{
+	std::string temp(n + "/" + exe_name);
+	
+	int status = mkdir(temp.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	if (status == -1)
+	{
+		switch (errno)
+		{
+		case EEXIST:
+			break;
+		default:
+			std::cout << "Status: " << status << " " << errno << std::endl;
+			throw "Could not create output folder";
+			break;
+		}	
+	}
+	
+	for (unsigned int i = 0; i < sources.size(); i++)
+	{
+		sources[i]->write_sources(n);
+	}
 }
 
 int executable::load(const char *bin_name)
@@ -131,9 +177,11 @@ int executable::load(const char *bin_name)
 	function *start;
 	std::vector<address> function_addresses;	//a list of function start addresses
 	start = new function(exe_object->entry_addr(), "void", exe_object->entry_name(), *(exe_object->get_disasm()));
+	source_file *nsf = new source_file(exe_name + "/" + start->get_name() + ".c");
+	nsf->add_function(start);
+	sources.push_back(nsf);
 	start->output_graph_data(folder);
-	start->output_code(folder);
-	funcs.push_back(start);
+//	start->output_code(folder);
 //	std::vector<address> temp = funcs.back()->get_calls();
 //	std::cout << std::hex;
 //	for (unsigned int i = 0; i < temp.size(); i++)
@@ -150,9 +198,11 @@ int executable::load(const char *bin_name)
 		std::stringstream name;
 		name << "func_" << std::hex << function_addresses[0] << std::dec;
 		function *tfunc = new function(function_addresses[0], "unknown", name.str().c_str(), *(exe_object->get_disasm()));
+		source_file *tfsf = new source_file(exe_name + "/" + tfunc->get_name() + ".c");
+		tfsf->add_function(tfunc);
+		sources.push_back(tfsf);
 		tfunc->output_graph_data(folder);
-		tfunc->output_code(folder);
-		funcs.push_back(tfunc);
+//		tfunc->output_code(folder);
 		function_addresses.erase(function_addresses.begin());
 //		std::vector<address> temp = funcs.back()->get_calls();
 //		std::cout << std::hex;
@@ -172,10 +222,10 @@ int executable::load(const char *bin_name)
 
 int executable::check_func_list(address addr)
 {
-	for (unsigned int i = 0; i < funcs.size(); i++)
+	/*for (unsigned int i = 0; i < funcs.size(); i++)
 	{
 		if (funcs[i]->gets() == addr)
 			return 0;
-	}
+	}*/
 	return 1;
 }

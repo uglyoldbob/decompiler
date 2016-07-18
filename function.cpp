@@ -48,7 +48,7 @@ void function::simplify()
 	code.simplify();
 }
 
-inline std::ostream& operator << (std::ostream& output, function &me)
+std::ostream& operator << (std::ostream& output, function &me)
 {
 	me.fprint(output);
 	return output;
@@ -93,15 +93,6 @@ void function::output_graph_data(std::string fld_name)
 	output << std::hex;
 	code.print_graph(output);
 	output << "}\n";
-	output.close();
-}
-
-void function::output_code(std::string fld_name)
-{
-	std::string outname = fld_name + "/" + name + ".c";
-	std::ofstream output;
-	output.open(outname, std::ios::out);
-	fprint(output);
 	output.close();
 }
 

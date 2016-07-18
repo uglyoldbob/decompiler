@@ -8,6 +8,7 @@
 
 #include "exe_loader.h"
 #include "function.h"
+#include "project/source_file.h"
 
 enum EXECUTABLE_TYPE
 {
@@ -33,6 +34,10 @@ class executable
 		~executable();
 		int load(const char *bin_name);
 		int output(const char *fld_name);
+		std::string get_name();
+		void set_name(const char* n);
+		std::vector<source_file*> get_sources();
+		void write_sources(std::string n);
 	private:
 		int check_pe(std::istream *me);
 		int rbo;	//used to signal reversed byte order
@@ -40,11 +45,10 @@ class executable
 		std::string folder;
 		EXECUTABLE_TYPE exe_type;
 		exe_loader *exe_object;
+		std::string exe_name;
 		
-		//TODO: create objects to break up code into multiple source files
-		std::vector<function*> funcs;	//all the functions of the program
-
 		int check_func_list(address addr);
+		std::vector<source_file*> sources;
 };
 
 #endif

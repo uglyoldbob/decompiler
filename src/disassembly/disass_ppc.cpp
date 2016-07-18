@@ -67,7 +67,7 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	std::stringstream argin(std::stringstream::in | std::stringstream::out);
 	variable *statement = 0;
 	argin << temp.operands;
-	get->comment = "\t//" + op + " " + arg;
+	get->comment = "//" + op + " " + arg;
 	if (op == "or")
 	{
 		argin >> scanset("^,", arg1) >> dummy >> scanset("^,", arg2) >> dummy >> arg3;
@@ -129,7 +129,6 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		{
 			line = arg1 + " " + arg2 + " " + string(shift) + " " + string(mb) + " " + string(me) + ";";
 		}
-		std::cout << line << std::endl;
 	}
 	else if (op == "li")
 	{
@@ -338,7 +337,6 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		get->valid = true;
 		get->statements.push_back(statement);
 	}
-	//std::cout << *get << std::endl;
 	return 4;
 }
 

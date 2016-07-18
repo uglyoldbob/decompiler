@@ -132,6 +132,10 @@ am_decompile16_OBJECTS = var/decompile16-type.$(OBJEXT) \
 	src/disassembly/decompile16-disassembler.$(OBJEXT) \
 	src/disassembly/decompile16-disass_x86.$(OBJEXT) \
 	src/disassembly/decompile16-disass_ppc.$(OBJEXT) \
+	src/project/decompile16-autotools.$(OBJEXT) \
+	src/project/decompile16-build_system.$(OBJEXT) \
+	src/project/decompile16-project.$(OBJEXT) \
+	src/project/decompile16-source_file.$(OBJEXT) \
 	decompile16-exceptions.$(OBJEXT) decompile16-helpers.$(OBJEXT)
 decompile16_OBJECTS = $(am_decompile16_OBJECTS)
 decompile16_DEPENDENCIES = libudis86.a
@@ -168,6 +172,10 @@ am_decompile32_OBJECTS = var/decompile32-type.$(OBJEXT) \
 	src/disassembly/decompile32-disassembler.$(OBJEXT) \
 	src/disassembly/decompile32-disass_x86.$(OBJEXT) \
 	src/disassembly/decompile32-disass_ppc.$(OBJEXT) \
+	src/project/decompile32-autotools.$(OBJEXT) \
+	src/project/decompile32-build_system.$(OBJEXT) \
+	src/project/decompile32-project.$(OBJEXT) \
+	src/project/decompile32-source_file.$(OBJEXT) \
 	decompile32-exceptions.$(OBJEXT) decompile32-helpers.$(OBJEXT)
 decompile32_OBJECTS = $(am_decompile32_OBJECTS)
 decompile32_DEPENDENCIES = libudis86.a
@@ -204,6 +212,10 @@ am_decompile64_OBJECTS = var/decompile64-type.$(OBJEXT) \
 	src/disassembly/decompile64-disassembler.$(OBJEXT) \
 	src/disassembly/decompile64-disass_x86.$(OBJEXT) \
 	src/disassembly/decompile64-disass_ppc.$(OBJEXT) \
+	src/project/decompile64-autotools.$(OBJEXT) \
+	src/project/decompile64-build_system.$(OBJEXT) \
+	src/project/decompile64-project.$(OBJEXT) \
+	src/project/decompile64-source_file.$(OBJEXT) \
 	decompile64-exceptions.$(OBJEXT) decompile64-helpers.$(OBJEXT)
 decompile64_OBJECTS = $(am_decompile64_OBJECTS)
 decompile64_DEPENDENCIES = libudis86.a
@@ -533,6 +545,10 @@ src/executable/exe_pe.cpp \
 src/disassembly/disassembler.cpp \
 src/disassembly/disass_x86.cpp \
 src/disassembly/disass_ppc.cpp \
+src/project/autotools.cpp \
+src/project/build_system.cpp \
+src/project/project.cpp \
+src/project/source_file.cpp \
 exceptions.cpp \
 helpers.cpp
 
@@ -569,6 +585,10 @@ src/executable/exe_pe.cpp \
 src/disassembly/disassembler.cpp \
 src/disassembly/disass_x86.cpp \
 src/disassembly/disass_ppc.cpp \
+src/project/autotools.cpp \
+src/project/build_system.cpp \
+src/project/project.cpp \
+src/project/source_file.cpp \
 exceptions.cpp \
 helpers.cpp
 
@@ -605,6 +625,10 @@ src/executable/exe_pe.cpp \
 src/disassembly/disassembler.cpp \
 src/disassembly/disass_x86.cpp \
 src/disassembly/disass_ppc.cpp \
+src/project/autotools.cpp \
+src/project/build_system.cpp \
+src/project/project.cpp \
+src/project/source_file.cpp \
 exceptions.cpp \
 helpers.cpp
 
@@ -813,6 +837,24 @@ src/disassembly/decompile16-disass_x86.$(OBJEXT):  \
 src/disassembly/decompile16-disass_ppc.$(OBJEXT):  \
 	src/disassembly/$(am__dirstamp) \
 	src/disassembly/$(DEPDIR)/$(am__dirstamp)
+src/project/$(am__dirstamp):
+	@$(MKDIR_P) src/project
+	@: > src/project/$(am__dirstamp)
+src/project/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/project/$(DEPDIR)
+	@: > src/project/$(DEPDIR)/$(am__dirstamp)
+src/project/decompile16-autotools.$(OBJEXT):  \
+	src/project/$(am__dirstamp) \
+	src/project/$(DEPDIR)/$(am__dirstamp)
+src/project/decompile16-build_system.$(OBJEXT):  \
+	src/project/$(am__dirstamp) \
+	src/project/$(DEPDIR)/$(am__dirstamp)
+src/project/decompile16-project.$(OBJEXT):  \
+	src/project/$(am__dirstamp) \
+	src/project/$(DEPDIR)/$(am__dirstamp)
+src/project/decompile16-source_file.$(OBJEXT):  \
+	src/project/$(am__dirstamp) \
+	src/project/$(DEPDIR)/$(am__dirstamp)
 
 decompile16$(EXEEXT): $(decompile16_OBJECTS) $(decompile16_DEPENDENCIES) $(EXTRA_decompile16_DEPENDENCIES) 
 	@rm -f decompile16$(EXEEXT)
@@ -891,6 +933,18 @@ src/disassembly/decompile32-disass_x86.$(OBJEXT):  \
 src/disassembly/decompile32-disass_ppc.$(OBJEXT):  \
 	src/disassembly/$(am__dirstamp) \
 	src/disassembly/$(DEPDIR)/$(am__dirstamp)
+src/project/decompile32-autotools.$(OBJEXT):  \
+	src/project/$(am__dirstamp) \
+	src/project/$(DEPDIR)/$(am__dirstamp)
+src/project/decompile32-build_system.$(OBJEXT):  \
+	src/project/$(am__dirstamp) \
+	src/project/$(DEPDIR)/$(am__dirstamp)
+src/project/decompile32-project.$(OBJEXT):  \
+	src/project/$(am__dirstamp) \
+	src/project/$(DEPDIR)/$(am__dirstamp)
+src/project/decompile32-source_file.$(OBJEXT):  \
+	src/project/$(am__dirstamp) \
+	src/project/$(DEPDIR)/$(am__dirstamp)
 
 decompile32$(EXEEXT): $(decompile32_OBJECTS) $(decompile32_DEPENDENCIES) $(EXTRA_decompile32_DEPENDENCIES) 
 	@rm -f decompile32$(EXEEXT)
@@ -969,6 +1023,18 @@ src/disassembly/decompile64-disass_x86.$(OBJEXT):  \
 src/disassembly/decompile64-disass_ppc.$(OBJEXT):  \
 	src/disassembly/$(am__dirstamp) \
 	src/disassembly/$(DEPDIR)/$(am__dirstamp)
+src/project/decompile64-autotools.$(OBJEXT):  \
+	src/project/$(am__dirstamp) \
+	src/project/$(DEPDIR)/$(am__dirstamp)
+src/project/decompile64-build_system.$(OBJEXT):  \
+	src/project/$(am__dirstamp) \
+	src/project/$(DEPDIR)/$(am__dirstamp)
+src/project/decompile64-project.$(OBJEXT):  \
+	src/project/$(am__dirstamp) \
+	src/project/$(DEPDIR)/$(am__dirstamp)
+src/project/decompile64-source_file.$(OBJEXT):  \
+	src/project/$(am__dirstamp) \
+	src/project/$(DEPDIR)/$(am__dirstamp)
 
 decompile64$(EXEEXT): $(decompile64_OBJECTS) $(decompile64_DEPENDENCIES) $(EXTRA_decompile64_DEPENDENCIES) 
 	@rm -f decompile64$(EXEEXT)
@@ -984,6 +1050,7 @@ mostlyclean-compile:
 	-rm -f operators/*.$(OBJEXT)
 	-rm -f src/disassembly/*.$(OBJEXT)
 	-rm -f src/executable/*.$(OBJEXT)
+	-rm -f src/project/*.$(OBJEXT)
 	-rm -f var/*.$(OBJEXT)
 
 distclean-compile:
@@ -1089,6 +1156,18 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile64-exe_macho.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile64-exe_pe.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile64-executable.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile16-autotools.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile16-build_system.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile16-project.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile16-source_file.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile32-autotools.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile32-build_system.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile32-project.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile32-source_file.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile64-autotools.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile64-build_system.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile64-project.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile64-source_file.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@var/$(DEPDIR)/decompile16-type.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@var/$(DEPDIR)/decompile32-type.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@var/$(DEPDIR)/decompile64-type.Po@am__quote@
@@ -1573,6 +1652,62 @@ src/disassembly/decompile16-disass_ppc.obj: src/disassembly/disass_ppc.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/disassembly/decompile16-disass_ppc.obj `if test -f 'src/disassembly/disass_ppc.cpp'; then $(CYGPATH_W) 'src/disassembly/disass_ppc.cpp'; else $(CYGPATH_W) '$(srcdir)/src/disassembly/disass_ppc.cpp'; fi`
 
+src/project/decompile16-autotools.o: src/project/autotools.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile16-autotools.o -MD -MP -MF src/project/$(DEPDIR)/decompile16-autotools.Tpo -c -o src/project/decompile16-autotools.o `test -f 'src/project/autotools.cpp' || echo '$(srcdir)/'`src/project/autotools.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile16-autotools.Tpo src/project/$(DEPDIR)/decompile16-autotools.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/autotools.cpp' object='src/project/decompile16-autotools.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile16-autotools.o `test -f 'src/project/autotools.cpp' || echo '$(srcdir)/'`src/project/autotools.cpp
+
+src/project/decompile16-autotools.obj: src/project/autotools.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile16-autotools.obj -MD -MP -MF src/project/$(DEPDIR)/decompile16-autotools.Tpo -c -o src/project/decompile16-autotools.obj `if test -f 'src/project/autotools.cpp'; then $(CYGPATH_W) 'src/project/autotools.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/autotools.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile16-autotools.Tpo src/project/$(DEPDIR)/decompile16-autotools.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/autotools.cpp' object='src/project/decompile16-autotools.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile16-autotools.obj `if test -f 'src/project/autotools.cpp'; then $(CYGPATH_W) 'src/project/autotools.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/autotools.cpp'; fi`
+
+src/project/decompile16-build_system.o: src/project/build_system.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile16-build_system.o -MD -MP -MF src/project/$(DEPDIR)/decompile16-build_system.Tpo -c -o src/project/decompile16-build_system.o `test -f 'src/project/build_system.cpp' || echo '$(srcdir)/'`src/project/build_system.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile16-build_system.Tpo src/project/$(DEPDIR)/decompile16-build_system.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/build_system.cpp' object='src/project/decompile16-build_system.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile16-build_system.o `test -f 'src/project/build_system.cpp' || echo '$(srcdir)/'`src/project/build_system.cpp
+
+src/project/decompile16-build_system.obj: src/project/build_system.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile16-build_system.obj -MD -MP -MF src/project/$(DEPDIR)/decompile16-build_system.Tpo -c -o src/project/decompile16-build_system.obj `if test -f 'src/project/build_system.cpp'; then $(CYGPATH_W) 'src/project/build_system.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/build_system.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile16-build_system.Tpo src/project/$(DEPDIR)/decompile16-build_system.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/build_system.cpp' object='src/project/decompile16-build_system.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile16-build_system.obj `if test -f 'src/project/build_system.cpp'; then $(CYGPATH_W) 'src/project/build_system.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/build_system.cpp'; fi`
+
+src/project/decompile16-project.o: src/project/project.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile16-project.o -MD -MP -MF src/project/$(DEPDIR)/decompile16-project.Tpo -c -o src/project/decompile16-project.o `test -f 'src/project/project.cpp' || echo '$(srcdir)/'`src/project/project.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile16-project.Tpo src/project/$(DEPDIR)/decompile16-project.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/project.cpp' object='src/project/decompile16-project.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile16-project.o `test -f 'src/project/project.cpp' || echo '$(srcdir)/'`src/project/project.cpp
+
+src/project/decompile16-project.obj: src/project/project.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile16-project.obj -MD -MP -MF src/project/$(DEPDIR)/decompile16-project.Tpo -c -o src/project/decompile16-project.obj `if test -f 'src/project/project.cpp'; then $(CYGPATH_W) 'src/project/project.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/project.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile16-project.Tpo src/project/$(DEPDIR)/decompile16-project.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/project.cpp' object='src/project/decompile16-project.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile16-project.obj `if test -f 'src/project/project.cpp'; then $(CYGPATH_W) 'src/project/project.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/project.cpp'; fi`
+
+src/project/decompile16-source_file.o: src/project/source_file.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile16-source_file.o -MD -MP -MF src/project/$(DEPDIR)/decompile16-source_file.Tpo -c -o src/project/decompile16-source_file.o `test -f 'src/project/source_file.cpp' || echo '$(srcdir)/'`src/project/source_file.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile16-source_file.Tpo src/project/$(DEPDIR)/decompile16-source_file.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/source_file.cpp' object='src/project/decompile16-source_file.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile16-source_file.o `test -f 'src/project/source_file.cpp' || echo '$(srcdir)/'`src/project/source_file.cpp
+
+src/project/decompile16-source_file.obj: src/project/source_file.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile16-source_file.obj -MD -MP -MF src/project/$(DEPDIR)/decompile16-source_file.Tpo -c -o src/project/decompile16-source_file.obj `if test -f 'src/project/source_file.cpp'; then $(CYGPATH_W) 'src/project/source_file.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/source_file.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile16-source_file.Tpo src/project/$(DEPDIR)/decompile16-source_file.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/source_file.cpp' object='src/project/decompile16-source_file.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile16-source_file.obj `if test -f 'src/project/source_file.cpp'; then $(CYGPATH_W) 'src/project/source_file.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/source_file.cpp'; fi`
+
 decompile16-exceptions.o: exceptions.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile16-exceptions.o -MD -MP -MF $(DEPDIR)/decompile16-exceptions.Tpo -c -o decompile16-exceptions.o `test -f 'exceptions.cpp' || echo '$(srcdir)/'`exceptions.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/decompile16-exceptions.Tpo $(DEPDIR)/decompile16-exceptions.Po
@@ -2048,6 +2183,62 @@ src/disassembly/decompile32-disass_ppc.obj: src/disassembly/disass_ppc.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/disassembly/disass_ppc.cpp' object='src/disassembly/decompile32-disass_ppc.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/disassembly/decompile32-disass_ppc.obj `if test -f 'src/disassembly/disass_ppc.cpp'; then $(CYGPATH_W) 'src/disassembly/disass_ppc.cpp'; else $(CYGPATH_W) '$(srcdir)/src/disassembly/disass_ppc.cpp'; fi`
+
+src/project/decompile32-autotools.o: src/project/autotools.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile32-autotools.o -MD -MP -MF src/project/$(DEPDIR)/decompile32-autotools.Tpo -c -o src/project/decompile32-autotools.o `test -f 'src/project/autotools.cpp' || echo '$(srcdir)/'`src/project/autotools.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile32-autotools.Tpo src/project/$(DEPDIR)/decompile32-autotools.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/autotools.cpp' object='src/project/decompile32-autotools.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile32-autotools.o `test -f 'src/project/autotools.cpp' || echo '$(srcdir)/'`src/project/autotools.cpp
+
+src/project/decompile32-autotools.obj: src/project/autotools.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile32-autotools.obj -MD -MP -MF src/project/$(DEPDIR)/decompile32-autotools.Tpo -c -o src/project/decompile32-autotools.obj `if test -f 'src/project/autotools.cpp'; then $(CYGPATH_W) 'src/project/autotools.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/autotools.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile32-autotools.Tpo src/project/$(DEPDIR)/decompile32-autotools.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/autotools.cpp' object='src/project/decompile32-autotools.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile32-autotools.obj `if test -f 'src/project/autotools.cpp'; then $(CYGPATH_W) 'src/project/autotools.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/autotools.cpp'; fi`
+
+src/project/decompile32-build_system.o: src/project/build_system.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile32-build_system.o -MD -MP -MF src/project/$(DEPDIR)/decompile32-build_system.Tpo -c -o src/project/decompile32-build_system.o `test -f 'src/project/build_system.cpp' || echo '$(srcdir)/'`src/project/build_system.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile32-build_system.Tpo src/project/$(DEPDIR)/decompile32-build_system.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/build_system.cpp' object='src/project/decompile32-build_system.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile32-build_system.o `test -f 'src/project/build_system.cpp' || echo '$(srcdir)/'`src/project/build_system.cpp
+
+src/project/decompile32-build_system.obj: src/project/build_system.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile32-build_system.obj -MD -MP -MF src/project/$(DEPDIR)/decompile32-build_system.Tpo -c -o src/project/decompile32-build_system.obj `if test -f 'src/project/build_system.cpp'; then $(CYGPATH_W) 'src/project/build_system.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/build_system.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile32-build_system.Tpo src/project/$(DEPDIR)/decompile32-build_system.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/build_system.cpp' object='src/project/decompile32-build_system.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile32-build_system.obj `if test -f 'src/project/build_system.cpp'; then $(CYGPATH_W) 'src/project/build_system.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/build_system.cpp'; fi`
+
+src/project/decompile32-project.o: src/project/project.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile32-project.o -MD -MP -MF src/project/$(DEPDIR)/decompile32-project.Tpo -c -o src/project/decompile32-project.o `test -f 'src/project/project.cpp' || echo '$(srcdir)/'`src/project/project.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile32-project.Tpo src/project/$(DEPDIR)/decompile32-project.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/project.cpp' object='src/project/decompile32-project.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile32-project.o `test -f 'src/project/project.cpp' || echo '$(srcdir)/'`src/project/project.cpp
+
+src/project/decompile32-project.obj: src/project/project.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile32-project.obj -MD -MP -MF src/project/$(DEPDIR)/decompile32-project.Tpo -c -o src/project/decompile32-project.obj `if test -f 'src/project/project.cpp'; then $(CYGPATH_W) 'src/project/project.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/project.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile32-project.Tpo src/project/$(DEPDIR)/decompile32-project.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/project.cpp' object='src/project/decompile32-project.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile32-project.obj `if test -f 'src/project/project.cpp'; then $(CYGPATH_W) 'src/project/project.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/project.cpp'; fi`
+
+src/project/decompile32-source_file.o: src/project/source_file.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile32-source_file.o -MD -MP -MF src/project/$(DEPDIR)/decompile32-source_file.Tpo -c -o src/project/decompile32-source_file.o `test -f 'src/project/source_file.cpp' || echo '$(srcdir)/'`src/project/source_file.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile32-source_file.Tpo src/project/$(DEPDIR)/decompile32-source_file.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/source_file.cpp' object='src/project/decompile32-source_file.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile32-source_file.o `test -f 'src/project/source_file.cpp' || echo '$(srcdir)/'`src/project/source_file.cpp
+
+src/project/decompile32-source_file.obj: src/project/source_file.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile32-source_file.obj -MD -MP -MF src/project/$(DEPDIR)/decompile32-source_file.Tpo -c -o src/project/decompile32-source_file.obj `if test -f 'src/project/source_file.cpp'; then $(CYGPATH_W) 'src/project/source_file.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/source_file.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile32-source_file.Tpo src/project/$(DEPDIR)/decompile32-source_file.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/source_file.cpp' object='src/project/decompile32-source_file.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile32-source_file.obj `if test -f 'src/project/source_file.cpp'; then $(CYGPATH_W) 'src/project/source_file.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/source_file.cpp'; fi`
 
 decompile32-exceptions.o: exceptions.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile32-exceptions.o -MD -MP -MF $(DEPDIR)/decompile32-exceptions.Tpo -c -o decompile32-exceptions.o `test -f 'exceptions.cpp' || echo '$(srcdir)/'`exceptions.cpp
@@ -2525,6 +2716,62 @@ src/disassembly/decompile64-disass_ppc.obj: src/disassembly/disass_ppc.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/disassembly/decompile64-disass_ppc.obj `if test -f 'src/disassembly/disass_ppc.cpp'; then $(CYGPATH_W) 'src/disassembly/disass_ppc.cpp'; else $(CYGPATH_W) '$(srcdir)/src/disassembly/disass_ppc.cpp'; fi`
 
+src/project/decompile64-autotools.o: src/project/autotools.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile64-autotools.o -MD -MP -MF src/project/$(DEPDIR)/decompile64-autotools.Tpo -c -o src/project/decompile64-autotools.o `test -f 'src/project/autotools.cpp' || echo '$(srcdir)/'`src/project/autotools.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile64-autotools.Tpo src/project/$(DEPDIR)/decompile64-autotools.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/autotools.cpp' object='src/project/decompile64-autotools.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile64-autotools.o `test -f 'src/project/autotools.cpp' || echo '$(srcdir)/'`src/project/autotools.cpp
+
+src/project/decompile64-autotools.obj: src/project/autotools.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile64-autotools.obj -MD -MP -MF src/project/$(DEPDIR)/decompile64-autotools.Tpo -c -o src/project/decompile64-autotools.obj `if test -f 'src/project/autotools.cpp'; then $(CYGPATH_W) 'src/project/autotools.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/autotools.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile64-autotools.Tpo src/project/$(DEPDIR)/decompile64-autotools.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/autotools.cpp' object='src/project/decompile64-autotools.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile64-autotools.obj `if test -f 'src/project/autotools.cpp'; then $(CYGPATH_W) 'src/project/autotools.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/autotools.cpp'; fi`
+
+src/project/decompile64-build_system.o: src/project/build_system.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile64-build_system.o -MD -MP -MF src/project/$(DEPDIR)/decompile64-build_system.Tpo -c -o src/project/decompile64-build_system.o `test -f 'src/project/build_system.cpp' || echo '$(srcdir)/'`src/project/build_system.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile64-build_system.Tpo src/project/$(DEPDIR)/decompile64-build_system.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/build_system.cpp' object='src/project/decompile64-build_system.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile64-build_system.o `test -f 'src/project/build_system.cpp' || echo '$(srcdir)/'`src/project/build_system.cpp
+
+src/project/decompile64-build_system.obj: src/project/build_system.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile64-build_system.obj -MD -MP -MF src/project/$(DEPDIR)/decompile64-build_system.Tpo -c -o src/project/decompile64-build_system.obj `if test -f 'src/project/build_system.cpp'; then $(CYGPATH_W) 'src/project/build_system.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/build_system.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile64-build_system.Tpo src/project/$(DEPDIR)/decompile64-build_system.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/build_system.cpp' object='src/project/decompile64-build_system.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile64-build_system.obj `if test -f 'src/project/build_system.cpp'; then $(CYGPATH_W) 'src/project/build_system.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/build_system.cpp'; fi`
+
+src/project/decompile64-project.o: src/project/project.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile64-project.o -MD -MP -MF src/project/$(DEPDIR)/decompile64-project.Tpo -c -o src/project/decompile64-project.o `test -f 'src/project/project.cpp' || echo '$(srcdir)/'`src/project/project.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile64-project.Tpo src/project/$(DEPDIR)/decompile64-project.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/project.cpp' object='src/project/decompile64-project.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile64-project.o `test -f 'src/project/project.cpp' || echo '$(srcdir)/'`src/project/project.cpp
+
+src/project/decompile64-project.obj: src/project/project.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile64-project.obj -MD -MP -MF src/project/$(DEPDIR)/decompile64-project.Tpo -c -o src/project/decompile64-project.obj `if test -f 'src/project/project.cpp'; then $(CYGPATH_W) 'src/project/project.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/project.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile64-project.Tpo src/project/$(DEPDIR)/decompile64-project.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/project.cpp' object='src/project/decompile64-project.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile64-project.obj `if test -f 'src/project/project.cpp'; then $(CYGPATH_W) 'src/project/project.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/project.cpp'; fi`
+
+src/project/decompile64-source_file.o: src/project/source_file.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile64-source_file.o -MD -MP -MF src/project/$(DEPDIR)/decompile64-source_file.Tpo -c -o src/project/decompile64-source_file.o `test -f 'src/project/source_file.cpp' || echo '$(srcdir)/'`src/project/source_file.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile64-source_file.Tpo src/project/$(DEPDIR)/decompile64-source_file.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/source_file.cpp' object='src/project/decompile64-source_file.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile64-source_file.o `test -f 'src/project/source_file.cpp' || echo '$(srcdir)/'`src/project/source_file.cpp
+
+src/project/decompile64-source_file.obj: src/project/source_file.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/decompile64-source_file.obj -MD -MP -MF src/project/$(DEPDIR)/decompile64-source_file.Tpo -c -o src/project/decompile64-source_file.obj `if test -f 'src/project/source_file.cpp'; then $(CYGPATH_W) 'src/project/source_file.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/source_file.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/decompile64-source_file.Tpo src/project/$(DEPDIR)/decompile64-source_file.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/source_file.cpp' object='src/project/decompile64-source_file.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/decompile64-source_file.obj `if test -f 'src/project/source_file.cpp'; then $(CYGPATH_W) 'src/project/source_file.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/source_file.cpp'; fi`
+
 decompile64-exceptions.o: exceptions.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT decompile64-exceptions.o -MD -MP -MF $(DEPDIR)/decompile64-exceptions.Tpo -c -o decompile64-exceptions.o `test -f 'exceptions.cpp' || echo '$(srcdir)/'`exceptions.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/decompile64-exceptions.Tpo $(DEPDIR)/decompile64-exceptions.Po
@@ -2934,6 +3181,8 @@ distclean-generic:
 	-rm -f src/disassembly/$(am__dirstamp)
 	-rm -f src/executable/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/executable/$(am__dirstamp)
+	-rm -f src/project/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/project/$(am__dirstamp)
 	-rm -f var/$(DEPDIR)/$(am__dirstamp)
 	-rm -f var/$(am__dirstamp)
 
@@ -2947,7 +3196,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-local mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR) operators/$(DEPDIR) src/disassembly/$(DEPDIR) src/executable/$(DEPDIR) var/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR) operators/$(DEPDIR) src/disassembly/$(DEPDIR) src/executable/$(DEPDIR) src/project/$(DEPDIR) var/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -2995,7 +3244,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR) operators/$(DEPDIR) src/disassembly/$(DEPDIR) src/executable/$(DEPDIR) var/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR) operators/$(DEPDIR) src/disassembly/$(DEPDIR) src/executable/$(DEPDIR) src/project/$(DEPDIR) var/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

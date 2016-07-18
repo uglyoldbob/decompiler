@@ -11,6 +11,8 @@
 #include "exceptions.h"
 #include "executable/executable.h"
 #include "function.h"
+#include "project/autotools.h"
+#include "project/project.h"
 
 void reverse(uint64_t *in, int rbo)
 {
@@ -59,26 +61,38 @@ int main(int argc, char *argv[])
 #else
 #error "Unknown Target"
 #endif
+	project *sysproj;
+	build_system *bsys;
+	bsys = new autotools();
+	sysproj = new project(bsys);	
 	executable program;
 	int retval = 0;
 	try
 	{
 		if (argc < 3)
 		{
+			sysproj->set_output_dir("./default");
 			program.output("./default");
 		}
 		else if (argc >= 3)
 		{
+			sysproj->set_output_dir(argv[2]);
 			program.output(argv[2]);
 		}
 		if (argc < 2)
 		{
+			program.set_name(argv[0]);
 			program.load(argv[0]);
+			sysproj->add_program(&program);
 		}
 		else if (argc >= 2)
 		{
+			program.set_name(argv[1]);
 			program.load(argv[1]);
+			sysproj->add_program(&program);
 		}
+		sysproj->write_build_system();
+		sysproj->write_sources();
 	}
 	catch (address_not_present &e)
 	{
