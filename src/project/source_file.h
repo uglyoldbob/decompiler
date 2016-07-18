@@ -10,6 +10,8 @@ class source_file
 		source_file(std::string n);
 		~source_file();
 		void add_function(function* f);
+		bool find_function(address a);
+		std::vector<address> get_calls();	//get a list of addresses called as functions
 		std::string get_name();
 		void write_sources(std::string n);
 	private:

@@ -47,7 +47,7 @@ class executable
 		exe_loader *exe_object;
 		std::string exe_name;
 		
-		int check_func_list(address addr);
+		bool check_func_list(address addr);
 		std::vector<source_file*> sources;
 };
 

@@ -13,6 +13,7 @@ class related_code
 		address start_address;
 		void add_statement(instr *m);	//Adds a statement to this group of related code
 		void gather_instructions(disassembler &disas);
+		std::vector<address> get_calls();	//get a list of addresses called as functions
 		void fprint(std::ostream &dest, int depth);
 		void print_graph(std::ostream &dest);
 		void simplify();

@@ -164,6 +164,7 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 	else if (op == "bctr")
 	{
 		line = "goto (*ctr)";
+		get->destaddra = 0;
 		get->trace_jump = new variable("ctr", -1);
 	}
 	else if (op == "blr")

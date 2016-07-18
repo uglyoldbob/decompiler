@@ -67,6 +67,12 @@ code_element *code_element::other_branch(code_element *m)
 	return ret;
 }
 
+std::vector<address> code_element::get_calls()
+{
+	std::vector<address> ret;
+	return ret;
+}
+
 void code_element::replace_references(code_element *old, code_element *nw)
 {
 	if (a == old)

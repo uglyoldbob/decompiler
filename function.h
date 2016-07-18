@@ -28,7 +28,6 @@ class function
 		type ret_type;
 		std::vector<variable> arguments;	//the arguments of the function
 		related_code code;	//the code for the function 
-		std::vector<instr*> da_lines;	//all the lines of code for the function (delete these when done)
 
 		//constructor helpers
 		void gather_instructions(disassembler &disas);

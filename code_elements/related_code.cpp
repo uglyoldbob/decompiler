@@ -71,7 +71,8 @@ void related_code::gather_instructions(disassembler &disas)
 			std::vector<address> p = gath[belongs_to]->get_nexts();
 			for (unsigned int i = 0; i < p.size(); i++)
 			{
-				chunks.push_back(p[i]);
+				if (p[i] != 0)
+					chunks.push_back(p[i]);
 			}
 		}
 		chunks.erase(chunks.begin());
@@ -81,6 +82,20 @@ void related_code::gather_instructions(disassembler &disas)
 		blocks.push_back(gath[i]);
 	}
 	finalize_blocks();
+}
+
+std::vector<address> related_code::get_calls()
+{
+	std::vector<address> ret;
+	for (unsigned int i = 0; i < blocks.size(); i++)
+	{
+		std::vector<address> t = blocks[i]->get_calls();
+		for (unsigned int j = 0; j < t.size(); j++)
+		{
+			ret.push_back(t[j]);
+		}
+	}
+	return ret;
 }
 
 code_element *related_code::get_block(address a)

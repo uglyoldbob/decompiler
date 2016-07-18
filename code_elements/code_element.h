@@ -23,6 +23,8 @@ class code_element
 		bool jumps_to(code_element *m);
 		bool branches_to(code_element *m);
 		code_element *other_branch(code_element *m);
+		
+		virtual std::vector<address> get_calls();	//get a list of function calls
 
 		void replace_references(code_element *old, code_element *nw);
 		virtual void fprint(std::ostream &dest, int depth);

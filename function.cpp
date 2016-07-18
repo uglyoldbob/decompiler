@@ -54,6 +54,19 @@ std::ostream& operator << (std::ostream& output, function &me)
 	return output;
 }
 
+std::vector<address> function::get_calls()
+{
+	std::vector<address> ret;
+	
+	std::vector<address> t = code.get_calls();
+	for (unsigned int j = 0; j < t.size(); j++)
+	{
+		ret.push_back(t[j]);
+	}
+	
+	return ret;
+}
+
 void function::fprint(std::ostream &output)
 {	//print the code to the output for examination
 	unsigned int i;

@@ -15,6 +15,7 @@ class ce_basic : public code_element
 		void add_line(instr *addme);
 
 		virtual std::vector<address> get_nexts();
+		virtual std::vector<address> get_calls();	//get a list of function calls
 		
 		virtual void fprint(std::ostream &dest, int depth);
 	private:
