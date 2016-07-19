@@ -13,6 +13,7 @@ class code_if_else : public code_element
 		virtual ~code_if_else();
 		void fprint(std::ostream &dest, int depth);
 		static code_element *simplify(std::vector<code_element *> grp, code_element *end);
+		virtual void get_calls(std::vector<address> &c);	//get a list of function calls
 		void add_lcb(code_element *add);
 		void add_ecb(code_element *add);
 		void set_else(code_element *h);

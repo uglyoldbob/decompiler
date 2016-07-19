@@ -32,18 +32,12 @@ bool source_file::find_function(address a)
 	return false;
 }
 
-std::vector<address> source_file::get_calls()
+void source_file::get_calls(std::vector<address> &c)
 {
-	std::vector<address> ret;
 	for (unsigned int i = 0; i < funcs.size(); i++)
 	{
-		std::vector<address> t = funcs[i]->get_calls();
-		for (unsigned int j = 0; j < t.size(); j++)
-		{
-			ret.push_back(t[j]);
-		}
+		funcs[i]->get_calls(c);
 	}
-	return ret;
 }
 
 void source_file::write_sources(std::string n)

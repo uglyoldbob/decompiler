@@ -14,7 +14,7 @@ class function
 	public:
 		function(address addr, const char *t, const char *n, disassembler &disas);
 		~function();
-		std::vector<address> get_calls();	//get a list of addresses called as functions
+		void get_calls(std::vector<address> &c);	//get a list of addresses called as functions
 		void simplify();
 		void set_name(const char *to);
 		void set_type(type t);

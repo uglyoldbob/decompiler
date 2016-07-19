@@ -26,6 +26,7 @@ class code_multi_if : public code_element
 		void finish_or_no_else();
 		void finish_with_else();
 		void fprint(std::ostream &dest, int depth);
+		virtual void get_calls(std::vector<address> &c);	//get a list of function calls
 #ifdef PROVE_SIMPLIFY
 		virtual void print_graph(std::ostream &dest);
 #endif

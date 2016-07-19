@@ -43,7 +43,6 @@ code_element *code_do_while_loop::simplify(std::vector<code_element *> grp, code
 					ret->theloop.push_back(grp[0]);
 					ret->theloop.push_back(grp[1]);
 					ret->a = grp[1]->other_branch(grp[0]);
-					std::cout << "2 block do while loop detected" << std::endl; 
 				}
 			}
 		}
@@ -65,6 +64,15 @@ void code_do_while_loop::fprint(std::ostream &dest, int depth)
 	}
 	dest << tabs(depth) << "} while (?);\n";
 }
+
+void code_do_while_loop::get_calls(std::vector<address> &c)
+{
+	for (unsigned int i = 0; i < theloop.size(); i++)
+	{
+		theloop[i]->get_calls(c);
+	}
+}
+
 #ifdef PROVE_SIMPLIFY
 void code_do_while_loop::print_graph(std::ostream &dest)
 {

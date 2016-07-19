@@ -12,6 +12,7 @@ class code_do_while_loop : public code_element
 		static code_element *simplify(std::vector<code_element *> grp, code_element *end);
 		~code_do_while_loop();
 		void fprint(std::ostream &dest, int depth);
+		virtual void get_calls(std::vector<address> &c);	//get a list of function calls
 #ifdef PROVE_SIMPLIFY
 		virtual void print_graph(std::ostream &dest);
 #endif

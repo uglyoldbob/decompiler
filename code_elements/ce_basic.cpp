@@ -98,15 +98,13 @@ void ce_basic::add_line(instr *addme)
 	lines.push_back(*addme);
 }
 
-std::vector<address> ce_basic::get_calls()
+void ce_basic::get_calls(std::vector<address> &c)
 {
-	std::vector<address> ret;
 	for (unsigned int i = 0; i < lines.size(); i++)
 	{
 		if (lines[i].call != 0)
-			ret.push_back(lines[i].call);
+			c.push_back(lines[i].call);
 	}
-	return ret;
 }
 
 void ce_basic::fprint(std::ostream &dest, int depth)

@@ -14,6 +14,7 @@ class code_run : public code_element
 		void add_element(code_element *add);
 		void done();
 		void fprint(std::ostream &dest, int depth);
+		virtual void get_calls(std::vector<address> &c);	//get a list of function calls
 #ifdef PROVE_SIMPLIFY
 		virtual void print_graph(std::ostream &dest);
 #endif

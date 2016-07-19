@@ -1,5 +1,6 @@
 #include "code_run.h"
 
+#include "related_code.h"
 #include "helpers.h"
 
 code_run::code_run()
@@ -29,6 +30,11 @@ code_element *code_run::simplify(std::vector<code_element *> grp, code_element *
 	if (all_nonbranch)
 	{
 		ret = new code_run();
+		std::vector<bool>grp_elements_used;
+		for (unsigned int i = 0; i < grp.size(); i++)
+		{
+			grp_elements_used.push_back(false);
+		}
 		code_element *temp = grp[0];
 		do
 		{
@@ -37,8 +43,32 @@ code_element *code_run::simplify(std::vector<code_element *> grp, code_element *
 		} while (temp != end);
 		ret->a = end;
 		ret->b = 0;
+		for (unsigned int i = 0; i < ret->els.size(); i++)
+		{
+			unsigned int temp = get_index(grp, ret->els[i]);
+			if (temp < grp.size())
+			{
+				grp_elements_used[temp] = true;
+			}
+		}
+		for (unsigned int i = 0; i < grp_elements_used.size(); i++)
+		{
+			if (!grp_elements_used[i])
+			{
+				delete ret;
+				ret = 0;
+			}
+		}
 	}
 	return ret;
+}
+
+void code_run::get_calls(std::vector<address> &c)
+{
+	for (unsigned int i = 0; i < els.size(); i++)
+	{
+		els[i]->get_calls(c);
+	}
 }
 
 void code_run::add_element(code_element *add)

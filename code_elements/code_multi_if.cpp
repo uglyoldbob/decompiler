@@ -35,6 +35,20 @@ void code_multi_if::common(code_element *c)
 	}
 }
 
+void code_multi_if::get_calls(std::vector<address> &c)
+{
+	for (unsigned int i = 0; i < ifs.size(); i++)
+	{
+		ifs[i]->get_calls(c);
+	}
+	if (common_block != 0)
+		common_block->get_calls(c);
+	if (helse != 0)
+		helse->get_calls(c);
+	if (thefinal != 0)
+		thefinal->get_calls(c);
+}
+
 void code_multi_if::fprint(std::ostream &dest, int depth)
 {
 	unsigned int i;

@@ -32,6 +32,22 @@ code_element *code_if_else::simplify(std::vector<code_element *> grp, code_eleme
 	return ret;
 }
 
+void code_if_else::get_calls(std::vector<address> &c)
+{
+	for (unsigned int i = 0; i < lcb.size(); i++)
+	{
+		lcb[i]->get_calls(c);
+	}
+	for (unsigned int i = 0; i < ecb.size(); i++)
+	{
+		ecb[i]->get_calls(c);
+	}
+	if (helse != 0)
+		helse->get_calls(c);
+	if (next != 0)
+		next->get_calls(c);
+}
+
 void code_if_else::add_lcb(code_element *add)
 {
 	lcb.push_back(add);

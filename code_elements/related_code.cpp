@@ -84,18 +84,12 @@ void related_code::gather_instructions(disassembler &disas)
 	finalize_blocks();
 }
 
-std::vector<address> related_code::get_calls()
+void related_code::get_calls(std::vector<address> &c)
 {
-	std::vector<address> ret;
 	for (unsigned int i = 0; i < blocks.size(); i++)
 	{
-		std::vector<address> t = blocks[i]->get_calls();
-		for (unsigned int j = 0; j < t.size(); j++)
-		{
-			ret.push_back(t[j]);
-		}
+		blocks[i]->get_calls(c);
 	}
-	return ret;
 }
 
 code_element *related_code::get_block(address a)
@@ -183,6 +177,30 @@ bool element_present(std::vector<code_element*> gr, address a)
 	return false;
 }
 
+bool reference_present(std::vector<code_element*> gr, address a)
+{
+	for (unsigned int i = 0; i < gr.size(); i++)
+	{
+		if ( ((gr[i]->a != 0) && (gr[i]->a->gets() == a)) ||
+			 ((gr[i]->b != 0) && (gr[i]->b->gets() == a)) )
+			return true;
+	}
+	return false;
+}
+
+unsigned int get_index(std::vector<code_element*> gr, code_element *b)
+{
+	unsigned int ret = gr.size();
+	for (unsigned int i = 0; i < gr.size(); i++)
+	{
+		if (gr[i] == b)
+		{
+			ret = i;
+		}
+	}
+	return ret;
+}
+
 bool no_dead_ends(std::vector<code_element*> gr)
 {
 	for (unsigned int i = 0; i < gr.size(); i++)
@@ -196,8 +214,6 @@ bool no_dead_ends(std::vector<code_element*> gr)
 
 void related_code::replace_group(std::vector<code_element*>a, code_element *b)
 {
-	std::cout << "Replacing 0x" << std::hex << a[0]->gets() 
-			  << " with 0x" << b->gets() << std::dec << std::endl;
 	for (unsigned int i = 0; i < blocks.size(); i++)
 	{
 		if (element_present(a, blocks[i]->gets()))
@@ -222,6 +238,13 @@ std::vector<code_element *> related_code::external_inputs(std::vector<code_eleme
 		if (!element_present(gr, blocks[i]->gets()))
 		{
 			out_mods.push_back(blocks[i]);
+		}
+	}
+	for (unsigned int i = 0; i < gr.size(); i++)
+	{
+		if (!reference_present(blocks, gr[i]->gets()))
+		{
+			refed_mods.push_back(gr[i]);
 		}
 	}
 	for (unsigned int i = 0; i < out_mods.size(); i++)
@@ -348,7 +371,6 @@ void related_code::apply_combination(std::vector<unsigned int> cmb, std::vector<
 int related_code::process_blocks(int n)
 {
 	int result = 0;
-	std::cout << "Start processing " << n << ", " << blocks.size() << std::endl;
 	std::vector<unsigned int> cur_combo = make_combination(n);
 	std::vector<code_element *> group = make_group(n);
 	do
@@ -358,6 +380,7 @@ int related_code::process_blocks(int n)
 		unsigned int ext_in = ex_in.size();
 		std::vector<code_element *> ex_out = outside_references(group); 
 		unsigned int ext_out = ex_out.size();
+
 		if ( (ext_in == 1) && (ext_out == 1) && no_dead_ends(group))
 		{
 			if (group[0] != ex_in[0])
@@ -373,15 +396,9 @@ int related_code::process_blocks(int n)
 					}
 				}	
 			}
-			std::cout << "\tCur combo: " << std::hex;
-			for (unsigned int i = 0; i < cur_combo.size(); i++)
-			{
-				std::cout << "0x" << group[i]->gets() << ", ";
-			}
 			code_element *temp = code_if_else::simplify(group, ex_out[0]);
 			if (temp != 0)
 			{
-				std::cout << "Found an if/else statement" << std::endl;
 				result++;
 				replace_group(group, temp);
 			}
@@ -389,7 +406,6 @@ int related_code::process_blocks(int n)
 			temp = code_run::simplify(group, ex_out[0]);
 			if (temp != 0)
 			{
-				std::cout << "Found a run" << std::endl;
 				result++;
 				replace_group(group, temp);
 			}
@@ -397,15 +413,11 @@ int related_code::process_blocks(int n)
 			temp = code_do_while_loop::simplify(group, ex_out[0]);
 			if (temp != 0)
 			{
-				std::cout << "Found a do while loop" << std::endl;
 				result++;
 				replace_group(group, temp);
 			}
-			std::cout << std::dec << std::endl;
 		}
-		
 	} while (next_combo(cur_combo));
-	std::cout << "End processing" << std::endl;
 	return result;
 }
 
@@ -431,7 +443,6 @@ bool related_code::simplified()
 
 void related_code::simplify()
 {
-	std::cout << "Simplifying" << std::endl;
 	int blocks_done;
 	int section_done;
 	do
@@ -442,16 +453,17 @@ void related_code::simplify()
 		{
 			if (code_do_while_loop::check(blocks[i]))
 			{
-				std::cout << "Found a do while loop 0x" << std::hex << blocks[i]->gets() << std::dec << std::endl;
 				code_do_while_loop *new_element = new code_do_while_loop(blocks[i]);
 				replace_element(blocks[i], new_element);
 				section_done++;
 			}
 		}
 		blocks_done += section_done;
-		
-		section_done = process_blocks(2);
-		blocks_done += section_done;
+		if (blocks.size() >= 2)
+		{
+			section_done = process_blocks(2);
+			blocks_done += section_done;
+		}
 	} while (blocks_done > 0);
 }
 

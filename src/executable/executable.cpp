@@ -181,14 +181,22 @@ int executable::load(const char *bin_name)
 	nsf->add_function(start);
 	sources.push_back(nsf);
 	start->output_graph_data(folder);
-	std::vector<address> temp = sources.back()->get_calls();
-	std::cout << std::hex;
+	std::vector<address> temp;
+	sources.back()->get_calls(temp);
 	for (unsigned int i = 0; i < temp.size(); i++)
 	{
 		if (!check_func_list(temp[i]))
 		{
-			std::cout << "\tNew function at 0x" << temp[i] << std::endl;
-			function_addresses.push_back(temp[i]);
+			bool add_func = true;
+			for (unsigned int ind = 0; ind < function_addresses.size(); ind++)
+			{
+				if (function_addresses[ind] == temp[ind])
+					add_func = false;
+			}
+			if (add_func)
+			{
+				function_addresses.push_back(temp[i]);
+			}
 		}
 	}
 	while (function_addresses.size() > 0)
@@ -202,14 +210,22 @@ int executable::load(const char *bin_name)
 		tfunc->output_graph_data(folder);
 //		tfunc->output_code(folder);
 		function_addresses.erase(function_addresses.begin());
-		std::vector<address> temp = sources.back()->get_calls();
-		std::cout << std::hex;
+		std::vector<address> temp;
+		sources.back()->get_calls(temp);
 		for (unsigned int i = 0; i < temp.size(); i++)
 		{
 			if (!check_func_list(temp[i]))
 			{
-				std::cout << "\tNew function at 0x" << temp[i] << std::endl;
-				function_addresses.push_back(temp[i]);
+				bool add_func = true;
+				for (unsigned int ind = 0; ind < function_addresses.size(); ind++)
+				{
+					if (function_addresses[ind] == temp[ind])
+						add_func = false;
+				}
+				if (add_func)
+				{
+					function_addresses.push_back(temp[i]);
+				}
 			}
 		}
 	}

@@ -6,6 +6,10 @@
 #include "disassembly/disassembler.h"
 #include "code_element.h"
 
+std::vector<unsigned int> make_combination(int num);
+std::vector<code_element *> make_group(int num);
+unsigned int get_index(std::vector<code_element*> gr, code_element *b);
+
 class related_code
 {
 	public:
@@ -13,7 +17,7 @@ class related_code
 		address start_address;
 		void add_statement(instr *m);	//Adds a statement to this group of related code
 		void gather_instructions(disassembler &disas);
-		std::vector<address> get_calls();	//get a list of addresses called as functions
+		void get_calls(std::vector<address> &c);	//get a list of addresses called as functions
 		void fprint(std::ostream &dest, int depth);
 		void print_graph(std::ostream &dest);
 		void simplify();
