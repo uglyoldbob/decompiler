@@ -7,7 +7,7 @@
 #include <vector>
 
 #define PROVE_SIMPLIFY 1
-#undef PROVE_SIMPLIFY
+//#undef PROVE_SIMPLIFY
 
 class code_element
 {
@@ -24,10 +24,10 @@ class code_element
 		bool branches_to(code_element *m);
 		code_element *other_branch(code_element *m);
 		
-		virtual void get_calls(std::vector<address> &c);	//get a list of function calls
+		virtual void get_calls(std::vector<address> &c) = 0;	//get a list of function calls
 
 		void replace_references(code_element *old, code_element *nw);
-		virtual void fprint(std::ostream &dest, int depth);
+		virtual void fprint(std::ostream &dest, int depth) = 0;
 		virtual void print_graph(std::ostream &dest);
 		
 		code_element *a;	//next element

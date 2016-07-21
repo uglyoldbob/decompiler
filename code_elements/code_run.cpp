@@ -30,11 +30,6 @@ code_element *code_run::simplify(std::vector<code_element *> grp, code_element *
 	if (all_nonbranch)
 	{
 		ret = new code_run();
-		std::vector<bool>grp_elements_used;
-		for (unsigned int i = 0; i < grp.size(); i++)
-		{
-			grp_elements_used.push_back(false);
-		}
 		code_element *temp = grp[0];
 		do
 		{
@@ -43,6 +38,11 @@ code_element *code_run::simplify(std::vector<code_element *> grp, code_element *
 		} while (temp != end);
 		ret->a = end;
 		ret->b = 0;
+		std::vector<bool>grp_elements_used;
+		for (unsigned int i = 0; i < grp.size(); i++)
+		{
+			grp_elements_used.push_back(false);
+		}
 		for (unsigned int i = 0; i < ret->els.size(); i++)
 		{
 			unsigned int temp = get_index(grp, ret->els[i]);
@@ -98,7 +98,7 @@ void code_run::fprint(std::ostream &dest, int depth)
 #ifdef PROVE_SIMPLIFY
 void code_run::print_graph(std::ostream &dest)
 {
-	dest << "#run " << this << "\n";
+	dest << "#run " << this->gets() << "\n";
 	for (int i = 0; i < els.size(); i++)
 		els[i]->print_graph(dest);
 	dest << "#end run\n";

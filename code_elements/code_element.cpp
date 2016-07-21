@@ -67,10 +67,6 @@ code_element *code_element::other_branch(code_element *m)
 	return ret;
 }
 
-void code_element::get_calls(std::vector<address> &c)
-{
-}
-
 void code_element::replace_references(code_element *old, code_element *nw)
 {
 	if (a == old)
@@ -89,10 +85,6 @@ void code_element::print_graph(std::ostream &dest)
 		dest << "\tX" << s// << "_" << pieces[i] 
 		 << " -> X" << b->s// << "_" << pieces[i]->gb() 
 		 << " [ label=b ];\n";
-}
-
-void code_element::fprint(std::ostream &dest, int depth)
-{
 }
 
 address code_element::gets()

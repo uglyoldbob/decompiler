@@ -190,7 +190,7 @@ int executable::load(const char *bin_name)
 			bool add_func = true;
 			for (unsigned int ind = 0; ind < function_addresses.size(); ind++)
 			{
-				if (function_addresses[ind] == temp[ind])
+				if (function_addresses[ind] == temp[i])
 					add_func = false;
 			}
 			if (add_func)

@@ -40,6 +40,7 @@ code_element *code_do_while_loop::simplify(std::vector<code_element *> grp, code
 				if (grp[1]->branches_to(grp[0]) && grp[1]->branches_to(end))
 				{
 					ret = new code_do_while_loop();
+					ret->s = grp[0]->gets();
 					ret->theloop.push_back(grp[0]);
 					ret->theloop.push_back(grp[1]);
 					ret->a = grp[1]->other_branch(grp[0]);

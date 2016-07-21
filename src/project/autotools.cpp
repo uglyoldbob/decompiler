@@ -50,10 +50,10 @@ void autotools::automake_output(std::string fname)
 			s = progs[i]->get_sources();
 			if (s.size() > 0)
 			{
-				out << progs[i]->get_name() << "_SOURCES = ";
+				out << progs[i]->get_name() << "_SOURCES =";
 				for (unsigned int j = 0; j < s.size(); j++)
 				{
-					out << "\\\n " << s[j]->get_name();
+					out << " \\\n " << s[j]->get_name();
 				}
 				out << "\n" << std::flush;
 			}

@@ -214,6 +214,8 @@ bool no_dead_ends(std::vector<code_element*> gr)
 
 void related_code::replace_group(std::vector<code_element*>a, code_element *b)
 {
+	replace_element(a[0], b);
+	a.erase(a.begin());
 	for (unsigned int i = 0; i < blocks.size(); i++)
 	{
 		if (element_present(a, blocks[i]->gets()))
@@ -222,8 +224,6 @@ void related_code::replace_group(std::vector<code_element*>a, code_element *b)
 			i--;
 		}		
 	}
-	replace_element(a[0], b);
-	blocks.push_back(b);
 }
 
 //processes a group of code_elements, returning the number of elements not in the group that point into the group 
@@ -459,11 +459,15 @@ void related_code::simplify()
 			}
 		}
 		blocks_done += section_done;
-		if (blocks.size() >= 2)
+		unsigned int num_blocks = 2;
+		do
 		{
-			section_done = process_blocks(2);
-			blocks_done += section_done;
-		}
+			if ((num_blocks < blocks.size()) && (num_blocks < 10))
+			{
+				section_done = process_blocks(num_blocks++);
+				blocks_done += section_done;
+			}
+		} while ((section_done == 0) && (num_blocks < blocks.size()));
 	} while (blocks_done > 0);
 }
 
