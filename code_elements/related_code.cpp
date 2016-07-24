@@ -10,6 +10,11 @@ related_code::related_code()
 {
 }
 
+void related_code::add_block(code_element *c)
+{
+	blocks.push_back(c);
+}
+
 void related_code::gather_instructions(disassembler &disas)
 {
 	std::vector<ce_basic *> gath;
@@ -189,6 +194,20 @@ bool reference_present(std::vector<code_element*> gr, address a)
 	return false;
 }
 
+bool non_self_reference(std::vector<code_element*> gr, address a)
+{
+	for (unsigned int i = 0; i < gr.size(); i++)
+	{
+		if ( ( ((gr[i]->a != 0) && (gr[i]->a->gets() == a)) ||
+			   ((gr[i]->b != 0) && (gr[i]->b->gets() == a)) )
+			&&
+			(gr[i]->gets() != a)
+			)
+			return true;
+	}
+	return false;
+}
+
 unsigned int get_index(std::vector<code_element*> gr, code_element *b)
 {
 	unsigned int ret = gr.size();
@@ -355,8 +374,6 @@ int related_code::process_blocks(int n)
 	int index = 0;
 	while ((result == 0) && (index < blocks.size()))
 	{
-		std::cout << "Process (" << index << "/" << blocks.size() 
-				  << " " << n << " blocks" << std::endl;
 		combo cur_combo(blocks[index++], n);
 		while (cur_combo.valid())
 		{
@@ -368,7 +385,7 @@ int related_code::process_blocks(int n)
 			std::vector<code_element *> ex_out = outside_references(group); 
 			unsigned int ext_out = ex_out.size();
 	
-			if ( (ext_in == 1) && (ext_out == 1) && no_dead_ends(group))
+			if ( (ext_in == 1) && (ext_out == 1) )
 			{
 				if (group[0] != ex_in[0])
 				{
@@ -424,6 +441,18 @@ bool related_code::simplified()
 	if (all_nonbranch)
 	{
 		ret = true;
+	}
+	int number_deads = 0;
+	for (unsigned int i = 0; i < blocks.size(); i++)
+	{
+		if ( (blocks[i]->a == 0) && (blocks[i]->b == 0))
+		{
+			number_deads++;
+		}
+	}
+	if (number_deads > 1)
+	{
+		ret = false;
 	}
 	
 	return ret;

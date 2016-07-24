@@ -11,18 +11,20 @@ std::vector<code_element *> make_group(int num);
 unsigned int get_index(std::vector<code_element*> gr, code_element *b);
 bool element_present(std::vector<code_element*> gr, address a);
 bool reference_present(std::vector<code_element*> gr, address a);
+bool non_self_reference(std::vector<code_element*> gr, address a);
 
 class related_code
 {
 	public:
 		related_code();
 		address start_address;
-		void add_statement(instr *m);	//Adds a statement to this group of related code
+		void add_block(code_element *c);
 		void gather_instructions(disassembler &disas);
 		void get_calls(std::vector<address> &c);	//get a list of addresses called as functions
 		void fprint(std::ostream &dest, int depth);
 		void print_graph(std::ostream &dest);
 		void simplify();
+		bool simplified();
 	private:
 		std::vector<code_element *> blocks;	//The basic elements of code
 		void finalize_blocks();
@@ -34,7 +36,6 @@ class related_code
 		void apply_combination(std::vector<unsigned int> cmb, std::vector<code_element *> &gr);
 		bool next_combo(std::vector<unsigned int> &cmb);
 		int process_blocks(int n);
-		bool simplified();
 };
 
 #endif

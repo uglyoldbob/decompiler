@@ -79,14 +79,15 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = decompile16$(EXEEXT) decompile32$(EXEEXT) \
-	decompile64$(EXEEXT) test$(EXEEXT)
+	decompile64$(EXEEXT) test$(EXEEXT) cfgtest$(EXEEXT)
+TESTS = cfgtest$(EXEEXT)
 subdir = .
 DIST_COMMON = INSTALL NEWS README AUTHORS ChangeLog \
 	$(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
 	$(srcdir)/config.h.in $(srcdir)/Doxyfile.in depcomp \
-	$(dist_man_MANS) COPYING compile config.guess config.sub \
-	install-sh missing
+	$(dist_man_MANS) test-driver COPYING compile config.guess \
+	config.sub install-sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libs.m4 \
 	$(top_srcdir)/configure.ac
@@ -101,6 +102,22 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man3dir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
+am_cfgtest_OBJECTS = code_elements/cfgtest-code_element.$(OBJEXT) \
+	code_elements/cfgtest-ce_basic.$(OBJEXT) \
+	code_elements/cfgtest-ce_dummy.$(OBJEXT) \
+	code_elements/cfgtest-code_if_else.$(OBJEXT) \
+	code_elements/cfgtest-code_multi_if.$(OBJEXT) \
+	code_elements/cfgtest-code_run.$(OBJEXT) \
+	code_elements/cfgtest-code_do_while_loop.$(OBJEXT) \
+	code_elements/cfgtest-code_while_loop.$(OBJEXT) \
+	code_elements/cfgtest-related_code.$(OBJEXT) \
+	cfgtest-helpers.$(OBJEXT) cfgtest-variable.$(OBJEXT) \
+	var/cfgtest-type.$(OBJEXT) src/cfgtest-cfgtest.$(OBJEXT) \
+	src/disassembly/cfgtest-disassembler.$(OBJEXT) \
+	src/var/cfgtest-combo.$(OBJEXT) \
+	src/var/cfgtest-related_code_maker.$(OBJEXT)
+cfgtest_OBJECTS = $(am_cfgtest_OBJECTS)
+cfgtest_LDADD = $(LDADD)
 am_decompile16_OBJECTS = var/decompile16-type.$(OBJEXT) \
 	decompile16-variable.$(OBJEXT) \
 	operators/decompile16-oper1.$(OBJEXT) \
@@ -272,10 +289,10 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(decompile16_SOURCES) $(decompile32_SOURCES) \
-	$(decompile64_SOURCES) $(test_SOURCES)
-DIST_SOURCES = $(decompile16_SOURCES) $(decompile32_SOURCES) \
-	$(decompile64_SOURCES) $(test_SOURCES)
+SOURCES = $(cfgtest_SOURCES) $(decompile16_SOURCES) \
+	$(decompile32_SOURCES) $(decompile64_SOURCES) $(test_SOURCES)
+DIST_SOURCES = $(cfgtest_SOURCES) $(decompile16_SOURCES) \
+	$(decompile32_SOURCES) $(decompile64_SOURCES) $(test_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -326,7 +343,7 @@ am__recursive_targets = \
   $(RECURSIVE_CLEAN_TARGETS) \
   $(am__extra_recursive_targets)
 AM_RECURSIVE_TARGETS = $(am__recursive_targets:-recursive=) TAGS CTAGS \
-	cscope distdir dist dist-all distcheck
+	cscope check recheck distdir dist dist-all distcheck
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) \
 	$(LISP)config.h.in
 # Read a list of newline-separated strings from the standard input,
@@ -348,6 +365,182 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
+am__tty_colors_dummy = \
+  mgn= red= grn= lgn= blu= brg= std=; \
+  am__color_tests=no
+am__tty_colors = { \
+  $(am__tty_colors_dummy); \
+  if test "X$(AM_COLOR_TESTS)" = Xno; then \
+    am__color_tests=no; \
+  elif test "X$(AM_COLOR_TESTS)" = Xalways; then \
+    am__color_tests=yes; \
+  elif test "X$$TERM" != Xdumb && { test -t 1; } 2>/dev/null; then \
+    am__color_tests=yes; \
+  fi; \
+  if test $$am__color_tests = yes; then \
+    red='[0;31m'; \
+    grn='[0;32m'; \
+    lgn='[1;32m'; \
+    blu='[1;34m'; \
+    mgn='[0;35m'; \
+    brg='[1m'; \
+    std='[m'; \
+  fi; \
+}
+am__recheck_rx = ^[ 	]*:recheck:[ 	]*
+am__global_test_result_rx = ^[ 	]*:global-test-result:[ 	]*
+am__copy_in_global_log_rx = ^[ 	]*:copy-in-global-log:[ 	]*
+# A command that, given a newline-separated list of test names on the
+# standard input, print the name of the tests that are to be re-run
+# upon "make recheck".
+am__list_recheck_tests = $(AWK) '{ \
+  recheck = 1; \
+  while ((rc = (getline line < ($$0 ".trs"))) != 0) \
+    { \
+      if (rc < 0) \
+        { \
+          if ((getline line2 < ($$0 ".log")) < 0) \
+	    recheck = 0; \
+          break; \
+        } \
+      else if (line ~ /$(am__recheck_rx)[nN][Oo]/) \
+        { \
+          recheck = 0; \
+          break; \
+        } \
+      else if (line ~ /$(am__recheck_rx)[yY][eE][sS]/) \
+        { \
+          break; \
+        } \
+    }; \
+  if (recheck) \
+    print $$0; \
+  close ($$0 ".trs"); \
+  close ($$0 ".log"); \
+}'
+# A command that, given a newline-separated list of test names on the
+# standard input, create the global log from their .trs and .log files.
+am__create_global_log = $(AWK) ' \
+function fatal(msg) \
+{ \
+  print "fatal: making $@: " msg | "cat >&2"; \
+  exit 1; \
+} \
+function rst_section(header) \
+{ \
+  print header; \
+  len = length(header); \
+  for (i = 1; i <= len; i = i + 1) \
+    printf "="; \
+  printf "\n\n"; \
+} \
+{ \
+  copy_in_global_log = 1; \
+  global_test_result = "RUN"; \
+  while ((rc = (getline line < ($$0 ".trs"))) != 0) \
+    { \
+      if (rc < 0) \
+         fatal("failed to read from " $$0 ".trs"); \
+      if (line ~ /$(am__global_test_result_rx)/) \
+        { \
+          sub("$(am__global_test_result_rx)", "", line); \
+          sub("[ 	]*$$", "", line); \
+          global_test_result = line; \
+        } \
+      else if (line ~ /$(am__copy_in_global_log_rx)[nN][oO]/) \
+        copy_in_global_log = 0; \
+    }; \
+  if (copy_in_global_log) \
+    { \
+      rst_section(global_test_result ": " $$0); \
+      while ((rc = (getline line < ($$0 ".log"))) != 0) \
+      { \
+        if (rc < 0) \
+          fatal("failed to read from " $$0 ".log"); \
+        print line; \
+      }; \
+      printf "\n"; \
+    }; \
+  close ($$0 ".trs"); \
+  close ($$0 ".log"); \
+}'
+# Restructured Text title.
+am__rst_title = { sed 's/.*/   &   /;h;s/./=/g;p;x;s/ *$$//;p;g' && echo; }
+# Solaris 10 'make', and several other traditional 'make' implementations,
+# pass "-e" to $(SHELL), and POSIX 2008 even requires this.  Work around it
+# by disabling -e (using the XSI extension "set +e") if it's set.
+am__sh_e_setup = case $$- in *e*) set +e;; esac
+# Default flags passed to test drivers.
+am__common_driver_flags = \
+  --color-tests "$$am__color_tests" \
+  --enable-hard-errors "$$am__enable_hard_errors" \
+  --expect-failure "$$am__expect_failure"
+# To be inserted before the command running the test.  Creates the
+# directory for the log if needed.  Stores in $dir the directory
+# containing $f, in $tst the test, in $log the log.  Executes the
+# developer- defined test setup AM_TESTS_ENVIRONMENT (if any), and
+# passes TESTS_ENVIRONMENT.  Set up options for the wrapper that
+# will run the test scripts (or their associated LOG_COMPILER, if
+# thy have one).
+am__check_pre = \
+$(am__sh_e_setup);					\
+$(am__vpath_adj_setup) $(am__vpath_adj)			\
+$(am__tty_colors);					\
+srcdir=$(srcdir); export srcdir;			\
+case "$@" in						\
+  */*) am__odir=`echo "./$@" | sed 's|/[^/]*$$||'`;;	\
+    *) am__odir=.;; 					\
+esac;							\
+test "x$$am__odir" = x"." || test -d "$$am__odir" 	\
+  || $(MKDIR_P) "$$am__odir" || exit $$?;		\
+if test -f "./$$f"; then dir=./;			\
+elif test -f "$$f"; then dir=;				\
+else dir="$(srcdir)/"; fi;				\
+tst=$$dir$$f; log='$@'; 				\
+if test -n '$(DISABLE_HARD_ERRORS)'; then		\
+  am__enable_hard_errors=no; 				\
+else							\
+  am__enable_hard_errors=yes; 				\
+fi; 							\
+case " $(XFAIL_TESTS) " in				\
+  *[\ \	]$$f[\ \	]* | *[\ \	]$$dir$$f[\ \	]*) \
+    am__expect_failure=yes;;				\
+  *)							\
+    am__expect_failure=no;;				\
+esac; 							\
+$(AM_TESTS_ENVIRONMENT) $(TESTS_ENVIRONMENT)
+# A shell command to get the names of the tests scripts with any registered
+# extension removed (i.e., equivalently, the names of the test logs, with
+# the '.log' extension removed).  The result is saved in the shell variable
+# '$bases'.  This honors runtime overriding of TESTS and TEST_LOGS.  Sadly,
+# we cannot use something simpler, involving e.g., "$(TEST_LOGS:.log=)",
+# since that might cause problem with VPATH rewrites for suffix-less tests.
+# See also 'test-harness-vpath-rewrite.sh' and 'test-trs-basic.sh'.
+am__set_TESTS_bases = \
+  bases='$(TEST_LOGS)'; \
+  bases=`for i in $$bases; do echo $$i; done | sed 's/\.log$$//'`; \
+  bases=`echo $$bases`
+RECHECK_LOGS = $(TEST_LOGS)
+TEST_SUITE_LOG = test-suite.log
+TEST_EXTENSIONS = @EXEEXT@ .test
+LOG_DRIVER = $(SHELL) $(top_srcdir)/test-driver
+LOG_COMPILE = $(LOG_COMPILER) $(AM_LOG_FLAGS) $(LOG_FLAGS)
+am__set_b = \
+  case '$@' in \
+    */*) \
+      case '$*' in \
+        */*) b='$*';; \
+          *) b=`echo '$@' | sed 's/\.log$$//'`; \
+       esac;; \
+    *) \
+      b='$*';; \
+  esac
+am__test_logs1 = $(TESTS:=.log)
+am__test_logs2 = $(am__test_logs1:@EXEEXT@.log=.log)
+TEST_LOGS = $(am__test_logs2:.test.log=.log)
+TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/test-driver
+TEST_LOG_COMPILE = $(TEST_LOG_COMPILER) $(AM_TEST_LOG_FLAGS) \
+	$(TEST_LOG_FLAGS)
 DIST_SUBDIRS = $(SUBDIRS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
@@ -507,6 +700,26 @@ decompile64_CFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${to
 decompile16_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
 decompile32_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
 decompile64_CPPFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+cfgtest_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+cfgtest_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+cfgtest_SOURCES = \
+code_elements/code_element.cpp \
+code_elements/ce_basic.cpp \
+code_elements/ce_dummy.cpp \
+code_elements/code_if_else.cpp \
+code_elements/code_multi_if.cpp \
+code_elements/code_run.cpp \
+code_elements/code_do_while_loop.cpp \
+code_elements/code_while_loop.cpp \
+code_elements/related_code.cpp \
+helpers.cpp \
+variable.cpp \
+var/type.cpp \
+src/cfgtest.cpp \
+src/disassembly/disassembler.cpp \
+src/var/combo.cpp \
+src/var/related_code_maker.cpp
+
 
 #BUILT_SOURCES = libudis86.a
 decompile16_LDADD = libudis86.a
@@ -645,7 +858,7 @@ all: ac_config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .c .cpp .o .obj
+.SUFFIXES: .c .cpp .log .o .obj .test .test$(EXEEXT) .trs
 am--refresh: Makefile
 	@:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -739,12 +952,78 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+code_elements/$(am__dirstamp):
+	@$(MKDIR_P) code_elements
+	@: > code_elements/$(am__dirstamp)
+code_elements/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) code_elements/$(DEPDIR)
+	@: > code_elements/$(DEPDIR)/$(am__dirstamp)
+code_elements/cfgtest-code_element.$(OBJEXT):  \
+	code_elements/$(am__dirstamp) \
+	code_elements/$(DEPDIR)/$(am__dirstamp)
+code_elements/cfgtest-ce_basic.$(OBJEXT):  \
+	code_elements/$(am__dirstamp) \
+	code_elements/$(DEPDIR)/$(am__dirstamp)
+code_elements/cfgtest-ce_dummy.$(OBJEXT):  \
+	code_elements/$(am__dirstamp) \
+	code_elements/$(DEPDIR)/$(am__dirstamp)
+code_elements/cfgtest-code_if_else.$(OBJEXT):  \
+	code_elements/$(am__dirstamp) \
+	code_elements/$(DEPDIR)/$(am__dirstamp)
+code_elements/cfgtest-code_multi_if.$(OBJEXT):  \
+	code_elements/$(am__dirstamp) \
+	code_elements/$(DEPDIR)/$(am__dirstamp)
+code_elements/cfgtest-code_run.$(OBJEXT):  \
+	code_elements/$(am__dirstamp) \
+	code_elements/$(DEPDIR)/$(am__dirstamp)
+code_elements/cfgtest-code_do_while_loop.$(OBJEXT):  \
+	code_elements/$(am__dirstamp) \
+	code_elements/$(DEPDIR)/$(am__dirstamp)
+code_elements/cfgtest-code_while_loop.$(OBJEXT):  \
+	code_elements/$(am__dirstamp) \
+	code_elements/$(DEPDIR)/$(am__dirstamp)
+code_elements/cfgtest-related_code.$(OBJEXT):  \
+	code_elements/$(am__dirstamp) \
+	code_elements/$(DEPDIR)/$(am__dirstamp)
 var/$(am__dirstamp):
 	@$(MKDIR_P) var
 	@: > var/$(am__dirstamp)
 var/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) var/$(DEPDIR)
 	@: > var/$(DEPDIR)/$(am__dirstamp)
+var/cfgtest-type.$(OBJEXT): var/$(am__dirstamp) \
+	var/$(DEPDIR)/$(am__dirstamp)
+src/$(am__dirstamp):
+	@$(MKDIR_P) src
+	@: > src/$(am__dirstamp)
+src/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/$(DEPDIR)
+	@: > src/$(DEPDIR)/$(am__dirstamp)
+src/cfgtest-cfgtest.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/disassembly/$(am__dirstamp):
+	@$(MKDIR_P) src/disassembly
+	@: > src/disassembly/$(am__dirstamp)
+src/disassembly/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/disassembly/$(DEPDIR)
+	@: > src/disassembly/$(DEPDIR)/$(am__dirstamp)
+src/disassembly/cfgtest-disassembler.$(OBJEXT):  \
+	src/disassembly/$(am__dirstamp) \
+	src/disassembly/$(DEPDIR)/$(am__dirstamp)
+src/var/$(am__dirstamp):
+	@$(MKDIR_P) src/var
+	@: > src/var/$(am__dirstamp)
+src/var/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/var/$(DEPDIR)
+	@: > src/var/$(DEPDIR)/$(am__dirstamp)
+src/var/cfgtest-combo.$(OBJEXT): src/var/$(am__dirstamp) \
+	src/var/$(DEPDIR)/$(am__dirstamp)
+src/var/cfgtest-related_code_maker.$(OBJEXT): src/var/$(am__dirstamp) \
+	src/var/$(DEPDIR)/$(am__dirstamp)
+
+cfgtest$(EXEEXT): $(cfgtest_OBJECTS) $(cfgtest_DEPENDENCIES) $(EXTRA_cfgtest_DEPENDENCIES) 
+	@rm -f cfgtest$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(cfgtest_OBJECTS) $(cfgtest_LDADD) $(LIBS)
 var/decompile16-type.$(OBJEXT): var/$(am__dirstamp) \
 	var/$(DEPDIR)/$(am__dirstamp)
 operators/$(am__dirstamp):
@@ -777,12 +1056,6 @@ operators/decompile16-oper_bitwise_or.$(OBJEXT):  \
 	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
 operators/decompile16-oper_segbase.$(OBJEXT):  \
 	operators/$(am__dirstamp) operators/$(DEPDIR)/$(am__dirstamp)
-code_elements/$(am__dirstamp):
-	@$(MKDIR_P) code_elements
-	@: > code_elements/$(am__dirstamp)
-code_elements/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) code_elements/$(DEPDIR)
-	@: > code_elements/$(DEPDIR)/$(am__dirstamp)
 code_elements/decompile16-ce_basic.$(OBJEXT):  \
 	code_elements/$(am__dirstamp) \
 	code_elements/$(DEPDIR)/$(am__dirstamp)
@@ -828,12 +1101,6 @@ src/executable/decompile16-exe_macho.$(OBJEXT):  \
 src/executable/decompile16-exe_pe.$(OBJEXT):  \
 	src/executable/$(am__dirstamp) \
 	src/executable/$(DEPDIR)/$(am__dirstamp)
-src/disassembly/$(am__dirstamp):
-	@$(MKDIR_P) src/disassembly
-	@: > src/disassembly/$(am__dirstamp)
-src/disassembly/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) src/disassembly/$(DEPDIR)
-	@: > src/disassembly/$(DEPDIR)/$(am__dirstamp)
 src/disassembly/decompile16-disassembler.$(OBJEXT):  \
 	src/disassembly/$(am__dirstamp) \
 	src/disassembly/$(DEPDIR)/$(am__dirstamp)
@@ -861,12 +1128,6 @@ src/project/decompile16-project.$(OBJEXT):  \
 src/project/decompile16-source_file.$(OBJEXT):  \
 	src/project/$(am__dirstamp) \
 	src/project/$(DEPDIR)/$(am__dirstamp)
-src/var/$(am__dirstamp):
-	@$(MKDIR_P) src/var
-	@: > src/var/$(am__dirstamp)
-src/var/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) src/var/$(DEPDIR)
-	@: > src/var/$(DEPDIR)/$(am__dirstamp)
 src/var/decompile16-combo.$(OBJEXT): src/var/$(am__dirstamp) \
 	src/var/$(DEPDIR)/$(am__dirstamp)
 
@@ -1066,6 +1327,7 @@ mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f code_elements/*.$(OBJEXT)
 	-rm -f operators/*.$(OBJEXT)
+	-rm -f src/*.$(OBJEXT)
 	-rm -f src/disassembly/*.$(OBJEXT)
 	-rm -f src/executable/*.$(OBJEXT)
 	-rm -f src/project/*.$(OBJEXT)
@@ -1075,6 +1337,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cfgtest-helpers.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cfgtest-variable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile16-decompile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile16-exceptions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile16-function.Po@am__quote@
@@ -1091,6 +1355,15 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-helpers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decompile64-variable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/example.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/cfgtest-ce_basic.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/cfgtest-ce_dummy.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/cfgtest-code_do_while_loop.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/cfgtest-code_element.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/cfgtest-code_if_else.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/cfgtest-code_multi_if.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/cfgtest-code_run.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/cfgtest-code_while_loop.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/cfgtest-related_code.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile16-ce_basic.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile16-code_do_while_loop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@code_elements/$(DEPDIR)/decompile16-code_element.Po@am__quote@
@@ -1151,6 +1424,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_right_shift.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_segbase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@operators/$(DEPDIR)/decompile64-oper_sub.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cfgtest-cfgtest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/disassembly/$(DEPDIR)/cfgtest-disassembler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/disassembly/$(DEPDIR)/decompile16-disass_ppc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/disassembly/$(DEPDIR)/decompile16-disass_x86.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/disassembly/$(DEPDIR)/decompile16-disassembler.Po@am__quote@
@@ -1187,9 +1462,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile64-build_system.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile64-project.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile64-source_file.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/var/$(DEPDIR)/cfgtest-combo.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/var/$(DEPDIR)/cfgtest-related_code_maker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/var/$(DEPDIR)/decompile16-combo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/var/$(DEPDIR)/decompile32-combo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/var/$(DEPDIR)/decompile64-combo.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@var/$(DEPDIR)/cfgtest-type.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@var/$(DEPDIR)/decompile16-type.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@var/$(DEPDIR)/decompile32-type.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@var/$(DEPDIR)/decompile64-type.Po@am__quote@
@@ -1225,6 +1503,230 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+code_elements/cfgtest-code_element.o: code_elements/code_element.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-code_element.o -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-code_element.Tpo -c -o code_elements/cfgtest-code_element.o `test -f 'code_elements/code_element.cpp' || echo '$(srcdir)/'`code_elements/code_element.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-code_element.Tpo code_elements/$(DEPDIR)/cfgtest-code_element.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/code_element.cpp' object='code_elements/cfgtest-code_element.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-code_element.o `test -f 'code_elements/code_element.cpp' || echo '$(srcdir)/'`code_elements/code_element.cpp
+
+code_elements/cfgtest-code_element.obj: code_elements/code_element.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-code_element.obj -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-code_element.Tpo -c -o code_elements/cfgtest-code_element.obj `if test -f 'code_elements/code_element.cpp'; then $(CYGPATH_W) 'code_elements/code_element.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/code_element.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-code_element.Tpo code_elements/$(DEPDIR)/cfgtest-code_element.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/code_element.cpp' object='code_elements/cfgtest-code_element.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-code_element.obj `if test -f 'code_elements/code_element.cpp'; then $(CYGPATH_W) 'code_elements/code_element.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/code_element.cpp'; fi`
+
+code_elements/cfgtest-ce_basic.o: code_elements/ce_basic.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-ce_basic.o -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-ce_basic.Tpo -c -o code_elements/cfgtest-ce_basic.o `test -f 'code_elements/ce_basic.cpp' || echo '$(srcdir)/'`code_elements/ce_basic.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-ce_basic.Tpo code_elements/$(DEPDIR)/cfgtest-ce_basic.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/ce_basic.cpp' object='code_elements/cfgtest-ce_basic.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-ce_basic.o `test -f 'code_elements/ce_basic.cpp' || echo '$(srcdir)/'`code_elements/ce_basic.cpp
+
+code_elements/cfgtest-ce_basic.obj: code_elements/ce_basic.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-ce_basic.obj -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-ce_basic.Tpo -c -o code_elements/cfgtest-ce_basic.obj `if test -f 'code_elements/ce_basic.cpp'; then $(CYGPATH_W) 'code_elements/ce_basic.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/ce_basic.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-ce_basic.Tpo code_elements/$(DEPDIR)/cfgtest-ce_basic.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/ce_basic.cpp' object='code_elements/cfgtest-ce_basic.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-ce_basic.obj `if test -f 'code_elements/ce_basic.cpp'; then $(CYGPATH_W) 'code_elements/ce_basic.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/ce_basic.cpp'; fi`
+
+code_elements/cfgtest-ce_dummy.o: code_elements/ce_dummy.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-ce_dummy.o -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-ce_dummy.Tpo -c -o code_elements/cfgtest-ce_dummy.o `test -f 'code_elements/ce_dummy.cpp' || echo '$(srcdir)/'`code_elements/ce_dummy.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-ce_dummy.Tpo code_elements/$(DEPDIR)/cfgtest-ce_dummy.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/ce_dummy.cpp' object='code_elements/cfgtest-ce_dummy.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-ce_dummy.o `test -f 'code_elements/ce_dummy.cpp' || echo '$(srcdir)/'`code_elements/ce_dummy.cpp
+
+code_elements/cfgtest-ce_dummy.obj: code_elements/ce_dummy.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-ce_dummy.obj -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-ce_dummy.Tpo -c -o code_elements/cfgtest-ce_dummy.obj `if test -f 'code_elements/ce_dummy.cpp'; then $(CYGPATH_W) 'code_elements/ce_dummy.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/ce_dummy.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-ce_dummy.Tpo code_elements/$(DEPDIR)/cfgtest-ce_dummy.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/ce_dummy.cpp' object='code_elements/cfgtest-ce_dummy.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-ce_dummy.obj `if test -f 'code_elements/ce_dummy.cpp'; then $(CYGPATH_W) 'code_elements/ce_dummy.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/ce_dummy.cpp'; fi`
+
+code_elements/cfgtest-code_if_else.o: code_elements/code_if_else.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-code_if_else.o -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-code_if_else.Tpo -c -o code_elements/cfgtest-code_if_else.o `test -f 'code_elements/code_if_else.cpp' || echo '$(srcdir)/'`code_elements/code_if_else.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-code_if_else.Tpo code_elements/$(DEPDIR)/cfgtest-code_if_else.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/code_if_else.cpp' object='code_elements/cfgtest-code_if_else.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-code_if_else.o `test -f 'code_elements/code_if_else.cpp' || echo '$(srcdir)/'`code_elements/code_if_else.cpp
+
+code_elements/cfgtest-code_if_else.obj: code_elements/code_if_else.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-code_if_else.obj -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-code_if_else.Tpo -c -o code_elements/cfgtest-code_if_else.obj `if test -f 'code_elements/code_if_else.cpp'; then $(CYGPATH_W) 'code_elements/code_if_else.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/code_if_else.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-code_if_else.Tpo code_elements/$(DEPDIR)/cfgtest-code_if_else.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/code_if_else.cpp' object='code_elements/cfgtest-code_if_else.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-code_if_else.obj `if test -f 'code_elements/code_if_else.cpp'; then $(CYGPATH_W) 'code_elements/code_if_else.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/code_if_else.cpp'; fi`
+
+code_elements/cfgtest-code_multi_if.o: code_elements/code_multi_if.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-code_multi_if.o -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-code_multi_if.Tpo -c -o code_elements/cfgtest-code_multi_if.o `test -f 'code_elements/code_multi_if.cpp' || echo '$(srcdir)/'`code_elements/code_multi_if.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-code_multi_if.Tpo code_elements/$(DEPDIR)/cfgtest-code_multi_if.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/code_multi_if.cpp' object='code_elements/cfgtest-code_multi_if.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-code_multi_if.o `test -f 'code_elements/code_multi_if.cpp' || echo '$(srcdir)/'`code_elements/code_multi_if.cpp
+
+code_elements/cfgtest-code_multi_if.obj: code_elements/code_multi_if.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-code_multi_if.obj -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-code_multi_if.Tpo -c -o code_elements/cfgtest-code_multi_if.obj `if test -f 'code_elements/code_multi_if.cpp'; then $(CYGPATH_W) 'code_elements/code_multi_if.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/code_multi_if.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-code_multi_if.Tpo code_elements/$(DEPDIR)/cfgtest-code_multi_if.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/code_multi_if.cpp' object='code_elements/cfgtest-code_multi_if.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-code_multi_if.obj `if test -f 'code_elements/code_multi_if.cpp'; then $(CYGPATH_W) 'code_elements/code_multi_if.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/code_multi_if.cpp'; fi`
+
+code_elements/cfgtest-code_run.o: code_elements/code_run.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-code_run.o -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-code_run.Tpo -c -o code_elements/cfgtest-code_run.o `test -f 'code_elements/code_run.cpp' || echo '$(srcdir)/'`code_elements/code_run.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-code_run.Tpo code_elements/$(DEPDIR)/cfgtest-code_run.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/code_run.cpp' object='code_elements/cfgtest-code_run.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-code_run.o `test -f 'code_elements/code_run.cpp' || echo '$(srcdir)/'`code_elements/code_run.cpp
+
+code_elements/cfgtest-code_run.obj: code_elements/code_run.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-code_run.obj -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-code_run.Tpo -c -o code_elements/cfgtest-code_run.obj `if test -f 'code_elements/code_run.cpp'; then $(CYGPATH_W) 'code_elements/code_run.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/code_run.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-code_run.Tpo code_elements/$(DEPDIR)/cfgtest-code_run.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/code_run.cpp' object='code_elements/cfgtest-code_run.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-code_run.obj `if test -f 'code_elements/code_run.cpp'; then $(CYGPATH_W) 'code_elements/code_run.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/code_run.cpp'; fi`
+
+code_elements/cfgtest-code_do_while_loop.o: code_elements/code_do_while_loop.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-code_do_while_loop.o -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-code_do_while_loop.Tpo -c -o code_elements/cfgtest-code_do_while_loop.o `test -f 'code_elements/code_do_while_loop.cpp' || echo '$(srcdir)/'`code_elements/code_do_while_loop.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-code_do_while_loop.Tpo code_elements/$(DEPDIR)/cfgtest-code_do_while_loop.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/code_do_while_loop.cpp' object='code_elements/cfgtest-code_do_while_loop.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-code_do_while_loop.o `test -f 'code_elements/code_do_while_loop.cpp' || echo '$(srcdir)/'`code_elements/code_do_while_loop.cpp
+
+code_elements/cfgtest-code_do_while_loop.obj: code_elements/code_do_while_loop.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-code_do_while_loop.obj -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-code_do_while_loop.Tpo -c -o code_elements/cfgtest-code_do_while_loop.obj `if test -f 'code_elements/code_do_while_loop.cpp'; then $(CYGPATH_W) 'code_elements/code_do_while_loop.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/code_do_while_loop.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-code_do_while_loop.Tpo code_elements/$(DEPDIR)/cfgtest-code_do_while_loop.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/code_do_while_loop.cpp' object='code_elements/cfgtest-code_do_while_loop.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-code_do_while_loop.obj `if test -f 'code_elements/code_do_while_loop.cpp'; then $(CYGPATH_W) 'code_elements/code_do_while_loop.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/code_do_while_loop.cpp'; fi`
+
+code_elements/cfgtest-code_while_loop.o: code_elements/code_while_loop.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-code_while_loop.o -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-code_while_loop.Tpo -c -o code_elements/cfgtest-code_while_loop.o `test -f 'code_elements/code_while_loop.cpp' || echo '$(srcdir)/'`code_elements/code_while_loop.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-code_while_loop.Tpo code_elements/$(DEPDIR)/cfgtest-code_while_loop.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/code_while_loop.cpp' object='code_elements/cfgtest-code_while_loop.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-code_while_loop.o `test -f 'code_elements/code_while_loop.cpp' || echo '$(srcdir)/'`code_elements/code_while_loop.cpp
+
+code_elements/cfgtest-code_while_loop.obj: code_elements/code_while_loop.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-code_while_loop.obj -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-code_while_loop.Tpo -c -o code_elements/cfgtest-code_while_loop.obj `if test -f 'code_elements/code_while_loop.cpp'; then $(CYGPATH_W) 'code_elements/code_while_loop.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/code_while_loop.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-code_while_loop.Tpo code_elements/$(DEPDIR)/cfgtest-code_while_loop.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/code_while_loop.cpp' object='code_elements/cfgtest-code_while_loop.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-code_while_loop.obj `if test -f 'code_elements/code_while_loop.cpp'; then $(CYGPATH_W) 'code_elements/code_while_loop.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/code_while_loop.cpp'; fi`
+
+code_elements/cfgtest-related_code.o: code_elements/related_code.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-related_code.o -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-related_code.Tpo -c -o code_elements/cfgtest-related_code.o `test -f 'code_elements/related_code.cpp' || echo '$(srcdir)/'`code_elements/related_code.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-related_code.Tpo code_elements/$(DEPDIR)/cfgtest-related_code.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/related_code.cpp' object='code_elements/cfgtest-related_code.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-related_code.o `test -f 'code_elements/related_code.cpp' || echo '$(srcdir)/'`code_elements/related_code.cpp
+
+code_elements/cfgtest-related_code.obj: code_elements/related_code.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT code_elements/cfgtest-related_code.obj -MD -MP -MF code_elements/$(DEPDIR)/cfgtest-related_code.Tpo -c -o code_elements/cfgtest-related_code.obj `if test -f 'code_elements/related_code.cpp'; then $(CYGPATH_W) 'code_elements/related_code.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/related_code.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) code_elements/$(DEPDIR)/cfgtest-related_code.Tpo code_elements/$(DEPDIR)/cfgtest-related_code.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='code_elements/related_code.cpp' object='code_elements/cfgtest-related_code.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o code_elements/cfgtest-related_code.obj `if test -f 'code_elements/related_code.cpp'; then $(CYGPATH_W) 'code_elements/related_code.cpp'; else $(CYGPATH_W) '$(srcdir)/code_elements/related_code.cpp'; fi`
+
+cfgtest-helpers.o: helpers.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT cfgtest-helpers.o -MD -MP -MF $(DEPDIR)/cfgtest-helpers.Tpo -c -o cfgtest-helpers.o `test -f 'helpers.cpp' || echo '$(srcdir)/'`helpers.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/cfgtest-helpers.Tpo $(DEPDIR)/cfgtest-helpers.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='helpers.cpp' object='cfgtest-helpers.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cfgtest-helpers.o `test -f 'helpers.cpp' || echo '$(srcdir)/'`helpers.cpp
+
+cfgtest-helpers.obj: helpers.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT cfgtest-helpers.obj -MD -MP -MF $(DEPDIR)/cfgtest-helpers.Tpo -c -o cfgtest-helpers.obj `if test -f 'helpers.cpp'; then $(CYGPATH_W) 'helpers.cpp'; else $(CYGPATH_W) '$(srcdir)/helpers.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/cfgtest-helpers.Tpo $(DEPDIR)/cfgtest-helpers.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='helpers.cpp' object='cfgtest-helpers.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cfgtest-helpers.obj `if test -f 'helpers.cpp'; then $(CYGPATH_W) 'helpers.cpp'; else $(CYGPATH_W) '$(srcdir)/helpers.cpp'; fi`
+
+cfgtest-variable.o: variable.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT cfgtest-variable.o -MD -MP -MF $(DEPDIR)/cfgtest-variable.Tpo -c -o cfgtest-variable.o `test -f 'variable.cpp' || echo '$(srcdir)/'`variable.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/cfgtest-variable.Tpo $(DEPDIR)/cfgtest-variable.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='variable.cpp' object='cfgtest-variable.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cfgtest-variable.o `test -f 'variable.cpp' || echo '$(srcdir)/'`variable.cpp
+
+cfgtest-variable.obj: variable.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT cfgtest-variable.obj -MD -MP -MF $(DEPDIR)/cfgtest-variable.Tpo -c -o cfgtest-variable.obj `if test -f 'variable.cpp'; then $(CYGPATH_W) 'variable.cpp'; else $(CYGPATH_W) '$(srcdir)/variable.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/cfgtest-variable.Tpo $(DEPDIR)/cfgtest-variable.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='variable.cpp' object='cfgtest-variable.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cfgtest-variable.obj `if test -f 'variable.cpp'; then $(CYGPATH_W) 'variable.cpp'; else $(CYGPATH_W) '$(srcdir)/variable.cpp'; fi`
+
+var/cfgtest-type.o: var/type.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT var/cfgtest-type.o -MD -MP -MF var/$(DEPDIR)/cfgtest-type.Tpo -c -o var/cfgtest-type.o `test -f 'var/type.cpp' || echo '$(srcdir)/'`var/type.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) var/$(DEPDIR)/cfgtest-type.Tpo var/$(DEPDIR)/cfgtest-type.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='var/type.cpp' object='var/cfgtest-type.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o var/cfgtest-type.o `test -f 'var/type.cpp' || echo '$(srcdir)/'`var/type.cpp
+
+var/cfgtest-type.obj: var/type.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT var/cfgtest-type.obj -MD -MP -MF var/$(DEPDIR)/cfgtest-type.Tpo -c -o var/cfgtest-type.obj `if test -f 'var/type.cpp'; then $(CYGPATH_W) 'var/type.cpp'; else $(CYGPATH_W) '$(srcdir)/var/type.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) var/$(DEPDIR)/cfgtest-type.Tpo var/$(DEPDIR)/cfgtest-type.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='var/type.cpp' object='var/cfgtest-type.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o var/cfgtest-type.obj `if test -f 'var/type.cpp'; then $(CYGPATH_W) 'var/type.cpp'; else $(CYGPATH_W) '$(srcdir)/var/type.cpp'; fi`
+
+src/cfgtest-cfgtest.o: src/cfgtest.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/cfgtest-cfgtest.o -MD -MP -MF src/$(DEPDIR)/cfgtest-cfgtest.Tpo -c -o src/cfgtest-cfgtest.o `test -f 'src/cfgtest.cpp' || echo '$(srcdir)/'`src/cfgtest.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/cfgtest-cfgtest.Tpo src/$(DEPDIR)/cfgtest-cfgtest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/cfgtest.cpp' object='src/cfgtest-cfgtest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/cfgtest-cfgtest.o `test -f 'src/cfgtest.cpp' || echo '$(srcdir)/'`src/cfgtest.cpp
+
+src/cfgtest-cfgtest.obj: src/cfgtest.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/cfgtest-cfgtest.obj -MD -MP -MF src/$(DEPDIR)/cfgtest-cfgtest.Tpo -c -o src/cfgtest-cfgtest.obj `if test -f 'src/cfgtest.cpp'; then $(CYGPATH_W) 'src/cfgtest.cpp'; else $(CYGPATH_W) '$(srcdir)/src/cfgtest.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/cfgtest-cfgtest.Tpo src/$(DEPDIR)/cfgtest-cfgtest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/cfgtest.cpp' object='src/cfgtest-cfgtest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/cfgtest-cfgtest.obj `if test -f 'src/cfgtest.cpp'; then $(CYGPATH_W) 'src/cfgtest.cpp'; else $(CYGPATH_W) '$(srcdir)/src/cfgtest.cpp'; fi`
+
+src/disassembly/cfgtest-disassembler.o: src/disassembly/disassembler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/disassembly/cfgtest-disassembler.o -MD -MP -MF src/disassembly/$(DEPDIR)/cfgtest-disassembler.Tpo -c -o src/disassembly/cfgtest-disassembler.o `test -f 'src/disassembly/disassembler.cpp' || echo '$(srcdir)/'`src/disassembly/disassembler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/disassembly/$(DEPDIR)/cfgtest-disassembler.Tpo src/disassembly/$(DEPDIR)/cfgtest-disassembler.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/disassembly/disassembler.cpp' object='src/disassembly/cfgtest-disassembler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/disassembly/cfgtest-disassembler.o `test -f 'src/disassembly/disassembler.cpp' || echo '$(srcdir)/'`src/disassembly/disassembler.cpp
+
+src/disassembly/cfgtest-disassembler.obj: src/disassembly/disassembler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/disassembly/cfgtest-disassembler.obj -MD -MP -MF src/disassembly/$(DEPDIR)/cfgtest-disassembler.Tpo -c -o src/disassembly/cfgtest-disassembler.obj `if test -f 'src/disassembly/disassembler.cpp'; then $(CYGPATH_W) 'src/disassembly/disassembler.cpp'; else $(CYGPATH_W) '$(srcdir)/src/disassembly/disassembler.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/disassembly/$(DEPDIR)/cfgtest-disassembler.Tpo src/disassembly/$(DEPDIR)/cfgtest-disassembler.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/disassembly/disassembler.cpp' object='src/disassembly/cfgtest-disassembler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/disassembly/cfgtest-disassembler.obj `if test -f 'src/disassembly/disassembler.cpp'; then $(CYGPATH_W) 'src/disassembly/disassembler.cpp'; else $(CYGPATH_W) '$(srcdir)/src/disassembly/disassembler.cpp'; fi`
+
+src/var/cfgtest-combo.o: src/var/combo.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/var/cfgtest-combo.o -MD -MP -MF src/var/$(DEPDIR)/cfgtest-combo.Tpo -c -o src/var/cfgtest-combo.o `test -f 'src/var/combo.cpp' || echo '$(srcdir)/'`src/var/combo.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/var/$(DEPDIR)/cfgtest-combo.Tpo src/var/$(DEPDIR)/cfgtest-combo.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/var/combo.cpp' object='src/var/cfgtest-combo.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/var/cfgtest-combo.o `test -f 'src/var/combo.cpp' || echo '$(srcdir)/'`src/var/combo.cpp
+
+src/var/cfgtest-combo.obj: src/var/combo.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/var/cfgtest-combo.obj -MD -MP -MF src/var/$(DEPDIR)/cfgtest-combo.Tpo -c -o src/var/cfgtest-combo.obj `if test -f 'src/var/combo.cpp'; then $(CYGPATH_W) 'src/var/combo.cpp'; else $(CYGPATH_W) '$(srcdir)/src/var/combo.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/var/$(DEPDIR)/cfgtest-combo.Tpo src/var/$(DEPDIR)/cfgtest-combo.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/var/combo.cpp' object='src/var/cfgtest-combo.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/var/cfgtest-combo.obj `if test -f 'src/var/combo.cpp'; then $(CYGPATH_W) 'src/var/combo.cpp'; else $(CYGPATH_W) '$(srcdir)/src/var/combo.cpp'; fi`
+
+src/var/cfgtest-related_code_maker.o: src/var/related_code_maker.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/var/cfgtest-related_code_maker.o -MD -MP -MF src/var/$(DEPDIR)/cfgtest-related_code_maker.Tpo -c -o src/var/cfgtest-related_code_maker.o `test -f 'src/var/related_code_maker.cpp' || echo '$(srcdir)/'`src/var/related_code_maker.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/var/$(DEPDIR)/cfgtest-related_code_maker.Tpo src/var/$(DEPDIR)/cfgtest-related_code_maker.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/var/related_code_maker.cpp' object='src/var/cfgtest-related_code_maker.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/var/cfgtest-related_code_maker.o `test -f 'src/var/related_code_maker.cpp' || echo '$(srcdir)/'`src/var/related_code_maker.cpp
+
+src/var/cfgtest-related_code_maker.obj: src/var/related_code_maker.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/var/cfgtest-related_code_maker.obj -MD -MP -MF src/var/$(DEPDIR)/cfgtest-related_code_maker.Tpo -c -o src/var/cfgtest-related_code_maker.obj `if test -f 'src/var/related_code_maker.cpp'; then $(CYGPATH_W) 'src/var/related_code_maker.cpp'; else $(CYGPATH_W) '$(srcdir)/src/var/related_code_maker.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/var/$(DEPDIR)/cfgtest-related_code_maker.Tpo src/var/$(DEPDIR)/cfgtest-related_code_maker.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/var/related_code_maker.cpp' object='src/var/cfgtest-related_code_maker.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/var/cfgtest-related_code_maker.obj `if test -f 'src/var/related_code_maker.cpp'; then $(CYGPATH_W) 'src/var/related_code_maker.cpp'; else $(CYGPATH_W) '$(srcdir)/src/var/related_code_maker.cpp'; fi`
 
 var/decompile16-type.o: var/type.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT var/decompile16-type.o -MD -MP -MF var/$(DEPDIR)/decompile16-type.Tpo -c -o var/decompile16-type.o `test -f 'var/type.cpp' || echo '$(srcdir)/'`var/type.cpp
@@ -3013,6 +3515,169 @@ distclean-tags:
 	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 	-rm -f cscope.out cscope.in.out cscope.po.out cscope.files
 
+# Recover from deleted '.trs' file; this should ensure that
+# "rm -f foo.log; make foo.trs" re-run 'foo.test', and re-create
+# both 'foo.log' and 'foo.trs'.  Break the recipe in two subshells
+# to avoid problems with "make -n".
+.log.trs:
+	rm -f $< $@
+	$(MAKE) $(AM_MAKEFLAGS) $<
+
+# Leading 'am--fnord' is there to ensure the list of targets does not
+# expand to empty, as could happen e.g. with make check TESTS=''.
+am--fnord $(TEST_LOGS) $(TEST_LOGS:.log=.trs): $(am__force_recheck)
+am--force-recheck:
+	@:
+
+$(TEST_SUITE_LOG): $(TEST_LOGS)
+	@$(am__set_TESTS_bases); \
+	am__f_ok () { test -f "$$1" && test -r "$$1"; }; \
+	redo_bases=`for i in $$bases; do \
+	              am__f_ok $$i.trs && am__f_ok $$i.log || echo $$i; \
+	            done`; \
+	if test -n "$$redo_bases"; then \
+	  redo_logs=`for i in $$redo_bases; do echo $$i.log; done`; \
+	  redo_results=`for i in $$redo_bases; do echo $$i.trs; done`; \
+	  if $(am__make_dryrun); then :; else \
+	    rm -f $$redo_logs && rm -f $$redo_results || exit 1; \
+	  fi; \
+	fi; \
+	if test -n "$$am__remaking_logs"; then \
+	  echo "fatal: making $(TEST_SUITE_LOG): possible infinite" \
+	       "recursion detected" >&2; \
+	else \
+	  am__remaking_logs=yes $(MAKE) $(AM_MAKEFLAGS) $$redo_logs; \
+	fi; \
+	if $(am__make_dryrun); then :; else \
+	  st=0;  \
+	  errmsg="fatal: making $(TEST_SUITE_LOG): failed to create"; \
+	  for i in $$redo_bases; do \
+	    test -f $$i.trs && test -r $$i.trs \
+	      || { echo "$$errmsg $$i.trs" >&2; st=1; }; \
+	    test -f $$i.log && test -r $$i.log \
+	      || { echo "$$errmsg $$i.log" >&2; st=1; }; \
+	  done; \
+	  test $$st -eq 0 || exit 1; \
+	fi
+	@$(am__sh_e_setup); $(am__tty_colors); $(am__set_TESTS_bases); \
+	ws='[ 	]'; \
+	results=`for b in $$bases; do echo $$b.trs; done`; \
+	test -n "$$results" || results=/dev/null; \
+	all=`  grep "^$$ws*:test-result:"           $$results | wc -l`; \
+	pass=` grep "^$$ws*:test-result:$$ws*PASS"  $$results | wc -l`; \
+	fail=` grep "^$$ws*:test-result:$$ws*FAIL"  $$results | wc -l`; \
+	skip=` grep "^$$ws*:test-result:$$ws*SKIP"  $$results | wc -l`; \
+	xfail=`grep "^$$ws*:test-result:$$ws*XFAIL" $$results | wc -l`; \
+	xpass=`grep "^$$ws*:test-result:$$ws*XPASS" $$results | wc -l`; \
+	error=`grep "^$$ws*:test-result:$$ws*ERROR" $$results | wc -l`; \
+	if test `expr $$fail + $$xpass + $$error` -eq 0; then \
+	  success=true; \
+	else \
+	  success=false; \
+	fi; \
+	br='==================='; br=$$br$$br$$br$$br; \
+	result_count () \
+	{ \
+	    if test x"$$1" = x"--maybe-color"; then \
+	      maybe_colorize=yes; \
+	    elif test x"$$1" = x"--no-color"; then \
+	      maybe_colorize=no; \
+	    else \
+	      echo "$@: invalid 'result_count' usage" >&2; exit 4; \
+	    fi; \
+	    shift; \
+	    desc=$$1 count=$$2; \
+	    if test $$maybe_colorize = yes && test $$count -gt 0; then \
+	      color_start=$$3 color_end=$$std; \
+	    else \
+	      color_start= color_end=; \
+	    fi; \
+	    echo "$${color_start}# $$desc $$count$${color_end}"; \
+	}; \
+	create_testsuite_report () \
+	{ \
+	  result_count $$1 "TOTAL:" $$all   "$$brg"; \
+	  result_count $$1 "PASS: " $$pass  "$$grn"; \
+	  result_count $$1 "SKIP: " $$skip  "$$blu"; \
+	  result_count $$1 "XFAIL:" $$xfail "$$lgn"; \
+	  result_count $$1 "FAIL: " $$fail  "$$red"; \
+	  result_count $$1 "XPASS:" $$xpass "$$red"; \
+	  result_count $$1 "ERROR:" $$error "$$mgn"; \
+	}; \
+	{								\
+	  echo "$(PACKAGE_STRING): $(subdir)/$(TEST_SUITE_LOG)" |	\
+	    $(am__rst_title);						\
+	  create_testsuite_report --no-color;				\
+	  echo;								\
+	  echo ".. contents:: :depth: 2";				\
+	  echo;								\
+	  for b in $$bases; do echo $$b; done				\
+	    | $(am__create_global_log);					\
+	} >$(TEST_SUITE_LOG).tmp || exit 1;				\
+	mv $(TEST_SUITE_LOG).tmp $(TEST_SUITE_LOG);			\
+	if $$success; then						\
+	  col="$$grn";							\
+	 else								\
+	  col="$$red";							\
+	  test x"$$VERBOSE" = x || cat $(TEST_SUITE_LOG);		\
+	fi;								\
+	echo "$${col}$$br$${std}"; 					\
+	echo "$${col}Testsuite summary for $(PACKAGE_STRING)$${std}";	\
+	echo "$${col}$$br$${std}"; 					\
+	create_testsuite_report --maybe-color;				\
+	echo "$$col$$br$$std";						\
+	if $$success; then :; else					\
+	  echo "$${col}See $(subdir)/$(TEST_SUITE_LOG)$${std}";		\
+	  if test -n "$(PACKAGE_BUGREPORT)"; then			\
+	    echo "$${col}Please report to $(PACKAGE_BUGREPORT)$${std}";	\
+	  fi;								\
+	  echo "$$col$$br$$std";					\
+	fi;								\
+	$$success || exit 1
+
+check-TESTS:
+	@list='$(RECHECK_LOGS)';           test -z "$$list" || rm -f $$list
+	@list='$(RECHECK_LOGS:.log=.trs)'; test -z "$$list" || rm -f $$list
+	@test -z "$(TEST_SUITE_LOG)" || rm -f $(TEST_SUITE_LOG)
+	@set +e; $(am__set_TESTS_bases); \
+	log_list=`for i in $$bases; do echo $$i.log; done`; \
+	trs_list=`for i in $$bases; do echo $$i.trs; done`; \
+	log_list=`echo $$log_list`; trs_list=`echo $$trs_list`; \
+	$(MAKE) $(AM_MAKEFLAGS) $(TEST_SUITE_LOG) TEST_LOGS="$$log_list"; \
+	exit $$?;
+recheck: all 
+	@test -z "$(TEST_SUITE_LOG)" || rm -f $(TEST_SUITE_LOG)
+	@set +e; $(am__set_TESTS_bases); \
+	bases=`for i in $$bases; do echo $$i; done \
+	         | $(am__list_recheck_tests)` || exit 1; \
+	log_list=`for i in $$bases; do echo $$i.log; done`; \
+	log_list=`echo $$log_list`; \
+	$(MAKE) $(AM_MAKEFLAGS) $(TEST_SUITE_LOG) \
+	        am__force_recheck=am--force-recheck \
+	        TEST_LOGS="$$log_list"; \
+	exit $$?
+cfgtest.log: cfgtest$(EXEEXT)
+	@p='cfgtest$(EXEEXT)'; \
+	b='cfgtest'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+.test.log:
+	@p='$<'; \
+	$(am__set_b); \
+	$(am__check_pre) $(TEST_LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_TEST_LOG_DRIVER_FLAGS) $(TEST_LOG_DRIVER_FLAGS) -- $(TEST_LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+@am__EXEEXT_TRUE@.test$(EXEEXT).log:
+@am__EXEEXT_TRUE@	@p='$<'; \
+@am__EXEEXT_TRUE@	$(am__set_b); \
+@am__EXEEXT_TRUE@	$(am__check_pre) $(TEST_LOG_DRIVER) --test-name "$$f" \
+@am__EXEEXT_TRUE@	--log-file $$b.log --trs-file $$b.trs \
+@am__EXEEXT_TRUE@	$(am__common_driver_flags) $(AM_TEST_LOG_DRIVER_FLAGS) $(TEST_LOG_DRIVER_FLAGS) -- $(TEST_LOG_COMPILE) \
+@am__EXEEXT_TRUE@	"$$tst" $(AM_TESTS_FD_REDIRECT)
+
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	test -d "$(distdir)" || mkdir "$(distdir)"
@@ -3202,6 +3867,7 @@ distcleancheck: distclean
 	       $(distcleancheck_listfiles) ; \
 	       exit 1; } >&2
 check-am: all-am
+	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-recursive
 @HAVE_DOXYGEN_FALSE@all-local:
 all-am: Makefile $(PROGRAMS) $(MANS) ac_config.h all-local
@@ -3230,6 +3896,9 @@ install-strip:
 	    "INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'" install; \
 	fi
 mostlyclean-generic:
+	-test -z "$(TEST_LOGS)" || rm -f $(TEST_LOGS)
+	-test -z "$(TEST_LOGS:.log=.trs)" || rm -f $(TEST_LOGS:.log=.trs)
+	-test -z "$(TEST_SUITE_LOG)" || rm -f $(TEST_SUITE_LOG)
 
 clean-generic:
 	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
@@ -3241,6 +3910,8 @@ distclean-generic:
 	-rm -f code_elements/$(am__dirstamp)
 	-rm -f operators/$(DEPDIR)/$(am__dirstamp)
 	-rm -f operators/$(am__dirstamp)
+	-rm -f src/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/$(am__dirstamp)
 	-rm -f src/disassembly/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/disassembly/$(am__dirstamp)
 	-rm -f src/executable/$(DEPDIR)/$(am__dirstamp)
@@ -3262,7 +3933,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-local mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR) operators/$(DEPDIR) src/disassembly/$(DEPDIR) src/executable/$(DEPDIR) src/project/$(DEPDIR) src/var/$(DEPDIR) var/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR) operators/$(DEPDIR) src/$(DEPDIR) src/disassembly/$(DEPDIR) src/executable/$(DEPDIR) src/project/$(DEPDIR) src/var/$(DEPDIR) var/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -3310,7 +3981,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR) operators/$(DEPDIR) src/disassembly/$(DEPDIR) src/executable/$(DEPDIR) src/project/$(DEPDIR) src/var/$(DEPDIR) var/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) code_elements/$(DEPDIR) operators/$(DEPDIR) src/$(DEPDIR) src/disassembly/$(DEPDIR) src/executable/$(DEPDIR) src/project/$(DEPDIR) src/var/$(DEPDIR) var/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -3330,10 +4001,10 @@ uninstall-am: uninstall-binPROGRAMS uninstall-man
 
 uninstall-man: uninstall-man3
 
-.MAKE: $(am__recursive_targets) all install-am install-strip
+.MAKE: $(am__recursive_targets) all check-am install-am install-strip
 
 .PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am all-local \
-	am--refresh check check-am clean clean-binPROGRAMS \
+	am--refresh check check-TESTS check-am clean clean-binPROGRAMS \
 	clean-cscope clean-generic clean-local cscope cscopelist-am \
 	ctags ctags-am dist dist-all dist-bzip2 dist-gzip dist-lzip \
 	dist-shar dist-tarZ dist-xz dist-zip distcheck distclean \
@@ -3347,8 +4018,8 @@ uninstall-man: uninstall-man3
 	install-ps-am install-strip installcheck installcheck-am \
 	installdirs installdirs-am maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-binPROGRAMS uninstall-man \
+	mostlyclean-generic pdf pdf-am ps ps-am recheck tags tags-am \
+	uninstall uninstall-am uninstall-binPROGRAMS uninstall-man \
 	uninstall-man3
 
 

@@ -7,7 +7,7 @@
 #include <vector>
 
 #define PROVE_SIMPLIFY 1
-//#undef PROVE_SIMPLIFY
+#undef PROVE_SIMPLIFY
 
 class code_element
 {

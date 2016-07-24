@@ -85,6 +85,10 @@ void code_element::print_graph(std::ostream &dest)
 		dest << "\tX" << s// << "_" << pieces[i] 
 		 << " -> X" << b->s// << "_" << pieces[i]->gb() 
 		 << " [ label=b ];\n";
+	if ((a == 0) && (b == 0))
+	{
+		dest << "\tX" << s << "[shape=rectangle];\n";
+	}
 }
 
 address code_element::gets()

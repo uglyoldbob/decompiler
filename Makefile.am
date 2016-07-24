@@ -8,7 +8,7 @@ libudis86.a: udis86-1.7.2/libudis86/.libs/libudis86.a
 
 test_SOURCES = example.c
 
-bin_PROGRAMS = decompile16 decompile32 decompile64 test
+bin_PROGRAMS = decompile16 decompile32 decompile64 test cfgtest
 
 decompile16_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
 decompile32_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
@@ -17,6 +17,28 @@ decompile64_CFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${to
 decompile16_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
 decompile32_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
 decompile64_CPPFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+
+cfgtest_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+cfgtest_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+cfgtest_SOURCES = \
+code_elements/code_element.cpp \
+code_elements/ce_basic.cpp \
+code_elements/ce_dummy.cpp \
+code_elements/code_if_else.cpp \
+code_elements/code_multi_if.cpp \
+code_elements/code_run.cpp \
+code_elements/code_do_while_loop.cpp \
+code_elements/code_while_loop.cpp \
+code_elements/related_code.cpp \
+helpers.cpp \
+variable.cpp \
+var/type.cpp \
+src/cfgtest.cpp \
+src/disassembly/disassembler.cpp \
+src/var/combo.cpp \
+src/var/related_code_maker.cpp
+
+TESTS = cfgtest
 
 #BUILT_SOURCES = libudis86.a
 
