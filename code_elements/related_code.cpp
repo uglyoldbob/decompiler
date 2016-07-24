@@ -4,6 +4,7 @@
 #include "code_do_while_loop.h"
 #include "code_if_else.h"
 #include "code_run.h"
+#include "var/combo.h"
 
 related_code::related_code()
 {
@@ -305,26 +306,6 @@ std::vector<code_element *> related_code::outside_references(std::vector<code_el
 	return refed_mods;
 }
 
-std::vector<unsigned int> make_combination(int num)
-{
-	std::vector<unsigned int> ret;
-	for (int i = 0; i < num; i++)
-	{
-		ret.push_back(i);
-	}
-	return ret;
-}
-
-std::vector<code_element *> make_group(int num)
-{
-	std::vector<code_element*> ret;
-	for (int i = 0; i < num; i++)
-	{
-		ret.push_back(0);
-	}
-	return ret;
-}
-
 bool related_code::next_combo(std::vector<unsigned int> &cmb)
 {
 	unsigned int i = cmb.size();
@@ -371,53 +352,60 @@ void related_code::apply_combination(std::vector<unsigned int> cmb, std::vector<
 int related_code::process_blocks(int n)
 {
 	int result = 0;
-	std::vector<unsigned int> cur_combo = make_combination(n);
-	std::vector<code_element *> group = make_group(n);
-	do
+	int index = 0;
+	while ((result == 0) && (index < blocks.size()))
 	{
-		apply_combination(cur_combo, group);
-		std::vector<code_element *> ex_in = external_inputs(group); 
-		unsigned int ext_in = ex_in.size();
-		std::vector<code_element *> ex_out = outside_references(group); 
-		unsigned int ext_out = ex_out.size();
-
-		if ( (ext_in == 1) && (ext_out == 1) && no_dead_ends(group))
+		std::cout << "Process (" << index << "/" << blocks.size() 
+				  << " " << n << " blocks" << std::endl;
+		combo cur_combo(blocks[index++], n);
+		while (cur_combo.valid())
 		{
-			if (group[0] != ex_in[0])
+			std::vector<code_element *> group = cur_combo.get_combination();
+			
+			cur_combo.next_combo();
+			std::vector<code_element *> ex_in = external_inputs(group); 
+			unsigned int ext_in = ex_in.size();
+			std::vector<code_element *> ex_out = outside_references(group); 
+			unsigned int ext_out = ex_out.size();
+	
+			if ( (ext_in == 1) && (ext_out == 1) && no_dead_ends(group))
 			{
-				for (unsigned int i = 1; i < group.size(); i++)
+				if (group[0] != ex_in[0])
 				{
-					if (group[i] == ex_in[0])
+					for (unsigned int i = 1; i < group.size(); i++)
 					{
-						code_element *temp;
-						temp = group[0];
-						group[0] = group[i];
-						group[i] = temp;
-					}
-				}	
-			}
-			code_element *temp = code_if_else::simplify(group, ex_out[0]);
-			if (temp != 0)
-			{
-				result++;
-				replace_group(group, temp);
-			}
-			
-			temp = code_run::simplify(group, ex_out[0]);
-			if (temp != 0)
-			{
-				result++;
-				replace_group(group, temp);
-			}
-			
-			temp = code_do_while_loop::simplify(group, ex_out[0]);
-			if (temp != 0)
-			{
-				result++;
-				replace_group(group, temp);
+						if (group[i] == ex_in[0])
+						{
+							code_element *temp;
+							temp = group[0];
+							group[0] = group[i];
+							group[i] = temp;
+						}
+					}	
+				}
+				code_element *temp = code_if_else::simplify(group, ex_out[0]);
+				if (temp != 0)
+				{
+					result++;
+					replace_group(group, temp);
+				}
+				
+				temp = code_run::simplify(group, ex_out[0]);
+				if (temp != 0)
+				{
+					result++;
+					replace_group(group, temp);
+				}
+				
+				temp = code_do_while_loop::simplify(group, ex_out[0]);
+				if (temp != 0)
+				{
+					result++;
+					replace_group(group, temp);
+				}
 			}
 		}
-	} while (next_combo(cur_combo));
+	}
 	return result;
 }
 
@@ -462,7 +450,7 @@ void related_code::simplify()
 		unsigned int num_blocks = 2;
 		do
 		{
-			if ((num_blocks < blocks.size()) && (num_blocks < 10))
+			if (num_blocks < blocks.size())
 			{
 				section_done = process_blocks(num_blocks++);
 				blocks_done += section_done;

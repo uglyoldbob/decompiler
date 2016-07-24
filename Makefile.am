@@ -66,6 +66,7 @@ src/project/autotools.cpp \
 src/project/build_system.cpp \
 src/project/project.cpp \
 src/project/source_file.cpp \
+src/var/combo.cpp \
 exceptions.cpp \
 helpers.cpp
 
@@ -107,6 +108,7 @@ src/project/autotools.cpp \
 src/project/build_system.cpp \
 src/project/project.cpp \
 src/project/source_file.cpp \
+src/var/combo.cpp \
 exceptions.cpp \
 helpers.cpp
 
@@ -147,6 +149,7 @@ src/project/autotools.cpp \
 src/project/build_system.cpp \
 src/project/project.cpp \
 src/project/source_file.cpp \
+src/var/combo.cpp \
 exceptions.cpp \
 helpers.cpp
 

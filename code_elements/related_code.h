@@ -9,6 +9,8 @@
 std::vector<unsigned int> make_combination(int num);
 std::vector<code_element *> make_group(int num);
 unsigned int get_index(std::vector<code_element*> gr, code_element *b);
+bool element_present(std::vector<code_element*> gr, address a);
+bool reference_present(std::vector<code_element*> gr, address a);
 
 class related_code
 {
