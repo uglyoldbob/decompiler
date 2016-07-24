@@ -433,6 +433,7 @@ void related_code::simplify()
 {
 	int blocks_done;
 	int section_done;
+	unsigned int num_blocks = 2;
 	do
 	{
 		blocks_done = 0;
@@ -447,15 +448,14 @@ void related_code::simplify()
 			}
 		}
 		blocks_done += section_done;
-		unsigned int num_blocks = 2;
-		do
+
+		if (num_blocks < blocks.size())
 		{
-			if (num_blocks < blocks.size())
-			{
-				section_done = process_blocks(num_blocks++);
-				blocks_done += section_done;
-			}
-		} while ((section_done == 0) && (num_blocks < blocks.size()));
-	} while (blocks_done > 0);
+			section_done = process_blocks(num_blocks);
+			blocks_done += section_done;
+			if (section_done == 0)
+				num_blocks++;
+		}
+	} while ((blocks_done > 0) && (num_blocks < blocks.size()));
 }
 
