@@ -20,7 +20,7 @@ bool code_do_while_loop::check(code_element *e)
 {
 	if (e != 0)
 	{
-		if ((e == e->a) || (e == e->b))
+		if (e->branches_to(e))
 		{
 			return true;
 		}
