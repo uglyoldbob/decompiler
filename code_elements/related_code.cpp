@@ -4,6 +4,7 @@
 #include "code_do_while_loop.h"
 #include "code_if_else.h"
 #include "code_run.h"
+#include "code_while_loop.h"
 #include "var/combo.h"
 
 related_code::related_code()
@@ -383,9 +384,28 @@ int related_code::process_blocks(int n)
 			std::vector<code_element *> ex_in = external_inputs(group); 
 			unsigned int ext_in = ex_in.size();
 			std::vector<code_element *> ex_out = outside_references(group); 
+			if (ex_out.size() == 0)
+			{
+				ex_out.push_back(0);
+			}
 			unsigned int ext_out = ex_out.size();
-	
-			if ( (ext_in == 1) && (ext_out == 1) )
+			
+			std::cout << std::hex << "Checking group: ";
+			for (unsigned int i = 0; i < group.size(); i++)
+			{
+				std::cout << "0x" << group[i]->gets() << ", ";
+			}
+			if (ex_out.size() != 0)
+			{
+				if (ex_out[0] != 0)
+					std::cout << "(0x" << ex_out[0]->gets() << ")";
+				else
+					std::cout << "(dead end)";
+			}
+			std::cout << "[" << ext_in << "][" << ext_out << "]";
+			std::cout << std::dec << std::endl;
+
+			if ( (ext_in == 1) && (ext_out == 1))
 			{
 				if (group[0] != ex_in[0])
 				{
@@ -400,6 +420,16 @@ int related_code::process_blocks(int n)
 						}
 					}	
 				}
+				
+				std::cout << std::hex << "Valid group: ";
+				for (unsigned int i = 0; i < group.size(); i++)
+				{
+					std::cout << "0x" << group[i]->gets() << ", ";
+				}
+				if (ex_out[0] != 0)
+					std::cout << "(0x" << ex_out[0]->gets() << ")";
+				std::cout << std::dec << std::endl;
+
 				code_element *temp = code_if_else::simplify(group, ex_out[0]);
 				if (temp != 0)
 				{
@@ -415,6 +445,13 @@ int related_code::process_blocks(int n)
 				}
 				
 				temp = code_do_while_loop::simplify(group, ex_out[0]);
+				if (temp != 0)
+				{
+					result++;
+					replace_group(group, temp);
+				}
+				
+				temp = code_while_loop::simplify(group, ex_out[0]);
 				if (temp != 0)
 				{
 					result++;
@@ -478,7 +515,7 @@ void related_code::simplify()
 		}
 		blocks_done += section_done;
 
-		if (num_blocks < blocks.size())
+		while (num_blocks <= blocks.size())
 		{
 			section_done = process_blocks(num_blocks);
 			blocks_done += section_done;

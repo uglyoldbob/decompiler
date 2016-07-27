@@ -40,16 +40,21 @@ bool code_element::is_branch()
 	return ((a != 0) && (b != 0)); 
 }
 
+bool code_element::dead_end()
+{
+	return ((a == 0) && (b == 0));
+}
+
 bool code_element::jumps_to(code_element *m)
 {
-	return (!is_branch() && 
+	return ((m != 0) && !is_branch() && 
 		( (a == m) || (b == m) ) 
 		);		
 }
 
 bool code_element::branches_to(code_element *m)
 {
-	return (is_branch() && 
+	return ((m != 0) && is_branch() && 
 		( (a == m) || (b == m) ) 
 		);
 }
@@ -57,7 +62,7 @@ bool code_element::branches_to(code_element *m)
 code_element *code_element::other_branch(code_element *m)
 {
 	code_element *ret = 0;
-	if (is_branch())
+	if (is_branch() && (m != 0))
 	{
 		if (a != m)
 			ret = a;
