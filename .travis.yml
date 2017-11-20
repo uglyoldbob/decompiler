@@ -7,11 +7,6 @@ jdk:
   - oraclejdk8
 
 addons:
-  apt:
-    sources:
-      - debian-sid
-    packages:
-      - libssl1.0.0
   sonarcloud:
     organization: "uglyoldbob-github"
     token:
