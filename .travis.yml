@@ -10,9 +10,14 @@ addons:
   sonarcloud:
     organization: "uglyoldbob-github"
 
+before_script:
+  - curl -LsS https://nemo.sonarqube.org/static/cpp/build-wrapper-linux-x86.zip > build-wrapper-linux-x86.zip
+  - unzip build-wrapper-linux-x86.zip
+
 script:
  - autoreconf --force --install
  - ./configure
+ - ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw_output make clean all
  - sonar-scanner -Dsonar.host.url=https://sonarqube.com -Dsonar.verbose=true -X
 
 install:
