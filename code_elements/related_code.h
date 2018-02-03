@@ -19,7 +19,6 @@ class related_code
 		related_code();
 		address start_address;
 		void add_block(code_element *c);
-		void gather_instructions(disassembler &disas);
 		void get_calls(std::vector<address> &c);	//get a list of addresses called as functions
 		void fprint(std::ostream &dest, int depth);
 		void print_graph(std::ostream &dest);

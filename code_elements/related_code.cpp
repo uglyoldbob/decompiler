@@ -16,81 +16,6 @@ void related_code::add_block(code_element *c)
 	blocks.push_back(c);
 }
 
-void related_code::gather_instructions(disassembler &disas)
-{
-	std::vector<ce_basic *> gath;
-	std::vector<address> chunks;
-	chunks.push_back(start_address);
-
-	while (chunks.size() > 0)
-	{
-		address cur_addr = chunks.front();
-		instr *temp;
-		int belongs_to = -1;
-		bool dont_add = false;
-		disas.get_instruction(temp, cur_addr);
-
-		for (unsigned int i = 0; i < gath.size(); i++)
-		{
-			//find if the address is already part of an existing block
-				//find if the address is already the start of a block
-				//find if the address is already in a block but not the start
-			//find if the address should be added to an existing block
-				//add the address to the existing block
-			//else
-				//create a new block and add the address to the existing block
-			if (gath[i]->contains(cur_addr) != 0)
-			{	//this address already exists in this block
-				if (gath[i]->gets() != cur_addr)
-				{	//only do something if it is necessary to split the block
-					ce_basic *sp = gath[i]->second_half(cur_addr);
-					gath.push_back(sp);
-					gath[i] = gath[i]->first_half(cur_addr);
-					dont_add = true;
-				}
-				else
-				{
-					dont_add = true;
-				}
-			}
-		}
-		for (unsigned int i = 0; i < gath.size(); i++)
-		{
-			if (gath[i]->should_be_added(cur_addr))
-			{	//add the address to the existing block
-				belongs_to = i;
-			}
-		}
-		if (gath.size() == 0)
-		{
-			gath.push_back(new ce_basic(cur_addr));
-			belongs_to = 0;
-		}
-		if ((belongs_to == -1) && !dont_add)
-		{
-			ce_basic *temp = new ce_basic(cur_addr);
-			gath.push_back(temp);
-			belongs_to = gath.size() - 1;
-		}
-		if ((belongs_to != -1) && !dont_add)
-		{	//add the line to the given block
-			gath[ belongs_to]->add_line(temp);
-			std::vector<address> p = gath[belongs_to]->get_nexts();
-			for (unsigned int i = 0; i < p.size(); i++)
-			{
-				if (p[i] != 0)
-					chunks.push_back(p[i]);
-			}
-		}
-		chunks.erase(chunks.begin());
-	}
-	for (unsigned int i = 0; i < gath.size(); i++)
-	{
-		blocks.push_back(gath[i]);
-	}
-	finalize_blocks();
-}
-
 void related_code::get_calls(std::vector<address> &c)
 {
 	for (unsigned int i = 0; i < blocks.size(); i++)
@@ -390,21 +315,6 @@ int related_code::process_blocks(int n)
 			}
 			unsigned int ext_out = ex_out.size();
 			
-			std::cout << std::hex << "Checking group: ";
-			for (unsigned int i = 0; i < group.size(); i++)
-			{
-				std::cout << "0x" << group[i]->gets() << ", ";
-			}
-			if (ex_out.size() != 0)
-			{
-				if (ex_out[0] != 0)
-					std::cout << "(0x" << ex_out[0]->gets() << ")";
-				else
-					std::cout << "(dead end)";
-			}
-			std::cout << "[" << ext_in << "][" << ext_out << "]";
-			std::cout << std::dec << std::endl;
-
 			if ( (ext_in == 1) && (ext_out == 1))
 			{
 				if (group[0] != ex_in[0])
@@ -429,34 +339,6 @@ int related_code::process_blocks(int n)
 				if (ex_out[0] != 0)
 					std::cout << "(0x" << ex_out[0]->gets() << ")";
 				std::cout << std::dec << std::endl;
-
-				code_element *temp = code_if_else::simplify(group, ex_out[0]);
-				if (temp != 0)
-				{
-					result++;
-					replace_group(group, temp);
-				}
-				
-				temp = code_run::simplify(group, ex_out[0]);
-				if (temp != 0)
-				{
-					result++;
-					replace_group(group, temp);
-				}
-				
-				temp = code_do_while_loop::simplify(group, ex_out[0]);
-				if (temp != 0)
-				{
-					result++;
-					replace_group(group, temp);
-				}
-				
-				temp = code_while_loop::simplify(group, ex_out[0]);
-				if (temp != 0)
-				{
-					result++;
-					replace_group(group, temp);
-				}
 			}
 		}
 	}
@@ -504,16 +386,6 @@ void related_code::simplify()
 	{
 		blocks_done = 0;
 		section_done = 0;
-		for (unsigned int i = 0; i < blocks.size(); i++)
-		{
-			if (code_do_while_loop::check(blocks[i]))
-			{
-				code_do_while_loop *new_element = new code_do_while_loop(blocks[i]);
-				replace_element(blocks[i], new_element);
-				section_done++;
-			}
-		}
-		blocks_done += section_done;
 
 		while (num_blocks <= blocks.size())
 		{

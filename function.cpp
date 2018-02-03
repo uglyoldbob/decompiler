@@ -25,7 +25,6 @@ address function::gets()
 void function::gather_instructions(disassembler &disas)
 {	//directly creates the blocks of code for the function based on a starting address
 	code.start_address = s;
-	code.gather_instructions(disas);
 }
 
 void function::set_name(const char *to)

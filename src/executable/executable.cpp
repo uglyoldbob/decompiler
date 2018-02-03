@@ -36,20 +36,6 @@ int executable::check_pe(std::istream *me)
 	me->seekg(signature, std::ios::beg);
 	if (me->good())
 	{
-		me->read((char*)&signature, 4);
-		if (signature == 0x4550)
-		{
-			std::cout << "PE executable detected\n";
-			exe_type = EXEC_TYPE_PE;
-			return 1;
-		}
-		else if (signature == 0x00004550)
-		{
-			std::cout << "BACKWARDS? PE executable detected\n";
-			exe_type = EXEC_TYPE_PE;
-			rbo = 1;
-			return 1;
-		}
 	}
 
 	return 0;
@@ -130,37 +116,6 @@ int executable::load(const char *bin_name)
 	{
 		std::cout << "Failed to open executable " << bin_name << "\n";
 		throw file_open_failed(bin_name);
-	}
-
-	int reverse = exe_elf::check(exe_file);
-	if (reverse != 0)
-	{
-		exe_type = EXEC_TYPE_ELF;
-		exe_object = new exe_elf();
-		if (reverse < 0)
-			rbo = 1;
-	}
-	reverse = exe_macho::check(exe_file);
-	if (reverse != 0)
-	{
-		exe_type = EXEC_TYPE_MACHO32;
-		exe_object = new exe_macho();
-		if (reverse < 0)
-			rbo = 1;
-	}
-	reverse = exe_pe::check(exe_file);
-	if (reverse != 0)
-	{
-		exe_type = EXEC_TYPE_PE;
-		exe_object = new exe_pe();
-		if (reverse < 0)
-			rbo = 1;
-	}
-
-	if (exe_type == EXEC_TYPE_UNKNOWN)
-	{
-		exe_file->close();
-		throw unknown_exe_format(bin_name);
 	}
 
 	if (exe_object == 0)

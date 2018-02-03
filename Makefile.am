@@ -8,7 +8,7 @@ libudis86.a: udis86-1.7.2/libudis86/.libs/libudis86.a
 
 test_SOURCES = example.c
 
-bin_PROGRAMS = decompile16 decompile32 decompile64 test cfgtest
+bin_PROGRAMS = decompile16 decompile32 decompile64 test cfgtest projecttest
 
 decompile16_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
 decompile32_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
@@ -38,7 +38,23 @@ src/disassembly/disassembler.cpp \
 src/var/combo.cpp \
 src/var/related_code_maker.cpp
 
-TESTS = cfgtest
+projecttest_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+projecttest_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+projecttest_SOURCES = \
+src/tests/projects.cpp \
+src/executable/executable.cpp \
+src/executable/exe_loader.cpp \
+src/project/project.cpp \
+src/project/build_system.cpp \
+src/project/source_file.cpp \
+function.cpp \
+code_elements/related_code.cpp \
+code_elements/code_element.cpp \
+src/var/combo.cpp \
+var/type.cpp \
+variable.cpp
+
+TESTS = cfgtest projecttest
 
 #BUILT_SOURCES = libudis86.a
 
