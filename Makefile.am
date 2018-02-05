@@ -3,6 +3,11 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = udis86-1.7.2
 
+lib_LIBRARIES = libgtest.a
+
+libgtest_a_SOURCES = googletest/googletest/src/gtest-all.cc
+libgtest_a_CPPFLAGS = -I${top_srcdir}/googletest/googletest -I${top_srcdir}/googletest/googletest/include
+
 libudis86.a: udis86-1.7.2/libudis86/.libs/libudis86.a
 	cp udis86-1.7.2/libudis86/.libs/libudis86.a libudis86.a
 
@@ -40,6 +45,7 @@ src/var/related_code_maker.cpp
 
 projecttest_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
 projecttest_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+projecttest_LDADD = libgtest.a
 projecttest_SOURCES = \
 src/tests/projects.cpp \
 src/executable/executable.cpp \
