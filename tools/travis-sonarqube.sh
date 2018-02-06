@@ -31,6 +31,13 @@ installBuildWrapper() {
   unzip build-wrapper-linux-x86.zip
 }
 
+#get the current git branch name
+branch_name=$(git rev-parse --abbrev-ref HEAD)
+if [ "$branch_name" != "master" ]
+then
+	cat "\nsonar.branch.name=$branch_name \n" >> ./sonar-project.properties
+fi
+
 installSonarQubeScanner
 installBuildWrapper
 
