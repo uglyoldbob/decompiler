@@ -1,9 +1,9 @@
 # decompiler
 A decompiler targeting c and similar languages.
 
-decompiler is integrated with travis CI and sonarcloud
-
 [![Build Status](https://travis-ci.org/uglyoldbob/decompiler.svg?branch=master)](https://travis-ci.org/uglyoldbob/decompiler)
+
+[![Open Source Helpers](https://www.codetriage.com/uglyoldbob/decompiler/badges/users.svg)](https://www.codetriage.com/uglyoldbob/decompiler)
 
 https://sonarcloud.io/dashboard?id=uglyoldbob_decompiler
 
