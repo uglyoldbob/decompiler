@@ -14,6 +14,6 @@ set -ex
 branch_name=$(git rev-parse --abbrev-ref HEAD)
 if [ "$branch_name" != "master" ]
 then
-	cat "\nsonar.branch.name=$branch_name \n" >> ./sonar-project.properties
+	echo "\nsonar.branch.name=$branch_name \n" >> ./sonar-project.properties
 fi
 
