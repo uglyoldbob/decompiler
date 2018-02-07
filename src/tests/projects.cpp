@@ -8,6 +8,6 @@ int main(int argc, char *argv[])
 	int failures = 0;
 	project *test_proj;
 	test_proj = new project(0);
-	
+	delete test_proj;
 	return retval;
 }
