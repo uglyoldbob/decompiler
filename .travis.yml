@@ -13,6 +13,7 @@ addons:
 script:
  - autoreconf --force --install
  - ./configure
+ - ./tools/travis-sonarqube.sh
  - build-wrapper-linux-x86-64 --out-dir bw-output make clean all
  - sonar-scanner -Dsonar.host.url=https://sonarqube.com -Dsonar.verbose=true -X
 
