@@ -9,8 +9,13 @@ jdk:
 addons:
   sonarcloud:
     organization: "uglyoldbob-github"
+    branches:
+     - master
+     - restructure
 
 script:
+ - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
+ - echo "\nsonar.branch.name=$BRANCH \n" >> ./sonar-project.properties
  - autoreconf --force --install
  - ./configure
  - ./tools/travis-sonarqube.sh
