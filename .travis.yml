@@ -17,8 +17,8 @@ script:
  - autoreconf --force --install
  - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
  - echo "\nsonar.branch=$BRANCH \n" >> ./sonar-project.properties
+ - cat ./sonar-project.properties
  - ./configure
- - ./tools/travis-sonarqube.sh
  - build-wrapper-linux-x86-64 --out-dir bw-output make clean all
  - sonar-scanner -Dsonar.verbose=true -X
 
