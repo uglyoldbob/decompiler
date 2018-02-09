@@ -7,6 +7,7 @@
 #include "code_elements/code_element.h"
 #include "code_elements/code_if_else.h"
 #include "code_elements/code_multi_if.h"
+#include "code_elements/related_code.h"
 #include "config.h"
 #include "exceptions.h"
 #include "executable/executable.h"
@@ -67,6 +68,7 @@ int main(int argc, char *argv[])
 	sysproj = new project(bsys);	
 	executable program;
 	int retval = 0;
+	related_code::list_code_element_makers(std::cout);
 	try
 	{
 		if (argc < 3)

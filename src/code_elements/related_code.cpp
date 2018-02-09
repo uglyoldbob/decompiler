@@ -7,8 +7,35 @@
 #include "code_while_loop.h"
 #include "var/combo.h"
 
+std::vector<code_element_maker> *related_code::rc_makers = 0;
+
 related_code::related_code()
 {
+}
+
+void related_code::register_code_element_maker(code_element_maker a)
+{
+	if (related_code::rc_makers == 0)
+	{
+		related_code::rc_makers = new std::vector<code_element_maker>();
+	}
+	related_code::rc_makers->push_back(a);
+}
+
+void related_code::list_code_element_makers(std::ostream &dest)
+{
+	dest << "Registered code_element makers:" << std::endl;
+	if (related_code::rc_makers != 0)
+	{
+		for (unsigned int i = 0; i < related_code::rc_makers->size(); i++)
+		{
+			dest << "Item " << i << " cannot be printed yet" << std::endl;
+		}
+	}
+	else
+	{
+		dest << "None" << std::endl;
+	}
 }
 
 void related_code::add_block(code_element *c)

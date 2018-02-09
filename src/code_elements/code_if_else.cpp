@@ -2,6 +2,17 @@
 #include "code_if_else.h"
 #include "helpers.h"
 
+class register_if_else
+{
+	public:
+		register_if_else()
+		{
+			related_code::register_code_element_maker(code_if_else::simplify);
+		}
+};
+
+static register_if_else make_it_so;
+
 code_if_else::code_if_else()
 {
 	condition = NULL;
