@@ -6,6 +6,7 @@
 
 #include "config.h"
 #include "exe_loader.h"
+#include "exe_real.h"
 
 #define EXE_PE_ID 0x5A4D
 
@@ -37,12 +38,12 @@ struct exe_pe_reloc
 #elif TARGET64
 #endif
 
-class exe_pe : public exe_loader
+class exe_pe : public exe_real
 {
 	public:
-		exe_pe();
+		exe_pe(int reverse);
 		~exe_pe();
-		static int check(std::istream *me);
+		static exe_loader* check(std::istream *me);
 		int process(std::istream *me);	//do basic processing
 		const char *entry_name();
 		address entry_addr();

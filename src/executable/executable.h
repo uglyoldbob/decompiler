@@ -39,8 +39,6 @@ class executable
 		std::vector<source_file*> get_sources();
 		void write_sources(std::string n);
 	private:
-		int check_pe(std::istream *me);
-		int rbo;	//used to signal reversed byte order
 		std::ifstream *exe_file;
 		std::string folder;
 		EXECUTABLE_TYPE exe_type;

@@ -22,6 +22,7 @@ class code_element
 		bool is_branch();
 		bool jumps_to(code_element *m);
 		bool branches_to(code_element *m);
+		bool dead_end();
 		code_element *other_branch(code_element *m);
 		
 		virtual void get_calls(std::vector<address> &c) = 0;	//get a list of function calls

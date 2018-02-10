@@ -1,93 +1,47 @@
 #include "related_code.h"
 
-#include "ce_basic.h"
 #include "code_do_while_loop.h"
 #include "code_if_else.h"
 #include "code_run.h"
+#include "code_while_loop.h"
 #include "var/combo.h"
 
-related_code::related_code()
+std::vector<code_element_maker> *related_code::rc_makers = 0;
+
+related_code::related_code(std::vector<code_element *> a)
 {
+	blocks = a;
+	finalize_blocks();
+}
+
+void related_code::register_code_element_maker(code_element_maker a)
+{
+	if (related_code::rc_makers == 0)
+	{
+		related_code::rc_makers = new std::vector<code_element_maker>();
+	}
+	related_code::rc_makers->push_back(a);
+}
+
+void related_code::list_code_element_makers(std::ostream &dest)
+{
+	dest << "Registered code_element makers:" << std::endl;
+	if (related_code::rc_makers != 0)
+	{
+		for (unsigned int i = 0; i < related_code::rc_makers->size(); i++)
+		{
+			dest << "Item " << i << " cannot be printed yet" << std::endl;
+		}
+	}
+	else
+	{
+		dest << "None" << std::endl;
+	}
 }
 
 void related_code::add_block(code_element *c)
 {
 	blocks.push_back(c);
-}
-
-void related_code::gather_instructions(disassembler &disas)
-{
-	std::vector<ce_basic *> gath;
-	std::vector<address> chunks;
-	chunks.push_back(start_address);
-
-	while (chunks.size() > 0)
-	{
-		address cur_addr = chunks.front();
-		instr *temp;
-		int belongs_to = -1;
-		bool dont_add = false;
-		disas.get_instruction(temp, cur_addr);
-
-		for (unsigned int i = 0; i < gath.size(); i++)
-		{
-			//find if the address is already part of an existing block
-				//find if the address is already the start of a block
-				//find if the address is already in a block but not the start
-			//find if the address should be added to an existing block
-				//add the address to the existing block
-			//else
-				//create a new block and add the address to the existing block
-			if (gath[i]->contains(cur_addr) != 0)
-			{	//this address already exists in this block
-				if (gath[i]->gets() != cur_addr)
-				{	//only do something if it is necessary to split the block
-					ce_basic *sp = gath[i]->second_half(cur_addr);
-					gath.push_back(sp);
-					gath[i] = gath[i]->first_half(cur_addr);
-					dont_add = true;
-				}
-				else
-				{
-					dont_add = true;
-				}
-			}
-		}
-		for (unsigned int i = 0; i < gath.size(); i++)
-		{
-			if (gath[i]->should_be_added(cur_addr))
-			{	//add the address to the existing block
-				belongs_to = i;
-			}
-		}
-		if (gath.size() == 0)
-		{
-			gath.push_back(new ce_basic(cur_addr));
-			belongs_to = 0;
-		}
-		if ((belongs_to == -1) && !dont_add)
-		{
-			ce_basic *temp = new ce_basic(cur_addr);
-			gath.push_back(temp);
-			belongs_to = gath.size() - 1;
-		}
-		if ((belongs_to != -1) && !dont_add)
-		{	//add the line to the given block
-			gath[ belongs_to]->add_line(temp);
-			std::vector<address> p = gath[belongs_to]->get_nexts();
-			for (unsigned int i = 0; i < p.size(); i++)
-			{
-				if (p[i] != 0)
-					chunks.push_back(p[i]);
-			}
-		}
-		chunks.erase(chunks.begin());
-	}
-	for (unsigned int i = 0; i < gath.size(); i++)
-	{
-		blocks.push_back(gath[i]);
-	}
-	finalize_blocks();
 }
 
 void related_code::get_calls(std::vector<address> &c)
@@ -126,25 +80,28 @@ void related_code::finalize_blocks()
 
 void related_code::fprint(std::ostream &dest, int depth)
 {
-	if (simplified())
+	if (blocks.size() > 0)
 	{
-		code_element *ref = blocks[0];
-		while (ref != 0)
+		if (simplified())
 		{
-			ref->fprint(dest, depth);
-			ref = ref->a;
-		}
-	}
-	else
-	{
-		for (unsigned int i = 0; i < blocks.size(); i++)
-		{
-			std::vector<address> p = blocks[i]->get_nexts();
-			if (p.size() > 1)
+			code_element *ref = blocks[0];
+			while (ref != 0)
 			{
-				dest << "#error Unfinished block" << std::endl;
+				ref->fprint(dest, depth);
+				ref = ref->a;
 			}
-			blocks[i]->fprint(dest, depth);
+		}
+		else
+		{
+			for (unsigned int i = 0; i < blocks.size(); i++)
+			{
+				std::vector<address> p = blocks[i]->get_nexts();
+				if (p.size() > 1)
+				{
+					dest << "#error Unfinished block" << std::endl;
+				}
+				blocks[i]->fprint(dest, depth);
+			}
 		}
 	}
 }
@@ -383,9 +340,13 @@ int related_code::process_blocks(int n)
 			std::vector<code_element *> ex_in = external_inputs(group); 
 			unsigned int ext_in = ex_in.size();
 			std::vector<code_element *> ex_out = outside_references(group); 
+			if (ex_out.size() == 0)
+			{
+				ex_out.push_back(0);
+			}
 			unsigned int ext_out = ex_out.size();
-	
-			if ( (ext_in == 1) && (ext_out == 1) )
+			
+			if ( (ext_in == 1) && (ext_out == 1))
 			{
 				if (group[0] != ex_in[0])
 				{
@@ -400,25 +361,28 @@ int related_code::process_blocks(int n)
 						}
 					}	
 				}
-				code_element *temp = code_if_else::simplify(group, ex_out[0]);
-				if (temp != 0)
-				{
-					result++;
-					replace_group(group, temp);
-				}
 				
-				temp = code_run::simplify(group, ex_out[0]);
-				if (temp != 0)
+				std::cout << std::hex << "Valid group: ";
+				for (unsigned int i = 0; i < group.size(); i++)
 				{
-					result++;
-					replace_group(group, temp);
+					std::cout << "0x" << group[i]->gets() << ", ";
 				}
+				if (ex_out[0] != 0)
+					std::cout << "(0x" << ex_out[0]->gets() << ")";
+				std::cout << std::dec << std::endl;
 				
-				temp = code_do_while_loop::simplify(group, ex_out[0]);
-				if (temp != 0)
+				if (related_code::rc_makers != 0)
 				{
-					result++;
-					replace_group(group, temp);
+					for (unsigned int i = 0; i < related_code::rc_makers->size(); i++)
+					{
+						code_element *temp =
+							((*related_code::rc_makers)[i])(group, ex_out[0]);
+						if (temp != 0)
+						{
+							result++;
+							replace_group(group, temp);
+						}
+					}
 				}
 			}
 		}
@@ -467,18 +431,8 @@ void related_code::simplify()
 	{
 		blocks_done = 0;
 		section_done = 0;
-		for (unsigned int i = 0; i < blocks.size(); i++)
-		{
-			if (code_do_while_loop::check(blocks[i]))
-			{
-				code_do_while_loop *new_element = new code_do_while_loop(blocks[i]);
-				replace_element(blocks[i], new_element);
-				section_done++;
-			}
-		}
-		blocks_done += section_done;
 
-		if (num_blocks < blocks.size())
+		while (num_blocks <= blocks.size())
 		{
 			section_done = process_blocks(num_blocks);
 			blocks_done += section_done;

@@ -6,11 +6,11 @@
 
 #include "exceptions.h"
 
-function::function(address addr, const char *t, const char *n, disassembler &disas)
-	: name(n), ret_type(t)
+function::function(address addr, const char *t, const char *n,
+	std::vector<code_element *> a)
+	: name(n), ret_type(t), code(a)
 {
 	s = addr;
-	gather_instructions(disas);
 }
 
 function::~function()
@@ -20,12 +20,6 @@ function::~function()
 address function::gets()
 {
 	return s;
-}
-
-void function::gather_instructions(disassembler &disas)
-{	//directly creates the blocks of code for the function based on a starting address
-	code.start_address = s;
-	code.gather_instructions(disas);
 }
 
 void function::set_name(const char *to)

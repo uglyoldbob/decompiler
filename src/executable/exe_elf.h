@@ -6,6 +6,7 @@
 
 #include "config.h"
 #include "exe_loader.h"
+#include "exe_real.h"
 
 #define EI_NIDENT 16
 #define EI_CLASS 4
@@ -152,12 +153,12 @@ struct exe_elf_program_header
 };
 #endif
 
-class exe_elf : public exe_loader
+class exe_elf : public exe_real
 {
 	public:
-		exe_elf();
+		exe_elf(int reverse);
 		~exe_elf();
-		static int check(std::istream *me);
+		static exe_loader * check(std::istream *me);
 		int process(std::istream *me);	//do basic processing
 		const char *entry_name();
 		address entry_addr();

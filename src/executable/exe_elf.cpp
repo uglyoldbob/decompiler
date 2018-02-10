@@ -1,10 +1,22 @@
 #include "exe_elf.h"
 
+#include "code_elements/ce_basic.h"
 #include "disassembly/disass_x86.h"
 #include "exceptions.h"
 #include <iostream>
 
-exe_elf::exe_elf()
+class register_exe_elf
+{
+	public:
+		register_exe_elf()
+		{
+			exe_loader::register_checker(exe_elf::check);
+		}
+};
+
+static register_exe_elf make_it_so;
+
+exe_elf::exe_elf(int reverse) : exe_real(reverse)
 {
 	sheaders = 0;
 	pheaders = 0;
@@ -18,8 +30,9 @@ exe_elf::~exe_elf()
 	delete [] string_table;
 }
 
-int exe_elf::check(std::istream *me)
+exe_loader * exe_elf::check(std::istream *me)
 {
+	exe_loader *ret = 0;
 	unsigned int signature;
 	signature = 0;
 	me->seekg(0, std::ios::beg);
@@ -28,15 +41,15 @@ int exe_elf::check(std::istream *me)
 		me->read((char*)&signature, 4);//fread(&signature, 4, 1, me);
 		if (signature == 0x464C457F)
 		{
-			return 1;
+			ret = new exe_elf(0);
 		}
 		else if (signature == 0x7F454C46)
 		{
-			return -1;
+			ret = new exe_elf(1);
 		}
 	}
 
-	return 0;
+	return ret;
 }
 
 const char *exe_elf::entry_name()

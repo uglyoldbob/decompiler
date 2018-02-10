@@ -26,7 +26,8 @@ void related_code_maker::update()
 {
 	if (rc != 0)
 		delete rc;
-	rc = new related_code();
+	std::vector<code_element *> blank_list;
+	rc = new related_code(blank_list);
 	for (unsigned int i = 0; i < group.size(); i++)
 	{
 		if (indexes[2*i] == 0)

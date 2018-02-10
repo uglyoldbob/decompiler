@@ -6,6 +6,8 @@
 #include "disassembly/disassembler.h"
 #include "code_element.h"
 
+typedef code_element * (*code_element_maker)(std::vector<code_element *> grp, code_element *end);
+
 std::vector<unsigned int> make_combination(int num);
 std::vector<code_element *> make_group(int num);
 unsigned int get_index(std::vector<code_element*> gr, code_element *b);
@@ -16,15 +18,17 @@ bool non_self_reference(std::vector<code_element*> gr, address a);
 class related_code
 {
 	public:
-		related_code();
+		related_code(std::vector<code_element *> a);
 		address start_address;
 		void add_block(code_element *c);
-		void gather_instructions(disassembler &disas);
 		void get_calls(std::vector<address> &c);	//get a list of addresses called as functions
 		void fprint(std::ostream &dest, int depth);
 		void print_graph(std::ostream &dest);
 		void simplify();
 		bool simplified();
+		//register an instance of a code_element maker
+		static void register_code_element_maker(code_element_maker a);
+		static void list_code_element_makers(std::ostream &dest);
 	private:
 		std::vector<code_element *> blocks;	//The basic elements of code
 		void finalize_blocks();
@@ -36,6 +40,9 @@ class related_code
 		void apply_combination(std::vector<unsigned int> cmb, std::vector<code_element *> &gr);
 		bool next_combo(std::vector<unsigned int> &cmb);
 		int process_blocks(int n);
+		
+		//A list of functions that can make code_element*
+		static std::vector<code_element_maker> *rc_makers;
 };
 
 #endif

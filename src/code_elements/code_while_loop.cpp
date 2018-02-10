@@ -1,5 +1,17 @@
 #include "code_while_loop.h"
 #include "helpers.h"
+#include "related_code.h"
+
+class register_while
+{
+	public:
+		register_while()
+		{
+			related_code::register_code_element_maker(code_while_loop::simplify);
+		}
+};
+
+static register_while make_it_so;
 
 code_while_loop::code_while_loop(code_element *st, code_element *loo)
 {
@@ -24,6 +36,19 @@ void code_while_loop::fprint(std::ostream &dest, int depth)
 	dest << tabs(depth) << "{\n" << tabs(depth);
 	theloop->fprint(dest, depth+1);
 	dest << tabs(depth) << "}\n";
+}
+
+code_element *code_while_loop::simplify(std::vector<code_element *> grp, code_element *end)
+{
+	//first item must point to two elements to be an if else
+	code_while_loop *ret = 0;
+	if (grp[0]->is_branch() && 
+		grp[0]->branches_to(end) && 
+	 	grp[0]->other_branch(end)->jumps_to(grp[0]) )
+	{
+		ret = new code_while_loop(grp[0], grp[0]->other_branch(end));		
+	}
+	return ret;
 }
 
 void code_while_loop::get_calls(std::vector<address> &c)

@@ -6,6 +6,7 @@
 
 #include "config.h"
 #include "exe_loader.h"
+#include "exe_real.h"
 
 const uint32_t EXE_MACHO_CPU_X86_32		= 0x00000007;
 const uint32_t EXE_MACHO_CPU_X86_64		= 0x01000007;
@@ -178,12 +179,12 @@ struct exe_macho_lc
 	exe_macho_lc_data data;
 };
 
-class exe_macho : public exe_loader
+class exe_macho : public exe_real
 {
 	public:
-		exe_macho();
+		exe_macho(int reverse);
 		~exe_macho();
-		static int check(std::istream *me);
+		static exe_loader * check(std::istream *me);
 		int process(std::istream *me);	//do basic processing
 		const char *entry_name();
 		address entry_addr();

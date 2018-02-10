@@ -1,5 +1,18 @@
 #include "code_multi_if.h"
 #include "helpers.h"
+#include "related_code.h"
+
+class register_multi_if
+{
+	public:
+		register_multi_if()
+		{
+			related_code::register_code_element_maker(code_multi_if::simplify);
+		}
+};
+
+static register_multi_if make_it_so;
+
 
 code_multi_if::code_multi_if()
 {
@@ -11,6 +24,13 @@ code_multi_if::code_multi_if()
 code_multi_if::~code_multi_if()
 {
 	form = NONE;
+}
+
+code_element *code_multi_if::simplify(std::vector<code_element *> grp, code_element *end)
+{
+	code_multi_if *ret = 0;
+	//TODO: make this function do something
+	return ret;
 }
 
 void code_multi_if::add(code_element *ad)
