@@ -26,9 +26,9 @@ code_multi_if::~code_multi_if()
 	form = NONE;
 }
 
-code_element *code_run::simplify(std::vector<code_element *> grp, code_element *end)
+code_element *code_multi_if::simplify(std::vector<code_element *> grp, code_element *end)
 {
-	code_run *ret = 0;
+	code_multi_if *ret = 0;
 	//TODO: make this function do something
 	return ret;
 }

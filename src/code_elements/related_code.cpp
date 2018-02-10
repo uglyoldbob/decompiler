@@ -366,6 +366,20 @@ int related_code::process_blocks(int n)
 				if (ex_out[0] != 0)
 					std::cout << "(0x" << ex_out[0]->gets() << ")";
 				std::cout << std::dec << std::endl;
+				
+				if (related_code::rc_makers != 0)
+				{
+					for (unsigned int i = 0; i < related_code::rc_makers->size(); i++)
+					{
+						code_element *temp =
+							((*related_code::rc_makers)[i])(group, ex_out[0]);
+						if (temp != 0)
+						{
+							result++;
+							replace_group(group, temp);
+						}
+					}
+				}
 			}
 		}
 	}
