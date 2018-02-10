@@ -11,6 +11,7 @@ std::vector<code_element_maker> *related_code::rc_makers = 0;
 related_code::related_code(std::vector<code_element *> a)
 {
 	blocks = a;
+	finalize_blocks();
 }
 
 void related_code::register_code_element_maker(code_element_maker a)
