@@ -623,9 +623,11 @@ void disass_ppc::cmp(const char *l, const char *i)
     if(rd & 1)
     {
 #ifndef  POWERPC_64
-        { ill(); return; }
-#endif
+		ill();
+		return;
+#else
         o->iclass |= PPC_DISA_64;
+#endif
     }
 
 #ifdef  SIMPLIFIED
