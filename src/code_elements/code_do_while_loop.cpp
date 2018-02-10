@@ -1,5 +1,17 @@
 #include "code_do_while_loop.h"
 #include "helpers.h"
+#include "related_code.h"
+
+class register_do_while
+{
+	public:
+		register_do_while()
+		{
+			related_code::register_code_element_maker(code_do_while_loop::simplify);
+		}
+};
+
+static register_do_while make_it_so;
 
 code_do_while_loop::code_do_while_loop(code_element *f)
 {

@@ -18,6 +18,7 @@ class code_multi_if : public code_element
 	public:
 		code_multi_if();
 		~code_multi_if();
+		static code_element *simplify(std::vector<code_element *> grp, code_element *end);
 		void add(code_element *a);
 		void common(code_element *c);
 		void set_else(code_element *e);

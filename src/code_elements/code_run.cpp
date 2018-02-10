@@ -3,6 +3,17 @@
 #include "related_code.h"
 #include "helpers.h"
 
+class register_run
+{
+	public:
+		register_run()
+		{
+			related_code::register_code_element_maker(code_run::simplify);
+		}
+};
+
+static register_run make_it_so;
+
 code_run::code_run()
 {
 }
