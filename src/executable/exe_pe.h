@@ -6,6 +6,7 @@
 
 #include "config.h"
 #include "exe_loader.h"
+#include "exe_real.h"
 
 #define EXE_PE_ID 0x5A4D
 
@@ -37,7 +38,7 @@ struct exe_pe_reloc
 #elif TARGET64
 #endif
 
-class exe_pe : public exe_loader
+class exe_pe : public exe_real
 {
 	public:
 		exe_pe(int reverse);

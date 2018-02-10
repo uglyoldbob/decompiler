@@ -10,7 +10,6 @@
 
 executable::executable()
 {
-	rbo = 0;
 	exe_file = new std::ifstream;
 	exe_type = EXEC_TYPE_UNKNOWN;
 	exe_object = 0;
@@ -114,7 +113,10 @@ int executable::load(const char *bin_name)
 
 	function *start;
 	std::vector<address> function_addresses;	//a list of function start addresses
-	start = new function(exe_object->entry_addr(), "void", exe_object->entry_name(), *(exe_object->get_disasm()));
+	std::vector<code_element *> items = 
+		exe_object->gather_instructions(exe_object->entry_addr());
+	start = new function(exe_object->entry_addr(),
+		"void", exe_object->entry_name(), items);
 	source_file *nsf = new source_file(exe_name + "/" + start->get_name() + ".c");
 	nsf->add_function(start);
 	sources.push_back(nsf);
@@ -141,7 +143,10 @@ int executable::load(const char *bin_name)
 	{
 		std::stringstream name;
 		name << "func_" << std::hex << function_addresses[0] << std::dec;
-		function *tfunc = new function(function_addresses[0], "unknown", name.str().c_str(), *(exe_object->get_disasm()));
+		std::vector<code_element *> items = 
+			exe_object->gather_instructions(function_addresses[0]);
+		function *tfunc = new function(function_addresses[0], "unknown", 
+			name.str().c_str(), items);
 		source_file *tfsf = new source_file(exe_name + "/" + tfunc->get_name() + ".c");
 		tfsf->add_function(tfunc);
 		sources.push_back(tfsf);

@@ -189,6 +189,7 @@ am_decompile16_OBJECTS = src/var/decompile16-type.$(OBJEXT) \
 	src/executable/decompile16-exe_elf.$(OBJEXT) \
 	src/executable/decompile16-exe_macho.$(OBJEXT) \
 	src/executable/decompile16-exe_pe.$(OBJEXT) \
+	src/executable/decompile16-exe_real.$(OBJEXT) \
 	src/disassembly/decompile16-disassembler.$(OBJEXT) \
 	src/disassembly/decompile16-disass_x86.$(OBJEXT) \
 	src/disassembly/decompile16-disass_ppc.$(OBJEXT) \
@@ -232,6 +233,7 @@ am_decompile32_OBJECTS = src/var/decompile32-type.$(OBJEXT) \
 	src/executable/decompile32-exe_elf.$(OBJEXT) \
 	src/executable/decompile32-exe_macho.$(OBJEXT) \
 	src/executable/decompile32-exe_pe.$(OBJEXT) \
+	src/executable/decompile32-exe_real.$(OBJEXT) \
 	src/disassembly/decompile32-disassembler.$(OBJEXT) \
 	src/disassembly/decompile32-disass_x86.$(OBJEXT) \
 	src/disassembly/decompile32-disass_ppc.$(OBJEXT) \
@@ -275,6 +277,7 @@ am_decompile64_OBJECTS = src/var/decompile64-type.$(OBJEXT) \
 	src/executable/decompile64-exe_elf.$(OBJEXT) \
 	src/executable/decompile64-exe_macho.$(OBJEXT) \
 	src/executable/decompile64-exe_pe.$(OBJEXT) \
+	src/executable/decompile64-exe_real.$(OBJEXT) \
 	src/disassembly/decompile64-disassembler.$(OBJEXT) \
 	src/disassembly/decompile64-disass_x86.$(OBJEXT) \
 	src/disassembly/decompile64-disass_ppc.$(OBJEXT) \
@@ -816,6 +819,7 @@ src/executable/exe_loader.cpp \
 src/executable/exe_elf.cpp \
 src/executable/exe_macho.cpp \
 src/executable/exe_pe.cpp \
+src/executable/exe_real.cpp \
 src/disassembly/disassembler.cpp \
 src/disassembly/disass_x86.cpp \
 src/disassembly/disass_ppc.cpp \
@@ -857,6 +861,7 @@ src/executable/exe_loader.cpp \
 src/executable/exe_elf.cpp \
 src/executable/exe_macho.cpp \
 src/executable/exe_pe.cpp \
+src/executable/exe_real.cpp \
 src/disassembly/disassembler.cpp \
 src/disassembly/disass_x86.cpp \
 src/disassembly/disass_ppc.cpp \
@@ -898,6 +903,7 @@ src/executable/exe_loader.cpp \
 src/executable/exe_elf.cpp \
 src/executable/exe_macho.cpp \
 src/executable/exe_pe.cpp \
+src/executable/exe_real.cpp \
 src/disassembly/disassembler.cpp \
 src/disassembly/disass_x86.cpp \
 src/disassembly/disass_ppc.cpp \
@@ -1220,6 +1226,9 @@ src/executable/decompile16-exe_macho.$(OBJEXT):  \
 src/executable/decompile16-exe_pe.$(OBJEXT):  \
 	src/executable/$(am__dirstamp) \
 	src/executable/$(DEPDIR)/$(am__dirstamp)
+src/executable/decompile16-exe_real.$(OBJEXT):  \
+	src/executable/$(am__dirstamp) \
+	src/executable/$(DEPDIR)/$(am__dirstamp)
 src/disassembly/decompile16-disassembler.$(OBJEXT):  \
 	src/disassembly/$(am__dirstamp) \
 	src/disassembly/$(DEPDIR)/$(am__dirstamp)
@@ -1340,6 +1349,9 @@ src/executable/decompile32-exe_macho.$(OBJEXT):  \
 src/executable/decompile32-exe_pe.$(OBJEXT):  \
 	src/executable/$(am__dirstamp) \
 	src/executable/$(DEPDIR)/$(am__dirstamp)
+src/executable/decompile32-exe_real.$(OBJEXT):  \
+	src/executable/$(am__dirstamp) \
+	src/executable/$(DEPDIR)/$(am__dirstamp)
 src/disassembly/decompile32-disassembler.$(OBJEXT):  \
 	src/disassembly/$(am__dirstamp) \
 	src/disassembly/$(DEPDIR)/$(am__dirstamp)
@@ -1452,6 +1464,9 @@ src/executable/decompile64-exe_macho.$(OBJEXT):  \
 	src/executable/$(am__dirstamp) \
 	src/executable/$(DEPDIR)/$(am__dirstamp)
 src/executable/decompile64-exe_pe.$(OBJEXT):  \
+	src/executable/$(am__dirstamp) \
+	src/executable/$(DEPDIR)/$(am__dirstamp)
+src/executable/decompile64-exe_real.$(OBJEXT):  \
 	src/executable/$(am__dirstamp) \
 	src/executable/$(DEPDIR)/$(am__dirstamp)
 src/disassembly/decompile64-disassembler.$(OBJEXT):  \
@@ -1619,16 +1634,19 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile16-exe_loader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile16-exe_macho.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile16-exe_pe.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile16-exe_real.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile16-executable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile32-exe_elf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile32-exe_loader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile32-exe_macho.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile32-exe_pe.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile32-exe_real.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile32-executable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile64-exe_elf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile64-exe_loader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile64-exe_macho.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile64-exe_pe.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile64-exe_real.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile64-executable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/projecttest-exe_loader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/projecttest-executable.Po@am__quote@
@@ -2372,6 +2390,20 @@ src/executable/decompile16-exe_pe.obj: src/executable/exe_pe.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/executable/decompile16-exe_pe.obj `if test -f 'src/executable/exe_pe.cpp'; then $(CYGPATH_W) 'src/executable/exe_pe.cpp'; else $(CYGPATH_W) '$(srcdir)/src/executable/exe_pe.cpp'; fi`
 
+src/executable/decompile16-exe_real.o: src/executable/exe_real.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/executable/decompile16-exe_real.o -MD -MP -MF src/executable/$(DEPDIR)/decompile16-exe_real.Tpo -c -o src/executable/decompile16-exe_real.o `test -f 'src/executable/exe_real.cpp' || echo '$(srcdir)/'`src/executable/exe_real.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/executable/$(DEPDIR)/decompile16-exe_real.Tpo src/executable/$(DEPDIR)/decompile16-exe_real.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/executable/exe_real.cpp' object='src/executable/decompile16-exe_real.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/executable/decompile16-exe_real.o `test -f 'src/executable/exe_real.cpp' || echo '$(srcdir)/'`src/executable/exe_real.cpp
+
+src/executable/decompile16-exe_real.obj: src/executable/exe_real.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/executable/decompile16-exe_real.obj -MD -MP -MF src/executable/$(DEPDIR)/decompile16-exe_real.Tpo -c -o src/executable/decompile16-exe_real.obj `if test -f 'src/executable/exe_real.cpp'; then $(CYGPATH_W) 'src/executable/exe_real.cpp'; else $(CYGPATH_W) '$(srcdir)/src/executable/exe_real.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/executable/$(DEPDIR)/decompile16-exe_real.Tpo src/executable/$(DEPDIR)/decompile16-exe_real.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/executable/exe_real.cpp' object='src/executable/decompile16-exe_real.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/executable/decompile16-exe_real.obj `if test -f 'src/executable/exe_real.cpp'; then $(CYGPATH_W) 'src/executable/exe_real.cpp'; else $(CYGPATH_W) '$(srcdir)/src/executable/exe_real.cpp'; fi`
+
 src/disassembly/decompile16-disassembler.o: src/disassembly/disassembler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/disassembly/decompile16-disassembler.o -MD -MP -MF src/disassembly/$(DEPDIR)/decompile16-disassembler.Tpo -c -o src/disassembly/decompile16-disassembler.o `test -f 'src/disassembly/disassembler.cpp' || echo '$(srcdir)/'`src/disassembly/disassembler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/disassembly/$(DEPDIR)/decompile16-disassembler.Tpo src/disassembly/$(DEPDIR)/decompile16-disassembler.Po
@@ -2918,6 +2950,20 @@ src/executable/decompile32-exe_pe.obj: src/executable/exe_pe.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/executable/decompile32-exe_pe.obj `if test -f 'src/executable/exe_pe.cpp'; then $(CYGPATH_W) 'src/executable/exe_pe.cpp'; else $(CYGPATH_W) '$(srcdir)/src/executable/exe_pe.cpp'; fi`
 
+src/executable/decompile32-exe_real.o: src/executable/exe_real.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/executable/decompile32-exe_real.o -MD -MP -MF src/executable/$(DEPDIR)/decompile32-exe_real.Tpo -c -o src/executable/decompile32-exe_real.o `test -f 'src/executable/exe_real.cpp' || echo '$(srcdir)/'`src/executable/exe_real.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/executable/$(DEPDIR)/decompile32-exe_real.Tpo src/executable/$(DEPDIR)/decompile32-exe_real.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/executable/exe_real.cpp' object='src/executable/decompile32-exe_real.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/executable/decompile32-exe_real.o `test -f 'src/executable/exe_real.cpp' || echo '$(srcdir)/'`src/executable/exe_real.cpp
+
+src/executable/decompile32-exe_real.obj: src/executable/exe_real.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/executable/decompile32-exe_real.obj -MD -MP -MF src/executable/$(DEPDIR)/decompile32-exe_real.Tpo -c -o src/executable/decompile32-exe_real.obj `if test -f 'src/executable/exe_real.cpp'; then $(CYGPATH_W) 'src/executable/exe_real.cpp'; else $(CYGPATH_W) '$(srcdir)/src/executable/exe_real.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/executable/$(DEPDIR)/decompile32-exe_real.Tpo src/executable/$(DEPDIR)/decompile32-exe_real.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/executable/exe_real.cpp' object='src/executable/decompile32-exe_real.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/executable/decompile32-exe_real.obj `if test -f 'src/executable/exe_real.cpp'; then $(CYGPATH_W) 'src/executable/exe_real.cpp'; else $(CYGPATH_W) '$(srcdir)/src/executable/exe_real.cpp'; fi`
+
 src/disassembly/decompile32-disassembler.o: src/disassembly/disassembler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/disassembly/decompile32-disassembler.o -MD -MP -MF src/disassembly/$(DEPDIR)/decompile32-disassembler.Tpo -c -o src/disassembly/decompile32-disassembler.o `test -f 'src/disassembly/disassembler.cpp' || echo '$(srcdir)/'`src/disassembly/disassembler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/disassembly/$(DEPDIR)/decompile32-disassembler.Tpo src/disassembly/$(DEPDIR)/decompile32-disassembler.Po
@@ -3463,6 +3509,20 @@ src/executable/decompile64-exe_pe.obj: src/executable/exe_pe.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/executable/exe_pe.cpp' object='src/executable/decompile64-exe_pe.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/executable/decompile64-exe_pe.obj `if test -f 'src/executable/exe_pe.cpp'; then $(CYGPATH_W) 'src/executable/exe_pe.cpp'; else $(CYGPATH_W) '$(srcdir)/src/executable/exe_pe.cpp'; fi`
+
+src/executable/decompile64-exe_real.o: src/executable/exe_real.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/executable/decompile64-exe_real.o -MD -MP -MF src/executable/$(DEPDIR)/decompile64-exe_real.Tpo -c -o src/executable/decompile64-exe_real.o `test -f 'src/executable/exe_real.cpp' || echo '$(srcdir)/'`src/executable/exe_real.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/executable/$(DEPDIR)/decompile64-exe_real.Tpo src/executable/$(DEPDIR)/decompile64-exe_real.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/executable/exe_real.cpp' object='src/executable/decompile64-exe_real.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/executable/decompile64-exe_real.o `test -f 'src/executable/exe_real.cpp' || echo '$(srcdir)/'`src/executable/exe_real.cpp
+
+src/executable/decompile64-exe_real.obj: src/executable/exe_real.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/executable/decompile64-exe_real.obj -MD -MP -MF src/executable/$(DEPDIR)/decompile64-exe_real.Tpo -c -o src/executable/decompile64-exe_real.obj `if test -f 'src/executable/exe_real.cpp'; then $(CYGPATH_W) 'src/executable/exe_real.cpp'; else $(CYGPATH_W) '$(srcdir)/src/executable/exe_real.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/executable/$(DEPDIR)/decompile64-exe_real.Tpo src/executable/$(DEPDIR)/decompile64-exe_real.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/executable/exe_real.cpp' object='src/executable/decompile64-exe_real.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/executable/decompile64-exe_real.obj `if test -f 'src/executable/exe_real.cpp'; then $(CYGPATH_W) 'src/executable/exe_real.cpp'; else $(CYGPATH_W) '$(srcdir)/src/executable/exe_real.cpp'; fi`
 
 src/disassembly/decompile64-disassembler.o: src/disassembly/disassembler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/disassembly/decompile64-disassembler.o -MD -MP -MF src/disassembly/$(DEPDIR)/decompile64-disassembler.Tpo -c -o src/disassembly/decompile64-disassembler.o `test -f 'src/disassembly/disassembler.cpp' || echo '$(srcdir)/'`src/disassembly/disassembler.cpp

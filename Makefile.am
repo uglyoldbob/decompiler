@@ -103,6 +103,7 @@ src/executable/exe_loader.cpp \
 src/executable/exe_elf.cpp \
 src/executable/exe_macho.cpp \
 src/executable/exe_pe.cpp \
+src/executable/exe_real.cpp \
 src/disassembly/disassembler.cpp \
 src/disassembly/disass_x86.cpp \
 src/disassembly/disass_ppc.cpp \
@@ -145,6 +146,7 @@ src/executable/exe_loader.cpp \
 src/executable/exe_elf.cpp \
 src/executable/exe_macho.cpp \
 src/executable/exe_pe.cpp \
+src/executable/exe_real.cpp \
 src/disassembly/disassembler.cpp \
 src/disassembly/disass_x86.cpp \
 src/disassembly/disass_ppc.cpp \
@@ -186,6 +188,7 @@ src/executable/exe_loader.cpp \
 src/executable/exe_elf.cpp \
 src/executable/exe_macho.cpp \
 src/executable/exe_pe.cpp \
+src/executable/exe_real.cpp \
 src/disassembly/disassembler.cpp \
 src/disassembly/disass_x86.cpp \
 src/disassembly/disass_ppc.cpp \

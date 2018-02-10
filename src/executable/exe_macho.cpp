@@ -16,7 +16,7 @@ class register_exe_macho
 
 static register_exe_macho make_it_so;
 
-exe_macho::exe_macho(int reverse) : exe_loader(reverse)
+exe_macho::exe_macho(int reverse) : exe_real(reverse)
 {
 	lcmds = 0;
 }

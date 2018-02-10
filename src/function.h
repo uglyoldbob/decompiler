@@ -12,7 +12,7 @@
 class function
 {
 	public:
-		function(address addr, const char *t, const char *n, disassembler &disas);
+		function(address addr, const char *t, const char *n, std::vector<code_element *> a);
 		~function();
 		void get_calls(std::vector<address> &c);	//get a list of addresses called as functions
 		void simplify();
@@ -30,7 +30,6 @@ class function
 		related_code code;	//the code for the function 
 
 		//constructor helpers
-		void gather_instructions(disassembler &disas);
 		void create_pieces();
 		void add_line(instr *addme);	//add a line of code to the function
 		void link_blocks();

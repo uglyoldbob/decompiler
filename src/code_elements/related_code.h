@@ -18,7 +18,7 @@ bool non_self_reference(std::vector<code_element*> gr, address a);
 class related_code
 {
 	public:
-		related_code();
+		related_code(std::vector<code_element *> a);
 		address start_address;
 		void add_block(code_element *c);
 		void get_calls(std::vector<address> &c);	//get a list of addresses called as functions

@@ -16,7 +16,7 @@ class register_exe_pe
 
 static register_exe_pe make_it_so;
 
-exe_pe::exe_pe(int reverse) : exe_loader(reverse)
+exe_pe::exe_pe(int reverse) : exe_real(reverse)
 {
 }
 

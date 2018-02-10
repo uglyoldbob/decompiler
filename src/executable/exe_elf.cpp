@@ -1,5 +1,6 @@
 #include "exe_elf.h"
 
+#include "code_elements/ce_basic.h"
 #include "disassembly/disass_x86.h"
 #include "exceptions.h"
 #include <iostream>
@@ -15,7 +16,7 @@ class register_exe_elf
 
 static register_exe_elf make_it_so;
 
-exe_elf::exe_elf(int reverse) : exe_loader(reverse)
+exe_elf::exe_elf(int reverse) : exe_real(reverse)
 {
 	sheaders = 0;
 	pheaders = 0;

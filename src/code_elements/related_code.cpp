@@ -1,6 +1,5 @@
 #include "related_code.h"
 
-#include "ce_basic.h"
 #include "code_do_while_loop.h"
 #include "code_if_else.h"
 #include "code_run.h"
@@ -9,8 +8,9 @@
 
 std::vector<code_element_maker> *related_code::rc_makers = 0;
 
-related_code::related_code()
+related_code::related_code(std::vector<code_element *> a)
 {
+	blocks = a;
 }
 
 void related_code::register_code_element_maker(code_element_maker a)

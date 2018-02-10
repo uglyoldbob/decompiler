@@ -10,7 +10,7 @@ disass_x86::disass_x86(exe_loader *own) :
 	disassembler(own)
 {
 	ud_init(&u);
-	ud_set_mode(&u, 16);
+	ud_set_mode(&u, 32);
 	ud_set_syntax(&u,UD_SYN_INTEL);
 }
 
@@ -53,20 +53,27 @@ std::string get_type(ud_type_t me)
 	case UD_R_R11W: case UD_R_R12W: case UD_R_R13W:
 	case UD_R_R14W: case UD_R_R15W:
 		throw "unknown 16-bit register";
-		return "unknown 8-bit";
+		return "unknown 16-bit";
 	case UD_R_ES: return "es";
 	case UD_R_CS: return "cs";
 	case UD_R_SS: return "ss";
 	case UD_R_DS: return "ds";
 	case UD_R_FS: return "fs";
 	case UD_R_GS: return "gs";
-/* 
-  32 bit GPRs
-  UD_R_EAX, UD_R_ECX, UD_R_EDX, UD_R_EBX,
-  UD_R_ESP, UD_R_EBP, UD_R_ESI, UD_R_EDI,
-  UD_R_R8D, UD_R_R9D, UD_R_R10D,  UD_R_R11D,
-  UD_R_R12D,  UD_R_R13D,  UD_R_R14D,  UD_R_R15D,
-  
+	case UD_R_EAX: return "eax";
+	case UD_R_ECX: return "ecx";
+	case UD_R_EDX: return "edx";
+	case UD_R_EBX: return "ebx";
+	case UD_R_ESP: return "esp";
+	case UD_R_EBP: return "ebp";
+	case UD_R_ESI: return "esi";
+	case UD_R_EDI: return "edi";
+	case UD_R_R8D: case UD_R_R9D: case UD_R_R10D:
+	case UD_R_R11D: case UD_R_R12D: case UD_R_R13D:
+	case UD_R_R14D: case UD_R_R15D:
+		throw "unknown 32-bit register";
+		return "unknown 32-bit";
+/*
   64 bit GPRs 
   UD_R_RAX, UD_R_RCX, UD_R_RDX, UD_R_RBX,
   UD_R_RSP, UD_R_RBP, UD_R_RSI, UD_R_RDI,
