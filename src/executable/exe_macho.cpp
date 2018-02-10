@@ -5,9 +5,19 @@
 #include "exceptions.h"
 #include "executable.h"
 
-exe_macho::exe_macho()
+class register_exe_macho
 {
-	rbo = 0;
+	public:
+		register_exe_macho()
+		{
+			exe_loader::register_checker(exe_macho::check);
+		}
+};
+
+static register_exe_macho make_it_so;
+
+exe_macho::exe_macho(int reverse) : exe_loader(reverse)
+{
 	lcmds = 0;
 }
 
@@ -30,8 +40,9 @@ exe_macho::~exe_macho()
 	delete [] lcmds;
 }
 
-int exe_macho::check(std::istream *me)
+exe_loader * exe_macho::check(std::istream *me)
 {
+	exe_loader *ret = 0;
 	unsigned int signature;
 	signature = 0;
 	me->seekg(0, std::ios::beg);
@@ -40,22 +51,22 @@ int exe_macho::check(std::istream *me)
 		me->read((char*)&signature, 4);
 		if (signature == EXE_MACHO_MAGIC_32)
 		{
-			return 1;
+			ret = new exe_macho(0);
 		}
 		else if (signature == EXE_MACHO_CIGAM_32)
 		{
-			return -1;
+			ret = new exe_macho(1);
 		}
 		else if (signature == EXE_MACHO_MAGIC_64)
 		{
-			return 1;
+			ret = new exe_macho(0);
 		}
 		else if (signature == EXE_MACHO_CIGAM_64)
 		{
-			return -1;
+			ret = new exe_macho(1);
 		}
 	}
-	return 0;
+	return ret;
 }
 
 const char *exe_macho::entry_name()

@@ -181,9 +181,9 @@ struct exe_macho_lc
 class exe_macho : public exe_loader
 {
 	public:
-		exe_macho();
+		exe_macho(int reverse);
 		~exe_macho();
-		static int check(std::istream *me);
+		static exe_loader * check(std::istream *me);
 		int process(std::istream *me);	//do basic processing
 		const char *entry_name();
 		address entry_addr();

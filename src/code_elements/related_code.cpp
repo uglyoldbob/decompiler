@@ -79,25 +79,28 @@ void related_code::finalize_blocks()
 
 void related_code::fprint(std::ostream &dest, int depth)
 {
-	if (simplified())
+	if (blocks.size() > 0)
 	{
-		code_element *ref = blocks[0];
-		while (ref != 0)
+		if (simplified())
 		{
-			ref->fprint(dest, depth);
-			ref = ref->a;
-		}
-	}
-	else
-	{
-		for (unsigned int i = 0; i < blocks.size(); i++)
-		{
-			std::vector<address> p = blocks[i]->get_nexts();
-			if (p.size() > 1)
+			code_element *ref = blocks[0];
+			while (ref != 0)
 			{
-				dest << "#error Unfinished block" << std::endl;
+				ref->fprint(dest, depth);
+				ref = ref->a;
 			}
-			blocks[i]->fprint(dest, depth);
+		}
+		else
+		{
+			for (unsigned int i = 0; i < blocks.size(); i++)
+			{
+				std::vector<address> p = blocks[i]->get_nexts();
+				if (p.size() > 1)
+				{
+					dest << "#error Unfinished block" << std::endl;
+				}
+				blocks[i]->fprint(dest, depth);
+			}
 		}
 	}
 }

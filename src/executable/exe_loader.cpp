@@ -2,10 +2,38 @@
 
 #include "disassembly/disassembler.h"
 
-exe_loader::exe_loader()
+std::vector<exe_checker> *exe_loader::checker = 0;
+
+void exe_loader::register_checker(exe_checker a)
+{
+	if (exe_loader::checker == 0)
+	{
+		exe_loader::checker = new std::vector<exe_checker>();
+	}
+	exe_loader::checker->push_back(a);
+}
+
+exe_loader * exe_loader::check(std::istream *inf)
+{
+	exe_loader *ret = 0;
+	if (exe_loader::checker != 0)
+	{
+		for (unsigned int i = 0; i < exe_loader::checker->size(); i++)
+		{
+			ret = ((*exe_loader::checker)[i])(inf);
+			if (ret != 0)
+			{
+				break;
+			}
+		}
+	}
+	return ret;
+}
+
+exe_loader::exe_loader(int reverse)
 {
 	exe = 0;
-	rbo = 0;
+	rbo = reverse;
 	disasm = 0;
 }
 

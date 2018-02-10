@@ -5,17 +5,28 @@
 #include "exceptions.h"
 #include "executable.h"
 
-exe_pe::exe_pe()
+class register_exe_pe
 {
-	rbo = 0;
+	public:
+		register_exe_pe()
+		{
+			exe_loader::register_checker(exe_pe::check);
+		}
+};
+
+static register_exe_pe make_it_so;
+
+exe_pe::exe_pe(int reverse) : exe_loader(reverse)
+{
 }
 
 exe_pe::~exe_pe()
 {
 }
 
-int exe_pe::check(std::istream *me)
+exe_loader * exe_pe::check(std::istream *me)
 {
+	exe_loader *ret = 0;
 	unsigned int signature;
 	signature = 0;
 	me->seekg(0, std::ios::beg);
@@ -25,10 +36,10 @@ int exe_pe::check(std::istream *me)
 		printf("Signature is %x\n", signature);
 		if (signature == EXE_PE_ID)
 		{ 
-			return 1;
+			ret = new exe_pe(0);
 		}
 	}
-	return 0;
+	return ret;
 }
 
 const char *exe_pe::entry_name()

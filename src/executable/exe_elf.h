@@ -155,9 +155,9 @@ struct exe_elf_program_header
 class exe_elf : public exe_loader
 {
 	public:
-		exe_elf();
+		exe_elf(int reverse);
 		~exe_elf();
-		static int check(std::istream *me);
+		static exe_loader * check(std::istream *me);
 		int process(std::istream *me);	//do basic processing
 		const char *entry_name();
 		address entry_addr();

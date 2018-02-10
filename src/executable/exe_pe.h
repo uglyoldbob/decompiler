@@ -40,9 +40,9 @@ struct exe_pe_reloc
 class exe_pe : public exe_loader
 {
 	public:
-		exe_pe();
+		exe_pe(int reverse);
 		~exe_pe();
-		static int check(std::istream *me);
+		static exe_loader* check(std::istream *me);
 		int process(std::istream *me);	//do basic processing
 		const char *entry_name();
 		address entry_addr();

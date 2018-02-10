@@ -22,25 +22,6 @@ executable::~executable()
 	delete exe_file;
 }
 
-int executable::check_pe(std::istream *me)
-{
-	unsigned int signature;
-	signature = 0;
-	me->seekg(0x3C, std::ios::beg);
-	me->read((char*)&signature, 4);
-	if (me->fail())
-	{
-		std::cout << "error reading offset location\n";
-		return -1;
-	}
-	me->seekg(signature, std::ios::beg);
-	if (me->good())
-	{
-	}
-
-	return 0;
-}
-
 int executable::output(const char *fld_name)
 {
 	folder = fld_name;
@@ -117,6 +98,8 @@ int executable::load(const char *bin_name)
 		std::cout << "Failed to open executable " << bin_name << "\n";
 		throw file_open_failed(bin_name);
 	}
+
+	exe_object = exe_loader::check(exe_file);
 
 	if (exe_object == 0)
 	{
