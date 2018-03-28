@@ -9,6 +9,22 @@ https://sonarcloud.io/dashboard?id=uglyoldbob_decompiler
 
 The goal of this program is to decompile an executable program to source code (represented by C), that can then be compiled back into a program that performs the same as the original.
 
+**Generated programs**
+
+*decompile16*
+
+This is intended to target 16 bit executables.
+
+*decompile32*
+
+This is intended to target 32 bit executables.
+
+*decompile64*
+
+This is intended to target 64 bit executables.
+
+
+
 ***Reference materials:***
 
 **Books**
