@@ -1,30 +1,27 @@
 
 AUTOMAKE_OPTIONS = subdir-objects
 
-SUBDIRS = udis86-1.7.2
+SUBDIRS = udis86
 
 lib_LIBRARIES = libgtest.a
 
 libgtest_a_SOURCES = googletest/googletest/src/gtest-all.cc
 libgtest_a_CPPFLAGS = -I${top_srcdir}/googletest/googletest -I${top_srcdir}/googletest/googletest/include
 
-libudis86.a: udis86-1.7.2/libudis86/.libs/libudis86.a
-	cp udis86-1.7.2/libudis86/.libs/libudis86.a libudis86.a
-
 test_SOURCES = src/example.c
 
 bin_PROGRAMS = decompile16 decompile32 decompile64 test cfgtest projecttest
 
-decompile16_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
-decompile32_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
-decompile64_CFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+decompile16_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+decompile32_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+decompile64_CFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86/ -I${top_srcdir} -Wall -I${top_srcdir}/src
 
-decompile16_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
-decompile32_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
-decompile64_CPPFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+decompile16_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+decompile32_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+decompile64_CPPFLAGS = -D TARGET64 -std=c++0x -I${top_srcdir}/udis86/ -I${top_srcdir} -Wall -I${top_srcdir}/src
 
-cfgtest_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
-cfgtest_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+cfgtest_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+cfgtest_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86/ -I${top_srcdir} -Wall -I${top_srcdir}/src
 cfgtest_SOURCES = \
 src/code_elements/code_element.cpp \
 src/code_elements/ce_basic.cpp \
@@ -43,8 +40,8 @@ src/disassembly/disassembler.cpp \
 src/var/combo.cpp \
 src/var/related_code_maker.cpp
 
-projecttest_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
-projecttest_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86-1.7.2/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+projecttest_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86/ -I${top_srcdir} -Wall -I${top_srcdir}/src
+projecttest_CPPFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86/ -I${top_srcdir} -Wall -I${top_srcdir}/src
 projecttest_LDADD = libgtest.a
 projecttest_SOURCES = \
 src/tests/projects.cpp \
@@ -64,14 +61,18 @@ TESTS = cfgtest projecttest
 
 #BUILT_SOURCES = libudis86.a
 
-decompile16_LDADD = libudis86.a
-decompile32_LDADD = libudis86.a
-decompile64_LDADD = libudis86.a
+decompile16_LDADD = -ludis86
+decompile32_LDADD = -ludis86
+decompile64_LDADD = -ludis86
+
+decompile16_LDFLAGS = -L./udis86/libudis86/.libs
+decompile32_LDFLAGS = -L./udis86/libudis86/.libs
+decompile64_LDFLAGS = -L./udis86/libudis86/.libs
 
 if WINDOWS
-decompile16_LDFLAGS = -lmingw32
-decompile32_LDFLAGS = -lmingw32
-decompile64_LDFLAGS = -lmingw32
+decompile16_LDFLAGS += -lmingw32
+decompile32_LDFLAGS += -lmingw32
+decompile64_LDFLAGS += -lmingw32
 endif
 decompile16_SOURCES = \
 src/var/type.cpp \
