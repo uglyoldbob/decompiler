@@ -14,6 +14,7 @@
 
 @SET_MAKE@
 
+
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -89,8 +90,9 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = decompile16$(EXEEXT) decompile32$(EXEEXT) \
-	decompile64$(EXEEXT) test$(EXEEXT) cfgtest$(EXEEXT)
-TESTS = cfgtest$(EXEEXT)
+	decompile64$(EXEEXT) test$(EXEEXT) cfgtest$(EXEEXT) \
+	projecttest$(EXEEXT)
+TESTS = cfgtest$(EXEEXT) projecttest$(EXEEXT)
 @WINDOWS_TRUE@am__append_1 = -lmingw32
 @WINDOWS_TRUE@am__append_2 = -lmingw32
 @WINDOWS_TRUE@am__append_3 = -lmingw32
@@ -108,9 +110,49 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = ac_config.h
 CONFIG_CLEAN_FILES = Doxyfile
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man3dir)"
-PROGRAMS = $(bin_PROGRAMS)
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
+am__install_max = 40
+am__nobase_strip_setup = \
+  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
+am__nobase_strip = \
+  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
+am__nobase_list = $(am__nobase_strip_setup); \
+  for p in $$list; do echo "$$p $$p"; done | \
+  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
+  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
+    if (++n[$$2] == $(am__install_max)) \
+      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
+    END { for (dir in files) print dir, files[dir] }'
+am__base_list = \
+  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
+  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
+am__uninstall_files_from_dir = { \
+  test -z "$$files" \
+    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
+    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
+         $(am__cd) "$$dir" && rm -f $$files; }; \
+  }
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
+	"$(DESTDIR)$(man3dir)"
+LIBRARIES = $(lib_LIBRARIES)
+AR = ar
+ARFLAGS = cru
+AM_V_AR = $(am__v_AR_@AM_V@)
+am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
+am__v_AR_0 = @echo "  AR      " $@;
+am__v_AR_1 = 
+libgtest_a_AR = $(AR) $(ARFLAGS)
+libgtest_a_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
+am_libgtest_a_OBJECTS =  \
+	googletest/googletest/src/libgtest_a-gtest-all.$(OBJEXT)
+libgtest_a_OBJECTS = $(am_libgtest_a_OBJECTS)
+PROGRAMS = $(bin_PROGRAMS)
 am_cfgtest_OBJECTS = src/code_elements/cfgtest-code_element.$(OBJEXT) \
 	src/code_elements/cfgtest-ce_basic.$(OBJEXT) \
 	src/code_elements/cfgtest-ce_dummy.$(OBJEXT) \
@@ -259,6 +301,20 @@ decompile64_OBJECTS = $(am_decompile64_OBJECTS)
 decompile64_DEPENDENCIES =
 decompile64_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(decompile64_LDFLAGS) $(LDFLAGS) -o $@
+am_projecttest_OBJECTS = src/tests/projecttest-projects.$(OBJEXT) \
+	src/executable/projecttest-executable.$(OBJEXT) \
+	src/executable/projecttest-exe_loader.$(OBJEXT) \
+	src/project/projecttest-project.$(OBJEXT) \
+	src/project/projecttest-build_system.$(OBJEXT) \
+	src/project/projecttest-source_file.$(OBJEXT) \
+	src/projecttest-function.$(OBJEXT) \
+	src/code_elements/projecttest-related_code.$(OBJEXT) \
+	src/code_elements/projecttest-code_element.$(OBJEXT) \
+	src/var/projecttest-combo.$(OBJEXT) \
+	src/var/projecttest-type.$(OBJEXT) \
+	src/projecttest-variable.$(OBJEXT)
+projecttest_OBJECTS = $(am_projecttest_OBJECTS)
+projecttest_DEPENDENCIES = libgtest.a
 am_test_OBJECTS = src/example.$(OBJEXT)
 test_OBJECTS = $(am_test_OBJECTS)
 test_LDADD = $(LDADD)
@@ -307,10 +363,12 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(cfgtest_SOURCES) $(decompile16_SOURCES) \
-	$(decompile32_SOURCES) $(decompile64_SOURCES) $(test_SOURCES)
-DIST_SOURCES = $(cfgtest_SOURCES) $(decompile16_SOURCES) \
-	$(decompile32_SOURCES) $(decompile64_SOURCES) $(test_SOURCES)
+SOURCES = $(libgtest_a_SOURCES) $(cfgtest_SOURCES) \
+	$(decompile16_SOURCES) $(decompile32_SOURCES) \
+	$(decompile64_SOURCES) $(projecttest_SOURCES) $(test_SOURCES)
+DIST_SOURCES = $(libgtest_a_SOURCES) $(cfgtest_SOURCES) \
+	$(decompile16_SOURCES) $(decompile32_SOURCES) \
+	$(decompile64_SOURCES) $(projecttest_SOURCES) $(test_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -324,33 +382,6 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
-am__vpath_adj = case $$p in \
-    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-    *) f=$$p;; \
-  esac;
-am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
-am__install_max = 40
-am__nobase_strip_setup = \
-  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
-am__nobase_strip = \
-  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
-am__nobase_list = $(am__nobase_strip_setup); \
-  for p in $$list; do echo "$$p $$p"; done | \
-  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
-  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
-    if (++n[$$2] == $(am__install_max)) \
-      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
-    END { for (dir in files) print dir, files[dir] }'
-am__base_list = \
-  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
-  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__uninstall_files_from_dir = { \
-  test -z "$$files" \
-    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
-    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
-         $(am__cd) "$$dir" && rm -f $$files; }; \
-  }
 man3dir = $(mandir)/man3
 NROFF = nroff
 MANS = $(dist_man_MANS)
@@ -717,6 +748,9 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS = udis86
+lib_LIBRARIES = libgtest.a
+libgtest_a_SOURCES = googletest/googletest/src/gtest-all.cc
+libgtest_a_CPPFLAGS = -I${top_srcdir}/googletest/googletest -I${top_srcdir}/googletest/googletest/include
 test_SOURCES = src/example.c
 decompile16_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86/ -I${top_srcdir} -Wall -I${top_srcdir}/src
 decompile32_CFLAGS = -D TARGET32 -std=c++0x -I${top_srcdir}/udis86/ -I${top_srcdir} -Wall -I${top_srcdir}/src
@@ -902,7 +936,7 @@ all: ac_config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .c .cpp .log .o .obj .test .test$(EXEEXT) .trs
+.SUFFIXES: .c .cc .cpp .log .o .obj .test .test$(EXEEXT) .trs
 am--refresh: Makefile
 	@:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -953,6 +987,51 @@ distclean-hdr:
 	-rm -f ac_config.h stamp-h1
 @HAVE_DOXYGEN_TRUE@Doxyfile: $(top_builddir)/config.status $(srcdir)/Doxyfile.in
 @HAVE_DOXYGEN_TRUE@	cd $(top_builddir) && $(SHELL) ./config.status $@
+install-libLIBRARIES: $(lib_LIBRARIES)
+	@$(NORMAL_INSTALL)
+	@list='$(lib_LIBRARIES)'; test -n "$(libdir)" || list=; \
+	list2=; for p in $$list; do \
+	  if test -f $$p; then \
+	    list2="$$list2 $$p"; \
+	  else :; fi; \
+	done; \
+	test -z "$$list2" || { \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(libdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(libdir)" || exit 1; \
+	  echo " $(INSTALL_DATA) $$list2 '$(DESTDIR)$(libdir)'"; \
+	  $(INSTALL_DATA) $$list2 "$(DESTDIR)$(libdir)" || exit $$?; }
+	@$(POST_INSTALL)
+	@list='$(lib_LIBRARIES)'; test -n "$(libdir)" || list=; \
+	for p in $$list; do \
+	  if test -f $$p; then \
+	    $(am__strip_dir) \
+	    echo " ( cd '$(DESTDIR)$(libdir)' && $(RANLIB) $$f )"; \
+	    ( cd "$(DESTDIR)$(libdir)" && $(RANLIB) $$f ) || exit $$?; \
+	  else :; fi; \
+	done
+
+uninstall-libLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@list='$(lib_LIBRARIES)'; test -n "$(libdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(libdir)'; $(am__uninstall_files_from_dir)
+
+clean-libLIBRARIES:
+	-test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
+googletest/googletest/src/$(am__dirstamp):
+	@$(MKDIR_P) googletest/googletest/src
+	@: > googletest/googletest/src/$(am__dirstamp)
+googletest/googletest/src/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) googletest/googletest/src/$(DEPDIR)
+	@: > googletest/googletest/src/$(DEPDIR)/$(am__dirstamp)
+googletest/googletest/src/libgtest_a-gtest-all.$(OBJEXT):  \
+	googletest/googletest/src/$(am__dirstamp) \
+	googletest/googletest/src/$(DEPDIR)/$(am__dirstamp)
+
+libgtest.a: $(libgtest_a_OBJECTS) $(libgtest_a_DEPENDENCIES) $(EXTRA_libgtest_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f libgtest.a
+	$(AM_V_AR)$(libgtest_a_AR) libgtest.a $(libgtest_a_OBJECTS) $(libgtest_a_LIBADD)
+	$(AM_V_at)$(RANLIB) libgtest.a
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
@@ -1434,6 +1513,47 @@ src/decompile64-helpers.$(OBJEXT): src/$(am__dirstamp) \
 decompile64$(EXEEXT): $(decompile64_OBJECTS) $(decompile64_DEPENDENCIES) $(EXTRA_decompile64_DEPENDENCIES) 
 	@rm -f decompile64$(EXEEXT)
 	$(AM_V_CXXLD)$(decompile64_LINK) $(decompile64_OBJECTS) $(decompile64_LDADD) $(LIBS)
+src/tests/$(am__dirstamp):
+	@$(MKDIR_P) src/tests
+	@: > src/tests/$(am__dirstamp)
+src/tests/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/tests/$(DEPDIR)
+	@: > src/tests/$(DEPDIR)/$(am__dirstamp)
+src/tests/projecttest-projects.$(OBJEXT): src/tests/$(am__dirstamp) \
+	src/tests/$(DEPDIR)/$(am__dirstamp)
+src/executable/projecttest-executable.$(OBJEXT):  \
+	src/executable/$(am__dirstamp) \
+	src/executable/$(DEPDIR)/$(am__dirstamp)
+src/executable/projecttest-exe_loader.$(OBJEXT):  \
+	src/executable/$(am__dirstamp) \
+	src/executable/$(DEPDIR)/$(am__dirstamp)
+src/project/projecttest-project.$(OBJEXT):  \
+	src/project/$(am__dirstamp) \
+	src/project/$(DEPDIR)/$(am__dirstamp)
+src/project/projecttest-build_system.$(OBJEXT):  \
+	src/project/$(am__dirstamp) \
+	src/project/$(DEPDIR)/$(am__dirstamp)
+src/project/projecttest-source_file.$(OBJEXT):  \
+	src/project/$(am__dirstamp) \
+	src/project/$(DEPDIR)/$(am__dirstamp)
+src/projecttest-function.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/code_elements/projecttest-related_code.$(OBJEXT):  \
+	src/code_elements/$(am__dirstamp) \
+	src/code_elements/$(DEPDIR)/$(am__dirstamp)
+src/code_elements/projecttest-code_element.$(OBJEXT):  \
+	src/code_elements/$(am__dirstamp) \
+	src/code_elements/$(DEPDIR)/$(am__dirstamp)
+src/var/projecttest-combo.$(OBJEXT): src/var/$(am__dirstamp) \
+	src/var/$(DEPDIR)/$(am__dirstamp)
+src/var/projecttest-type.$(OBJEXT): src/var/$(am__dirstamp) \
+	src/var/$(DEPDIR)/$(am__dirstamp)
+src/projecttest-variable.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+
+projecttest$(EXEEXT): $(projecttest_OBJECTS) $(projecttest_DEPENDENCIES) $(EXTRA_projecttest_DEPENDENCIES) 
+	@rm -f projecttest$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(projecttest_OBJECTS) $(projecttest_LDADD) $(LIBS)
 src/example.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
@@ -1443,17 +1563,20 @@ test$(EXEEXT): $(test_OBJECTS) $(test_DEPENDENCIES) $(EXTRA_test_DEPENDENCIES)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f googletest/googletest/src/*.$(OBJEXT)
 	-rm -f src/*.$(OBJEXT)
 	-rm -f src/code_elements/*.$(OBJEXT)
 	-rm -f src/disassembly/*.$(OBJEXT)
 	-rm -f src/executable/*.$(OBJEXT)
 	-rm -f src/operators/*.$(OBJEXT)
 	-rm -f src/project/*.$(OBJEXT)
+	-rm -f src/tests/*.$(OBJEXT)
 	-rm -f src/var/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@googletest/googletest/src/$(DEPDIR)/libgtest_a-gtest-all.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cfgtest-cfgtest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cfgtest-helpers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cfgtest-variable.Po@am__quote@
@@ -1473,6 +1596,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile64-helpers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile64-variable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/example.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/projecttest-function.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/projecttest-variable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/code_elements/$(DEPDIR)/cfgtest-ce_basic.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/code_elements/$(DEPDIR)/cfgtest-ce_dummy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/code_elements/$(DEPDIR)/cfgtest-code_do_while_loop.Po@am__quote@
@@ -1506,6 +1631,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/code_elements/$(DEPDIR)/decompile64-code_run.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/code_elements/$(DEPDIR)/decompile64-code_while_loop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/code_elements/$(DEPDIR)/decompile64-related_code.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/code_elements/$(DEPDIR)/projecttest-code_element.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/code_elements/$(DEPDIR)/projecttest-related_code.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/disassembly/$(DEPDIR)/cfgtest-disassembler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/disassembly/$(DEPDIR)/decompile16-disass_ppc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/disassembly/$(DEPDIR)/decompile16-disass_x86.Po@am__quote@
@@ -1534,6 +1661,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile64-exe_pe.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile64-exe_real.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/decompile64-executable.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/projecttest-exe_loader.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/executable/$(DEPDIR)/projecttest-executable.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/operators/$(DEPDIR)/decompile16-oper1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/operators/$(DEPDIR)/decompile16-oper2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/operators/$(DEPDIR)/decompile16-oper_add.Po@am__quote@
@@ -1582,6 +1711,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile64-build_system.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile64-project.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/decompile64-source_file.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/projecttest-build_system.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/projecttest-project.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/project/$(DEPDIR)/projecttest-source_file.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/tests/$(DEPDIR)/projecttest-projects.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/var/$(DEPDIR)/cfgtest-combo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/var/$(DEPDIR)/cfgtest-related_code_maker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/var/$(DEPDIR)/cfgtest-type.Po@am__quote@
@@ -1591,6 +1724,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/var/$(DEPDIR)/decompile32-type.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/var/$(DEPDIR)/decompile64-combo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/var/$(DEPDIR)/decompile64-type.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/var/$(DEPDIR)/projecttest-combo.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/var/$(DEPDIR)/projecttest-type.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -1608,7 +1743,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
-.cpp.o:
+.cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
 @am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
@@ -1616,13 +1751,27 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
 
-.cpp.obj:
+.cc.obj:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
 @am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+googletest/googletest/src/libgtest_a-gtest-all.o: googletest/googletest/src/gtest-all.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgtest_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT googletest/googletest/src/libgtest_a-gtest-all.o -MD -MP -MF googletest/googletest/src/$(DEPDIR)/libgtest_a-gtest-all.Tpo -c -o googletest/googletest/src/libgtest_a-gtest-all.o `test -f 'googletest/googletest/src/gtest-all.cc' || echo '$(srcdir)/'`googletest/googletest/src/gtest-all.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) googletest/googletest/src/$(DEPDIR)/libgtest_a-gtest-all.Tpo googletest/googletest/src/$(DEPDIR)/libgtest_a-gtest-all.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='googletest/googletest/src/gtest-all.cc' object='googletest/googletest/src/libgtest_a-gtest-all.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgtest_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o googletest/googletest/src/libgtest_a-gtest-all.o `test -f 'googletest/googletest/src/gtest-all.cc' || echo '$(srcdir)/'`googletest/googletest/src/gtest-all.cc
+
+googletest/googletest/src/libgtest_a-gtest-all.obj: googletest/googletest/src/gtest-all.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgtest_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT googletest/googletest/src/libgtest_a-gtest-all.obj -MD -MP -MF googletest/googletest/src/$(DEPDIR)/libgtest_a-gtest-all.Tpo -c -o googletest/googletest/src/libgtest_a-gtest-all.obj `if test -f 'googletest/googletest/src/gtest-all.cc'; then $(CYGPATH_W) 'googletest/googletest/src/gtest-all.cc'; else $(CYGPATH_W) '$(srcdir)/googletest/googletest/src/gtest-all.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) googletest/googletest/src/$(DEPDIR)/libgtest_a-gtest-all.Tpo googletest/googletest/src/$(DEPDIR)/libgtest_a-gtest-all.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='googletest/googletest/src/gtest-all.cc' object='googletest/googletest/src/libgtest_a-gtest-all.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgtest_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o googletest/googletest/src/libgtest_a-gtest-all.obj `if test -f 'googletest/googletest/src/gtest-all.cc'; then $(CYGPATH_W) 'googletest/googletest/src/gtest-all.cc'; else $(CYGPATH_W) '$(srcdir)/googletest/googletest/src/gtest-all.cc'; fi`
 
 src/code_elements/cfgtest-code_element.o: src/code_elements/code_element.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/code_elements/cfgtest-code_element.o -MD -MP -MF src/code_elements/$(DEPDIR)/cfgtest-code_element.Tpo -c -o src/code_elements/cfgtest-code_element.o `test -f 'src/code_elements/code_element.cpp' || echo '$(srcdir)/'`src/code_elements/code_element.cpp
@@ -3527,6 +3676,190 @@ src/decompile64-helpers.obj: src/helpers.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/helpers.cpp' object='src/decompile64-helpers.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/decompile64-helpers.obj `if test -f 'src/helpers.cpp'; then $(CYGPATH_W) 'src/helpers.cpp'; else $(CYGPATH_W) '$(srcdir)/src/helpers.cpp'; fi`
+
+src/tests/projecttest-projects.o: src/tests/projects.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/tests/projecttest-projects.o -MD -MP -MF src/tests/$(DEPDIR)/projecttest-projects.Tpo -c -o src/tests/projecttest-projects.o `test -f 'src/tests/projects.cpp' || echo '$(srcdir)/'`src/tests/projects.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/tests/$(DEPDIR)/projecttest-projects.Tpo src/tests/$(DEPDIR)/projecttest-projects.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/tests/projects.cpp' object='src/tests/projecttest-projects.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/tests/projecttest-projects.o `test -f 'src/tests/projects.cpp' || echo '$(srcdir)/'`src/tests/projects.cpp
+
+src/tests/projecttest-projects.obj: src/tests/projects.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/tests/projecttest-projects.obj -MD -MP -MF src/tests/$(DEPDIR)/projecttest-projects.Tpo -c -o src/tests/projecttest-projects.obj `if test -f 'src/tests/projects.cpp'; then $(CYGPATH_W) 'src/tests/projects.cpp'; else $(CYGPATH_W) '$(srcdir)/src/tests/projects.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/tests/$(DEPDIR)/projecttest-projects.Tpo src/tests/$(DEPDIR)/projecttest-projects.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/tests/projects.cpp' object='src/tests/projecttest-projects.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/tests/projecttest-projects.obj `if test -f 'src/tests/projects.cpp'; then $(CYGPATH_W) 'src/tests/projects.cpp'; else $(CYGPATH_W) '$(srcdir)/src/tests/projects.cpp'; fi`
+
+src/executable/projecttest-executable.o: src/executable/executable.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/executable/projecttest-executable.o -MD -MP -MF src/executable/$(DEPDIR)/projecttest-executable.Tpo -c -o src/executable/projecttest-executable.o `test -f 'src/executable/executable.cpp' || echo '$(srcdir)/'`src/executable/executable.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/executable/$(DEPDIR)/projecttest-executable.Tpo src/executable/$(DEPDIR)/projecttest-executable.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/executable/executable.cpp' object='src/executable/projecttest-executable.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/executable/projecttest-executable.o `test -f 'src/executable/executable.cpp' || echo '$(srcdir)/'`src/executable/executable.cpp
+
+src/executable/projecttest-executable.obj: src/executable/executable.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/executable/projecttest-executable.obj -MD -MP -MF src/executable/$(DEPDIR)/projecttest-executable.Tpo -c -o src/executable/projecttest-executable.obj `if test -f 'src/executable/executable.cpp'; then $(CYGPATH_W) 'src/executable/executable.cpp'; else $(CYGPATH_W) '$(srcdir)/src/executable/executable.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/executable/$(DEPDIR)/projecttest-executable.Tpo src/executable/$(DEPDIR)/projecttest-executable.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/executable/executable.cpp' object='src/executable/projecttest-executable.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/executable/projecttest-executable.obj `if test -f 'src/executable/executable.cpp'; then $(CYGPATH_W) 'src/executable/executable.cpp'; else $(CYGPATH_W) '$(srcdir)/src/executable/executable.cpp'; fi`
+
+src/executable/projecttest-exe_loader.o: src/executable/exe_loader.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/executable/projecttest-exe_loader.o -MD -MP -MF src/executable/$(DEPDIR)/projecttest-exe_loader.Tpo -c -o src/executable/projecttest-exe_loader.o `test -f 'src/executable/exe_loader.cpp' || echo '$(srcdir)/'`src/executable/exe_loader.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/executable/$(DEPDIR)/projecttest-exe_loader.Tpo src/executable/$(DEPDIR)/projecttest-exe_loader.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/executable/exe_loader.cpp' object='src/executable/projecttest-exe_loader.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/executable/projecttest-exe_loader.o `test -f 'src/executable/exe_loader.cpp' || echo '$(srcdir)/'`src/executable/exe_loader.cpp
+
+src/executable/projecttest-exe_loader.obj: src/executable/exe_loader.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/executable/projecttest-exe_loader.obj -MD -MP -MF src/executable/$(DEPDIR)/projecttest-exe_loader.Tpo -c -o src/executable/projecttest-exe_loader.obj `if test -f 'src/executable/exe_loader.cpp'; then $(CYGPATH_W) 'src/executable/exe_loader.cpp'; else $(CYGPATH_W) '$(srcdir)/src/executable/exe_loader.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/executable/$(DEPDIR)/projecttest-exe_loader.Tpo src/executable/$(DEPDIR)/projecttest-exe_loader.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/executable/exe_loader.cpp' object='src/executable/projecttest-exe_loader.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/executable/projecttest-exe_loader.obj `if test -f 'src/executable/exe_loader.cpp'; then $(CYGPATH_W) 'src/executable/exe_loader.cpp'; else $(CYGPATH_W) '$(srcdir)/src/executable/exe_loader.cpp'; fi`
+
+src/project/projecttest-project.o: src/project/project.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/projecttest-project.o -MD -MP -MF src/project/$(DEPDIR)/projecttest-project.Tpo -c -o src/project/projecttest-project.o `test -f 'src/project/project.cpp' || echo '$(srcdir)/'`src/project/project.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/projecttest-project.Tpo src/project/$(DEPDIR)/projecttest-project.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/project.cpp' object='src/project/projecttest-project.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/projecttest-project.o `test -f 'src/project/project.cpp' || echo '$(srcdir)/'`src/project/project.cpp
+
+src/project/projecttest-project.obj: src/project/project.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/projecttest-project.obj -MD -MP -MF src/project/$(DEPDIR)/projecttest-project.Tpo -c -o src/project/projecttest-project.obj `if test -f 'src/project/project.cpp'; then $(CYGPATH_W) 'src/project/project.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/project.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/projecttest-project.Tpo src/project/$(DEPDIR)/projecttest-project.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/project.cpp' object='src/project/projecttest-project.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/projecttest-project.obj `if test -f 'src/project/project.cpp'; then $(CYGPATH_W) 'src/project/project.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/project.cpp'; fi`
+
+src/project/projecttest-build_system.o: src/project/build_system.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/projecttest-build_system.o -MD -MP -MF src/project/$(DEPDIR)/projecttest-build_system.Tpo -c -o src/project/projecttest-build_system.o `test -f 'src/project/build_system.cpp' || echo '$(srcdir)/'`src/project/build_system.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/projecttest-build_system.Tpo src/project/$(DEPDIR)/projecttest-build_system.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/build_system.cpp' object='src/project/projecttest-build_system.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/projecttest-build_system.o `test -f 'src/project/build_system.cpp' || echo '$(srcdir)/'`src/project/build_system.cpp
+
+src/project/projecttest-build_system.obj: src/project/build_system.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/projecttest-build_system.obj -MD -MP -MF src/project/$(DEPDIR)/projecttest-build_system.Tpo -c -o src/project/projecttest-build_system.obj `if test -f 'src/project/build_system.cpp'; then $(CYGPATH_W) 'src/project/build_system.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/build_system.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/projecttest-build_system.Tpo src/project/$(DEPDIR)/projecttest-build_system.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/build_system.cpp' object='src/project/projecttest-build_system.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/projecttest-build_system.obj `if test -f 'src/project/build_system.cpp'; then $(CYGPATH_W) 'src/project/build_system.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/build_system.cpp'; fi`
+
+src/project/projecttest-source_file.o: src/project/source_file.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/projecttest-source_file.o -MD -MP -MF src/project/$(DEPDIR)/projecttest-source_file.Tpo -c -o src/project/projecttest-source_file.o `test -f 'src/project/source_file.cpp' || echo '$(srcdir)/'`src/project/source_file.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/projecttest-source_file.Tpo src/project/$(DEPDIR)/projecttest-source_file.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/source_file.cpp' object='src/project/projecttest-source_file.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/projecttest-source_file.o `test -f 'src/project/source_file.cpp' || echo '$(srcdir)/'`src/project/source_file.cpp
+
+src/project/projecttest-source_file.obj: src/project/source_file.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/project/projecttest-source_file.obj -MD -MP -MF src/project/$(DEPDIR)/projecttest-source_file.Tpo -c -o src/project/projecttest-source_file.obj `if test -f 'src/project/source_file.cpp'; then $(CYGPATH_W) 'src/project/source_file.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/source_file.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/project/$(DEPDIR)/projecttest-source_file.Tpo src/project/$(DEPDIR)/projecttest-source_file.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/project/source_file.cpp' object='src/project/projecttest-source_file.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/project/projecttest-source_file.obj `if test -f 'src/project/source_file.cpp'; then $(CYGPATH_W) 'src/project/source_file.cpp'; else $(CYGPATH_W) '$(srcdir)/src/project/source_file.cpp'; fi`
+
+src/projecttest-function.o: src/function.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/projecttest-function.o -MD -MP -MF src/$(DEPDIR)/projecttest-function.Tpo -c -o src/projecttest-function.o `test -f 'src/function.cpp' || echo '$(srcdir)/'`src/function.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/projecttest-function.Tpo src/$(DEPDIR)/projecttest-function.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/function.cpp' object='src/projecttest-function.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/projecttest-function.o `test -f 'src/function.cpp' || echo '$(srcdir)/'`src/function.cpp
+
+src/projecttest-function.obj: src/function.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/projecttest-function.obj -MD -MP -MF src/$(DEPDIR)/projecttest-function.Tpo -c -o src/projecttest-function.obj `if test -f 'src/function.cpp'; then $(CYGPATH_W) 'src/function.cpp'; else $(CYGPATH_W) '$(srcdir)/src/function.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/projecttest-function.Tpo src/$(DEPDIR)/projecttest-function.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/function.cpp' object='src/projecttest-function.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/projecttest-function.obj `if test -f 'src/function.cpp'; then $(CYGPATH_W) 'src/function.cpp'; else $(CYGPATH_W) '$(srcdir)/src/function.cpp'; fi`
+
+src/code_elements/projecttest-related_code.o: src/code_elements/related_code.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/code_elements/projecttest-related_code.o -MD -MP -MF src/code_elements/$(DEPDIR)/projecttest-related_code.Tpo -c -o src/code_elements/projecttest-related_code.o `test -f 'src/code_elements/related_code.cpp' || echo '$(srcdir)/'`src/code_elements/related_code.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/code_elements/$(DEPDIR)/projecttest-related_code.Tpo src/code_elements/$(DEPDIR)/projecttest-related_code.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/code_elements/related_code.cpp' object='src/code_elements/projecttest-related_code.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/code_elements/projecttest-related_code.o `test -f 'src/code_elements/related_code.cpp' || echo '$(srcdir)/'`src/code_elements/related_code.cpp
+
+src/code_elements/projecttest-related_code.obj: src/code_elements/related_code.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/code_elements/projecttest-related_code.obj -MD -MP -MF src/code_elements/$(DEPDIR)/projecttest-related_code.Tpo -c -o src/code_elements/projecttest-related_code.obj `if test -f 'src/code_elements/related_code.cpp'; then $(CYGPATH_W) 'src/code_elements/related_code.cpp'; else $(CYGPATH_W) '$(srcdir)/src/code_elements/related_code.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/code_elements/$(DEPDIR)/projecttest-related_code.Tpo src/code_elements/$(DEPDIR)/projecttest-related_code.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/code_elements/related_code.cpp' object='src/code_elements/projecttest-related_code.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/code_elements/projecttest-related_code.obj `if test -f 'src/code_elements/related_code.cpp'; then $(CYGPATH_W) 'src/code_elements/related_code.cpp'; else $(CYGPATH_W) '$(srcdir)/src/code_elements/related_code.cpp'; fi`
+
+src/code_elements/projecttest-code_element.o: src/code_elements/code_element.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/code_elements/projecttest-code_element.o -MD -MP -MF src/code_elements/$(DEPDIR)/projecttest-code_element.Tpo -c -o src/code_elements/projecttest-code_element.o `test -f 'src/code_elements/code_element.cpp' || echo '$(srcdir)/'`src/code_elements/code_element.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/code_elements/$(DEPDIR)/projecttest-code_element.Tpo src/code_elements/$(DEPDIR)/projecttest-code_element.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/code_elements/code_element.cpp' object='src/code_elements/projecttest-code_element.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/code_elements/projecttest-code_element.o `test -f 'src/code_elements/code_element.cpp' || echo '$(srcdir)/'`src/code_elements/code_element.cpp
+
+src/code_elements/projecttest-code_element.obj: src/code_elements/code_element.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/code_elements/projecttest-code_element.obj -MD -MP -MF src/code_elements/$(DEPDIR)/projecttest-code_element.Tpo -c -o src/code_elements/projecttest-code_element.obj `if test -f 'src/code_elements/code_element.cpp'; then $(CYGPATH_W) 'src/code_elements/code_element.cpp'; else $(CYGPATH_W) '$(srcdir)/src/code_elements/code_element.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/code_elements/$(DEPDIR)/projecttest-code_element.Tpo src/code_elements/$(DEPDIR)/projecttest-code_element.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/code_elements/code_element.cpp' object='src/code_elements/projecttest-code_element.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/code_elements/projecttest-code_element.obj `if test -f 'src/code_elements/code_element.cpp'; then $(CYGPATH_W) 'src/code_elements/code_element.cpp'; else $(CYGPATH_W) '$(srcdir)/src/code_elements/code_element.cpp'; fi`
+
+src/var/projecttest-combo.o: src/var/combo.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/var/projecttest-combo.o -MD -MP -MF src/var/$(DEPDIR)/projecttest-combo.Tpo -c -o src/var/projecttest-combo.o `test -f 'src/var/combo.cpp' || echo '$(srcdir)/'`src/var/combo.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/var/$(DEPDIR)/projecttest-combo.Tpo src/var/$(DEPDIR)/projecttest-combo.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/var/combo.cpp' object='src/var/projecttest-combo.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/var/projecttest-combo.o `test -f 'src/var/combo.cpp' || echo '$(srcdir)/'`src/var/combo.cpp
+
+src/var/projecttest-combo.obj: src/var/combo.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/var/projecttest-combo.obj -MD -MP -MF src/var/$(DEPDIR)/projecttest-combo.Tpo -c -o src/var/projecttest-combo.obj `if test -f 'src/var/combo.cpp'; then $(CYGPATH_W) 'src/var/combo.cpp'; else $(CYGPATH_W) '$(srcdir)/src/var/combo.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/var/$(DEPDIR)/projecttest-combo.Tpo src/var/$(DEPDIR)/projecttest-combo.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/var/combo.cpp' object='src/var/projecttest-combo.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/var/projecttest-combo.obj `if test -f 'src/var/combo.cpp'; then $(CYGPATH_W) 'src/var/combo.cpp'; else $(CYGPATH_W) '$(srcdir)/src/var/combo.cpp'; fi`
+
+src/var/projecttest-type.o: src/var/type.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/var/projecttest-type.o -MD -MP -MF src/var/$(DEPDIR)/projecttest-type.Tpo -c -o src/var/projecttest-type.o `test -f 'src/var/type.cpp' || echo '$(srcdir)/'`src/var/type.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/var/$(DEPDIR)/projecttest-type.Tpo src/var/$(DEPDIR)/projecttest-type.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/var/type.cpp' object='src/var/projecttest-type.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/var/projecttest-type.o `test -f 'src/var/type.cpp' || echo '$(srcdir)/'`src/var/type.cpp
+
+src/var/projecttest-type.obj: src/var/type.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/var/projecttest-type.obj -MD -MP -MF src/var/$(DEPDIR)/projecttest-type.Tpo -c -o src/var/projecttest-type.obj `if test -f 'src/var/type.cpp'; then $(CYGPATH_W) 'src/var/type.cpp'; else $(CYGPATH_W) '$(srcdir)/src/var/type.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/var/$(DEPDIR)/projecttest-type.Tpo src/var/$(DEPDIR)/projecttest-type.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/var/type.cpp' object='src/var/projecttest-type.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/var/projecttest-type.obj `if test -f 'src/var/type.cpp'; then $(CYGPATH_W) 'src/var/type.cpp'; else $(CYGPATH_W) '$(srcdir)/src/var/type.cpp'; fi`
+
+src/projecttest-variable.o: src/variable.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/projecttest-variable.o -MD -MP -MF src/$(DEPDIR)/projecttest-variable.Tpo -c -o src/projecttest-variable.o `test -f 'src/variable.cpp' || echo '$(srcdir)/'`src/variable.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/projecttest-variable.Tpo src/$(DEPDIR)/projecttest-variable.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/variable.cpp' object='src/projecttest-variable.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/projecttest-variable.o `test -f 'src/variable.cpp' || echo '$(srcdir)/'`src/variable.cpp
+
+src/projecttest-variable.obj: src/variable.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/projecttest-variable.obj -MD -MP -MF src/$(DEPDIR)/projecttest-variable.Tpo -c -o src/projecttest-variable.obj `if test -f 'src/variable.cpp'; then $(CYGPATH_W) 'src/variable.cpp'; else $(CYGPATH_W) '$(srcdir)/src/variable.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/projecttest-variable.Tpo src/$(DEPDIR)/projecttest-variable.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/variable.cpp' object='src/projecttest-variable.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/projecttest-variable.obj `if test -f 'src/variable.cpp'; then $(CYGPATH_W) 'src/variable.cpp'; else $(CYGPATH_W) '$(srcdir)/src/variable.cpp'; fi`
+
+.cpp.o:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
+
+.cpp.obj:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 install-man3: $(dist_man_MANS)
 	@$(NORMAL_INSTALL)
 	@list1=''; \
@@ -3825,6 +4158,13 @@ cfgtest.log: cfgtest$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+projecttest.log: projecttest$(EXEEXT)
+	@p='projecttest$(EXEEXT)'; \
+	b='projecttest'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 .test.log:
 	@p='$<'; \
 	$(am__set_b); \
@@ -4032,10 +4372,11 @@ check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
 check: check-recursive
 @HAVE_DOXYGEN_FALSE@all-local:
-all-am: Makefile $(PROGRAMS) $(MANS) ac_config.h all-local
+all-am: Makefile $(LIBRARIES) $(PROGRAMS) $(MANS) ac_config.h \
+		all-local
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man3dir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man3dir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -4068,6 +4409,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f googletest/googletest/src/$(DEPDIR)/$(am__dirstamp)
+	-rm -f googletest/googletest/src/$(am__dirstamp)
 	-rm -f src/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/$(am__dirstamp)
 	-rm -f src/code_elements/$(DEPDIR)/$(am__dirstamp)
@@ -4080,6 +4423,8 @@ distclean-generic:
 	-rm -f src/operators/$(am__dirstamp)
 	-rm -f src/project/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/project/$(am__dirstamp)
+	-rm -f src/tests/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/tests/$(am__dirstamp)
 	-rm -f src/var/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/var/$(am__dirstamp)
 
@@ -4089,11 +4434,12 @@ maintainer-clean-generic:
 @HAVE_DOXYGEN_FALSE@clean-local:
 clean: clean-recursive
 
-clean-am: clean-binPROGRAMS clean-generic clean-local mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-libLIBRARIES \
+	clean-local mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf src/$(DEPDIR) src/code_elements/$(DEPDIR) src/disassembly/$(DEPDIR) src/executable/$(DEPDIR) src/operators/$(DEPDIR) src/project/$(DEPDIR) src/var/$(DEPDIR)
+	-rm -rf googletest/googletest/src/$(DEPDIR) src/$(DEPDIR) src/code_elements/$(DEPDIR) src/disassembly/$(DEPDIR) src/executable/$(DEPDIR) src/operators/$(DEPDIR) src/project/$(DEPDIR) src/tests/$(DEPDIR) src/var/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -4116,7 +4462,7 @@ install-dvi: install-dvi-recursive
 
 install-dvi-am:
 
-install-exec-am: install-binPROGRAMS
+install-exec-am: install-binPROGRAMS install-libLIBRARIES
 
 install-html: install-html-recursive
 
@@ -4141,7 +4487,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf src/$(DEPDIR) src/code_elements/$(DEPDIR) src/disassembly/$(DEPDIR) src/executable/$(DEPDIR) src/operators/$(DEPDIR) src/project/$(DEPDIR) src/var/$(DEPDIR)
+	-rm -rf googletest/googletest/src/$(DEPDIR) src/$(DEPDIR) src/code_elements/$(DEPDIR) src/disassembly/$(DEPDIR) src/executable/$(DEPDIR) src/operators/$(DEPDIR) src/project/$(DEPDIR) src/tests/$(DEPDIR) src/var/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -4157,7 +4503,8 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-man
+uninstall-am: uninstall-binPROGRAMS uninstall-libLIBRARIES \
+	uninstall-man
 
 uninstall-man: uninstall-man3
 
@@ -4165,21 +4512,22 @@ uninstall-man: uninstall-man3
 
 .PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am all-local \
 	am--refresh check check-TESTS check-am clean clean-binPROGRAMS \
-	clean-cscope clean-generic clean-local cscope cscopelist-am \
-	ctags ctags-am dist dist-all dist-bzip2 dist-gzip dist-lzip \
-	dist-shar dist-tarZ dist-xz dist-zip distcheck distclean \
-	distclean-compile distclean-generic distclean-hdr \
-	distclean-tags distcleancheck distdir distuninstallcheck dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-binPROGRAMS install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-man3 install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs installdirs-am maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic pdf pdf-am ps ps-am recheck tags tags-am \
-	uninstall uninstall-am uninstall-binPROGRAMS uninstall-man \
+	clean-cscope clean-generic clean-libLIBRARIES clean-local \
+	cscope cscopelist-am ctags ctags-am dist dist-all dist-bzip2 \
+	dist-gzip dist-lzip dist-shar dist-tarZ dist-xz dist-zip \
+	distcheck distclean distclean-compile distclean-generic \
+	distclean-hdr distclean-tags distcleancheck distdir \
+	distuninstallcheck dvi dvi-am html html-am info info-am \
+	install install-am install-binPROGRAMS install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-libLIBRARIES install-man install-man3 \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic pdf pdf-am \
+	ps ps-am recheck tags tags-am uninstall uninstall-am \
+	uninstall-binPROGRAMS uninstall-libLIBRARIES uninstall-man \
 	uninstall-man3
 
 .PRECIOUS: Makefile

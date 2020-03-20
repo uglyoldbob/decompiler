@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 #include <vector>
 
 #include "code_elements/code_element.h"
@@ -62,10 +63,10 @@ int main(int argc, char *argv[])
 #else
 #error "Unknown Target"
 #endif
-	project *sysproj;
-	build_system *bsys;
-	bsys = new autotools();
-	sysproj = new project(bsys);	
+	std::unique_ptr<project> sysproj;
+	std::unique_ptr<build_system> bsys;
+	bsys = std::unique_ptr<build_system>(new autotools());
+	sysproj = std::unique_ptr<project>(new project(bsys.get()));	
 	executable program;
 	int retval = 0;
 	related_code::list_code_element_makers(std::cout);
