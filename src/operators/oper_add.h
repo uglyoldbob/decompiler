@@ -3,8 +3,8 @@
 
 #include "oper2.h"
 
-//level 6 on precedence
-//left to right evaluation
+/// The plus operator.
+/** The plus operator. Level 6 precedence, evaluated left to right. */
 class oper_add : public oper2
 {
 	public:

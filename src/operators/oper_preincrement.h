@@ -3,8 +3,8 @@
 
 #include "oper1.h"
 
-//level 3 in operator precedence
-//evaluated right to left
+/// The preincrement operator (++i).
+/** The preincrement operator (++i). Level 3 precedence, evaluated right to left. */
 class oper_preincrement : public oper1
 {
 	public:

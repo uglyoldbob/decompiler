@@ -3,8 +3,8 @@
 
 #include "oper1.h"
 
-//level 3 in operator precedence
-//evaluated right to left
+/// The dereference operator (*).
+/** the dereference operator (*). Level 3 precedence, evaluated right to left. */
 class oper_dereference : public oper1
 {
 	public:

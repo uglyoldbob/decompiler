@@ -123,11 +123,11 @@ int disass_ppc::get_instruction(instr* &get, address addr)
 		else if (((shift + me) == 31) && (mb == 0))
 		{
 			new_statement = new oper_assignment(
-				new statement(arg1, -1), new oper_left_shift(new statement(arg2, -1), new statement(string(shift), -1)));
+				new statement(arg1, -1), new oper_left_shift(new statement(arg2, -1), new statement(std::to_string(shift), -1)));
 		}
 		else
 		{
-			line = arg1 + " " + arg2 + " " + string(shift) + " " + string(mb) + " " + string(me) + ";";
+			line = arg1 + " " + arg2 + " " + std::to_string(shift) + " " + std::to_string(mb) + " " + std::to_string(me) + ";";
 		}
 	}
 	else if (op == "li")

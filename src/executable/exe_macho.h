@@ -179,6 +179,8 @@ struct exe_macho_lc
 	exe_macho_lc_data data;
 };
 
+/// Macho executable loader.
+/** Interpets 32 and 64 bit macho programs. Macho programs are generally used by mac osx and similar operating systems. */
 class exe_macho : public exe_real
 {
 	public:
@@ -191,9 +193,9 @@ class exe_macho : public exe_real
 		int goto_address(address addr);
 		void read_memory(void *dest, int len);
 	private:
-		exe_macho_header header;
-		exe_macho_lc *lcmds;
-		address starting;
+		exe_macho_header header; ///< The macho header
+		exe_macho_lc *lcmds; ///< Load commands specified by the macho header
+		address starting; ///< The starting address
 };
 
 #endif

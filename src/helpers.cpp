@@ -1,14 +1,6 @@
 #include "helpers.h"
 #include <sstream>
 
-std::string string(int a)
-{
-	std::stringstream lineout(std::stringstream::in | std::stringstream::out);
-	lineout << a;
-	std::string retval = lineout.str();
-	return retval;
-}
-
 std::string hstring(unsigned int a)
 {
 	std::stringstream lineout(std::stringstream::in | std::stringstream::out);

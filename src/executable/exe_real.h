@@ -4,10 +4,8 @@
 #include "config.h"
 #include "exe_loader.h"
 
-/*
-The exe_real class is a class for real executables. This allows
-for a dummy class that handles fake or mock executables.
-*/
+/// For real executables.
+/** The exe_real class is a class for real executables. This allows for a dummy class that handles fake or mock executables. It provides a generic implementation of gather_instructions */
 class exe_real : public exe_loader
 {
 	public:

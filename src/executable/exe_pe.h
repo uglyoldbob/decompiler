@@ -38,6 +38,8 @@ struct exe_pe_reloc
 #elif TARGET64
 #endif
 
+/// Pe executable loader.
+/** PE files are an executable format used by windows / dos. */
 class exe_pe : public exe_real
 {
 	public:
@@ -50,9 +52,9 @@ class exe_pe : public exe_real
 		int goto_address(address addr);
 		void read_memory(void *dest, int len);
 	private:
-		address starting;
-		exe_pe_header header;
-		unsigned int size;
+		address starting; ///< The starting addres of the program
+		exe_pe_header header; ///< The pe header
+		unsigned int size; ///< The size specified by the pe header
 };
 
 #endif

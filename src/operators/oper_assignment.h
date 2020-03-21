@@ -4,8 +4,8 @@
 class code_element;
 #include "oper2.h"
 
-//level 6 on precedence
-//left to right evaluation
+/// The assignment operator.
+/** The assignment operator. Level 6 precedence, evaluated left to right. */
 class oper_assignment : public oper2
 {
 	public:

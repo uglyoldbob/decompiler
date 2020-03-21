@@ -3,8 +3,8 @@
 
 #include "oper2.h"
 
-//level 6 on precedence
-//left to right evaluation
+/// The right shfit operator (>>).
+/** The right shfit operator (>>). Level 6 precedence, evaluated left to right. */
 class oper_right_shift : public oper2
 {
 	public:

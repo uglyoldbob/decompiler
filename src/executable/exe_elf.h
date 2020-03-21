@@ -153,6 +153,8 @@ struct exe_elf_program_header
 };
 #endif
 
+/// Elf executable loader.
+/** Elf executable loader. Loads 32 or 64 bit elf files. */
 class exe_elf : public exe_real
 {
 	public:
@@ -165,12 +167,12 @@ class exe_elf : public exe_real
 		int goto_address(address addr);
 		void read_memory(void *dest, int len);
 	private:
-		exe_elf_header header;
-		exe_elf_section_header *sheaders;
-		exe_elf_program_header *pheaders;
-		char *string_table;
+		exe_elf_header header; ///< The elf header.
+		exe_elf_section_header *sheaders; ///< The elf section headers.
+		exe_elf_program_header *pheaders; ///< The elf program headers.
+		char *string_table; ///< The string table specified by elf
 
-		void print_program_header(int i);
+		void print_program_header(int i); ///< Prints useful informatino about the specified index of program header.
 };
 
 #endif

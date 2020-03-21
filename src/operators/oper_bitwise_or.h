@@ -3,8 +3,8 @@
 
 #include "oper2.h"
 
-//level 6 on precedence
-//left to right evaluation
+/// The bitwise or operator (|).
+/** The bitwise or operator (|). Level 6 precedence, evaluated left to right. */
 class oper_bitwise_or : public oper2
 {
 	public:

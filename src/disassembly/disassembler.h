@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+/// The basic building block for disassembling machine code.
+/** Represents an opcode and also contains information about execution flow. */
 struct instr
 {
 	address addr;
@@ -34,15 +36,17 @@ std::ostream& operator<< (std::ostream& out, instr &a);
 
 class exe_loader;
 
+/// The basic disassembler. Specifies how disassembly should happen for a generic cpu type.
+/** The basic disassembler. Specifies how disassembly should happen for a generic cpu type. */
 class disassembler
 {
 	public:
-		disassembler(exe_loader *own);
+		disassembler(exe_loader *own); ///< Create a disassembler and specify the object used to get binary data from the executable.
 		virtual ~disassembler();
 		
-		virtual int get_instruction(instr* &get, address addr) = 0;
+		virtual int get_instruction(instr* &get, address addr) = 0; ///< Disassemble instructions at the specified address
 	protected:
-		exe_loader *owner;
+		exe_loader *owner; ///< The object used to actually get data from the executable.
 };
 
 #endif

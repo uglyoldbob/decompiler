@@ -3,8 +3,8 @@
 
 #include "oper2.h"
 
-//level 6 on precedence
-//left to right evaluation
+/// The subtraction operator (-).
+/** The subtraction operator (-). Level 6 precedence, evaluated left to right. */
 class oper_sub : public oper2
 {
 	public:

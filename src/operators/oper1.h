@@ -3,14 +3,15 @@
 
 #include "statement.h"
 
-//all operations can be represented as a single variable
+/// All operators / statements that only have one item.
+/** All operators / statements that only have one item. Includes things such as i++; */
 class oper1 : public statement
 {
 	public:
 		oper1(statement *a);
 		virtual ~oper1();
 	protected:
-		statement *arg;	//the only argument for the operator
+		statement *arg;	///< The only argument for the operator
 };
 
 #endif

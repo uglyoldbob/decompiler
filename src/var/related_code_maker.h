@@ -4,6 +4,8 @@
 #include "code_elements/ce_dummy.h"
 #include "code_elements/related_code.h"
 
+/// A container for related code_element objects.
+/** This class needs help. It is not well defined. */
 class related_code_maker
 {
 	public:

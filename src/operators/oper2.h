@@ -3,7 +3,8 @@
 
 #include "statement.h"
 
-//all operations can be represented as a single variable
+/// All operators / statements that have two items.
+/** All operators / statements that have two items. Includes things such as 5 + 6 */
 class oper2 : public statement
 {
 	public:

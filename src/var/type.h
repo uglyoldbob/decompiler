@@ -3,6 +3,8 @@
 
 #include <string>
 
+/// A class for describing possible variable types.
+/** Describes a variable type by name. */
 class type
 {
 	public:
