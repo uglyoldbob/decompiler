@@ -56,6 +56,37 @@ void reverse(uint16_t *in, int rbo)
 	}
 }
 
+/// Check input arguments to see if we should output help, also called usage guidelines
+bool check_for_help(int argc, char *argv[])
+{
+	std::string prog_name(argv[0]);
+	for (int i = 1; i < argc; i++)
+	{
+		std::string cur_arg(argv[i]);
+		if ((cur_arg == "-h") || (cur_arg == "--help"))
+		{
+			#if TARGET32
+			std::cout << "This program decompiles 16 and 32 bit programs" << std::endl;
+			#elif TARGET64
+			std::cout << "This program decompiles 64 bit programs" << std::endl;
+			#else
+			#error "Unknown Target"
+			#endif
+			std::cout << "Usage: " << std::endl;
+			std::cout << " " << prog_name << " ";
+			std::cout << " [program to decompile] [optional name of output folder for decompilation]" << std::endl;
+			std::cout << "If no arguments are provided, the program will attempt to decompile itself." << std::endl;
+			std::cout << "If a program is specified and no output directory, the directory will default to ./default" << std::endl;
+			std::cout << "A program must be specified in order to also specify an output folder name" << std::endl;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+}
+
 int main(int argc, char *argv[])
 {
 #if TARGET32
@@ -63,6 +94,10 @@ int main(int argc, char *argv[])
 #else
 #error "Unknown Target"
 #endif
+	if (check_for_help(argc, argv))
+	{
+		return 0;
+	}
 	std::unique_ptr<project> sysproj;
 	std::unique_ptr<build_system> bsys;
 	bsys = std::unique_ptr<build_system>(new autotools());
