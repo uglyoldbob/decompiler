@@ -85,6 +85,26 @@ bool check_for_help(int argc, char *argv[])
 			return false;
 		}
 	}
+	return false;
+}
+
+///Filter out all arguments not useful for decompilation itself. Return list of arguments for decompilation.
+std::vector<std::string> filter_arguments(int argc, char *argv[])
+{
+	std::vector<std::string> args;
+	for (int i = 1; i < argc; i++)
+	{
+		std::string cur_arg(argv[i]);
+		if ((cur_arg == "-h") || (cur_arg == "--help"))
+		{
+		}
+		else
+		{
+			args.push_back(cur_arg);
+		}
+	}
+	
+	return args;
 }
 
 int main(int argc, char *argv[])
@@ -98,6 +118,8 @@ int main(int argc, char *argv[])
 	{
 		return 0;
 	}
+	std::vector<std::string> decompile_arguments = filter_arguments(argc, argv);
+
 	std::unique_ptr<project> sysproj;
 	std::unique_ptr<build_system> bsys;
 	bsys = std::unique_ptr<build_system>(new autotools());
@@ -107,26 +129,26 @@ int main(int argc, char *argv[])
 	related_code::list_code_element_makers(std::cout);
 	try
 	{
-		if (argc < 3)
+		if (decompile_arguments.size() < 3)
 		{
 			sysproj->set_output_dir("./default");
 			program.output("./default");
 		}
-		else if (argc >= 3)
+		else if (decompile_arguments.size() >= 3)
 		{
-			sysproj->set_output_dir(argv[2]);
-			program.output(argv[2]);
+			sysproj->set_output_dir(decompile_arguments[1].c_str());
+			program.output(decompile_arguments[1].c_str());
 		}
-		if (argc < 2)
+		if (decompile_arguments.size() < 2)
 		{
 			program.set_name(argv[0]);
 			program.load(argv[0]);
 			sysproj->add_program(&program);
 		}
-		else if (argc >= 2)
+		else if (decompile_arguments.size() >= 2)
 		{
-			program.set_name(argv[1]);
-			program.load(argv[1]);
+			program.set_name(decompile_arguments[0].c_str());
+			program.load(decompile_arguments[0].c_str());
 			sysproj->add_program(&program);
 		}
 		sysproj->write_build_system();

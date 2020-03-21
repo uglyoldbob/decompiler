@@ -2,7 +2,9 @@
 #define __EXE_MACHO_H__
 
 #include <cstdint>
+#include <fstream>
 #include <iostream>
+#include <memory>
 
 #include "config.h"
 #include "exe_loader.h"
@@ -186,8 +188,8 @@ class exe_macho : public exe_real
 	public:
 		exe_macho(int reverse);
 		~exe_macho();
-		static exe_loader * check(std::istream *me);
-		int process(std::istream *me);	//do basic processing
+		static exe_loader * check(std::shared_ptr<std::ifstream> me);
+		int process(std::shared_ptr<std::ifstream> me);	//do basic processing
 		const char *entry_name();
 		address entry_addr();
 		int goto_address(address addr);

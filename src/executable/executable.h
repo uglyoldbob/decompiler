@@ -43,7 +43,6 @@ class executable
 		std::vector<source_file*> get_sources(); ///< Retrieve the list of source code files for the program.
 		void write_sources(std::string n); ///< Write all source code files to the specified directory.
 	private:
-		std::ifstream *exe_file; ///< An input stream used to read file contents.
 		std::string folder; ///< The folder specified.
 		EXECUTABLE_TYPE exe_type; ///< The type of executable represented by this object.
 		exe_loader *exe_object; ///< The object responsible for interpreting data from the input stream.

@@ -4,6 +4,7 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
+#include <memory>
 
 void autotools::write_files(std::string output_folder)
 {
@@ -63,30 +64,26 @@ void autotools::automake_output(std::string fname)
 
 void autotools::other_output(std::string of)
 {
-	std::ofstream *out;
+	std::unique_ptr<std::ofstream> out;
 	
 	std::string news_name(of + "/NEWS");
-	out = new std::ofstream(news_name.c_str(), std::ios::out);
+	out = std::unique_ptr<std::ofstream>(new std::ofstream(news_name.c_str(), std::ios::out));
 	(*out) << "\n" << std::flush;
 	out->close();
-	delete out;
 	
 	std::string readme_name(of + "/README");
-	out = new std::ofstream(readme_name.c_str(), std::ios::out);
+	out = std::unique_ptr<std::ofstream>(new std::ofstream(readme_name.c_str(), std::ios::out));
 	(*out) << "\n" << std::flush;
 	out->close();
-	delete out;
 	
 	std::string authors_name(of + "/AUTHORS");
-	out = new std::ofstream(authors_name.c_str(), std::ios::out);
+	out = std::unique_ptr<std::ofstream>(new std::ofstream(authors_name.c_str(), std::ios::out));
 	(*out) << "\n" << std::flush;
 	out->close();
-	delete out;
 	
 	std::string log_name(of + "/ChangeLog");
-	out = new std::ofstream(log_name.c_str(), std::ios::out);
+	out = std::unique_ptr<std::ofstream>(new std::ofstream(log_name.c_str(), std::ios::out));
 	(*out) << "\n" << std::flush;
 	out->close();
-	delete out;
 }
 

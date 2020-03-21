@@ -30,7 +30,7 @@ exe_elf::~exe_elf()
 	delete [] string_table;
 }
 
-exe_loader * exe_elf::check(std::istream *me)
+exe_loader * exe_elf::check(std::shared_ptr<std::ifstream> me)
 {
 	exe_loader *ret = 0;
 	unsigned int signature;
@@ -79,7 +79,7 @@ void exe_elf::print_program_header(int i)
 	}
 }
 
-int exe_elf::process(std::istream *me)	//do basic processing
+int exe_elf::process(std::shared_ptr<std::ifstream> me)	//do basic processing
 {
 	exe = me;
 	exe->seekg(0, std::ios::beg);

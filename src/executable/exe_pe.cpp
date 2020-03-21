@@ -24,7 +24,7 @@ exe_pe::~exe_pe()
 {
 }
 
-exe_loader * exe_pe::check(std::istream *me)
+exe_loader * exe_pe::check(std::shared_ptr<std::ifstream> me)
 {
 	exe_loader *ret = 0;
 	unsigned int signature;
@@ -47,7 +47,7 @@ const char *exe_pe::entry_name()
 	return "_start";
 }
 
-int exe_pe::process(std::istream *me)	//do basic processing
+int exe_pe::process(std::shared_ptr<std::ifstream> me)	//do basic processing
 {
 	exe = me;
 	exe->seekg(0, std::ios::beg);

@@ -1,4 +1,5 @@
 #include <cstring>
+#include <memory>
 #include <sys/stat.h>
 
 #include "disassembly/disassembler.h"
@@ -10,7 +11,6 @@
 
 executable::executable()
 {
-	exe_file = new std::ifstream;
 	exe_type = EXEC_TYPE_UNKNOWN;
 	exe_object = 0;
 }
@@ -18,7 +18,6 @@ executable::executable()
 executable::~executable()
 {
 	delete exe_object;
-	delete exe_file;
 }
 
 int executable::output(const char *fld_name)
@@ -91,6 +90,7 @@ void executable::write_sources(std::string n)
 int executable::load(const char *bin_name)
 {
 	int processed = 0;
+	std::shared_ptr<std::ifstream> exe_file = std::shared_ptr<std::ifstream>(new std::ifstream());
 	exe_file->open(bin_name, std::ios::binary);
 	if (!exe_file->is_open())
 	{

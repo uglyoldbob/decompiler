@@ -40,7 +40,7 @@ exe_macho::~exe_macho()
 	delete [] lcmds;
 }
 
-exe_loader * exe_macho::check(std::istream *me)
+exe_loader * exe_macho::check(std::shared_ptr<std::ifstream> me)
 {
 	exe_loader *ret = 0;
 	unsigned int signature;
@@ -74,7 +74,7 @@ const char *exe_macho::entry_name()
 	return "_start";
 }
 
-int exe_macho::process(std::istream *me)	//do basic processing
+int exe_macho::process(std::shared_ptr<std::ifstream> me)	//do basic processing
 {
 	exe = me;
 	exe->seekg(0, std::ios::beg);
