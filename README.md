@@ -24,6 +24,45 @@ This is intended to target 32 bit executables.
 This is intended to target 64 bit executables.
 
 
+**Getting started**
+
+These are suggested steps for cloning and compiling. The steps vary depending on which version of git you are using. I am assuming you are using git from a command line of some variety.
+
+*git version 2.13 or newer*
+
+git clone --recurse-submodules https://github.com/uglyoldbob/decompiler.git
+
+cd decompiler
+
+*git version 1.9 to 2.12*
+
+git clone --recursive https://github.com/uglyoldbob/decompiler.git
+
+cd decompiler
+
+*git version 1.6.5 or newer*
+
+git clone --recursive https://github.com/uglyoldbob/decompiler.git
+
+cd decompiler
+
+*older git*
+
+git clone https://github.com/uglyoldbob/decompiler.git
+
+cd decompiler
+
+git submodule update --init --recursive
+
+*Building*
+
+mkdir build
+
+cd build
+
+../configure
+
+make
 
 ***Reference materials:***
 
