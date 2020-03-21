@@ -1,6 +1,6 @@
 #include "oper_preincrement.h"
 
-oper_preincrement::oper_preincrement(variable *a)
+oper_preincrement::oper_preincrement(statement *a)
 	: oper1(a)
 {
 	arg = a;

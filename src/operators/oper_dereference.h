@@ -8,7 +8,7 @@
 class oper_dereference : public oper1
 {
 	public:
-		oper_dereference(variable *a);
+		oper_dereference(statement *a);
 	private:
 		virtual std::ostream &print(std::ostream &out);
 };

@@ -1,6 +1,6 @@
 #include "oper_segbase.h"
 
-oper_segbase::oper_segbase(variable *a, variable *b)
+oper_segbase::oper_segbase(statement *a, statement *b)
 {
 	segment = a;
 	base = b;

@@ -86,38 +86,38 @@ std::string get_type(ud_type_t me)
 	return "broken";
 }
 
-variable *disass_x86::interpret_operand(const ud_operand_t *m)
+statement *disass_x86::interpret_operand(const ud_operand_t *m)
 {
-	variable *ret = 0;
+	statement *ret = 0;
 
 	switch (m->type)
 	{
 	case UD_OP_MEM:
 		{
-		variable *seg = 0;
-		variable *base = 0;
-		variable *index = 0;
-		variable *scale = 0;
-		variable *offset = 0;
+		statement *seg = 0;
+		statement *base = 0;
+		statement *index = 0;
+		statement *scale = 0;
+		statement *offset = 0;
 		//seg:base + index * scale + offset
 		if (u.pfx_seg != UD_NONE)
 		{
-			seg = new variable(get_type((ud_type_t)u.pfx_seg), -1);
+			seg = new statement(get_type((ud_type_t)u.pfx_seg), -1);
 		}
 		if (m->base != UD_NONE)
 		{
-			base = new variable(get_type(m->base), -1);
+			base = new statement(get_type(m->base), -1);
 		}
 		if (m->index != UD_NONE)
 		{
-			index = new variable(get_type(m->index), -1);
+			index = new statement(get_type(m->index), -1);
 		}
 		if (m->scale != 0)
 		{
 			std::stringstream s;
 			s << std::dec;
 			s << m->scale << std::flush;
-			scale = new variable(s.str(), -1);
+			scale = new statement(s.str(), -1);
 		}
 		switch (m->offset)
 		{
@@ -126,7 +126,7 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 			std::stringstream s;
 			s << std::dec;
 			s << (int16_t)m->lval.sbyte << std::flush;
-			offset = new variable(s.str(), 1);
+			offset = new statement(s.str(), 1);
 			if ((m->index != UD_NONE) || (m->base != UD_NONE))
 			{
 				if (m->lval.sbyte > 0)
@@ -151,7 +151,7 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 			std::stringstream s;
 			s << std::dec;
 			s << m->lval.sword << std::flush;
-			offset = new variable(s.str(), 2);
+			offset = new statement(s.str(), 2);
 			if ((m->index != UD_NONE) || (m->base != UD_NONE))
 			{
 				if (m->lval.sword > 0)
@@ -176,7 +176,7 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 			std::stringstream s;
 			s << std::dec;
 			s << m->lval.sdword << std::flush;
-			offset = new variable(s.str(), 4);
+			offset = new statement(s.str(), 4);
 			if ((m->index != UD_NONE) || (m->base != UD_NONE))
 			{
 				if (m->lval.sdword > 0)
@@ -201,7 +201,7 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 			std::stringstream s;
 			s << std::dec;
 			s << m->lval.sqword << std::flush;
-			offset = new variable(s.str(), 8);
+			offset = new statement(s.str(), 8);
 			if ((m->index != UD_NONE) || (m->base != UD_NONE))
 			{
 				if (m->lval.sqword > 0)
@@ -278,7 +278,7 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 	case UD_OP_PTR:
 		break;
 	case UD_OP_REG:
-		ret = new variable(get_type(m->base), -1);
+		ret = new statement(get_type(m->base), -1);
 		break;
 	case UD_OP_IMM:
 	case UD_OP_CONST:
@@ -300,7 +300,7 @@ variable *disass_x86::interpret_operand(const ud_operand_t *m)
 			s << ((int16_t)m->lval.sbyte) << std::flush;
 			break;
 		}
-		ret = new variable(s.str(), m->size/8);
+		ret = new statement(s.str(), m->size/8);
 		}
 		break;
 	default:
@@ -361,31 +361,31 @@ int disass_x86::get_instruction(instr* &get, address addr)
 				get->destaddrb = (jmp_addr->lval.sqword + addr + ud_insn_len(&u));
 				break;
 			default:
-				get->trace_jump = new variable("unknown size??", -1);
+				get->trace_jump = new statement("unknown size??", -1);
 				break;
 			}
 			break;
 		case UD_OP_MEM:
-			get->trace_jump = new variable("memory ref??", -1);
+			get->trace_jump = new statement("memory ref??", -1);
 			break;
 		case UD_OP_PTR:
 			get->destaddrb = (jmp_addr->lval.ptr.seg*0x10 + jmp_addr->lval.ptr.off);
 			break;
 		case UD_OP_IMM:
 			std::cout << "Unknown jump immediate" << std::endl;
-			get->trace_jump = new variable("immediate??", -1);
+			get->trace_jump = new statement("immediate??", -1);
 			break;
 		case UD_OP_CONST:
 			std::cout << "Unknown jump const" << std::endl;
-			get->trace_jump = new variable("const??", -1);
+			get->trace_jump = new statement("const??", -1);
 			break;
 		case UD_OP_REG:
 			std::cout << "Unknown jump register" << std::endl;
-			get->trace_jump = new variable(get_type(jmp_addr->base), -1);
+			get->trace_jump = new statement(get_type(jmp_addr->base), -1);
 			break;
 		default:
 			std::cout << "Unknown jump address: " << ud_lookup_mnemonic(ud_insn_mnemonic(&u)) << std::endl;
-			get->trace_jump = new variable("not an immediate??", -1);
+			get->trace_jump = new statement("not an immediate??", -1);
 			break;
 		}
 		if (op == "jmp")
@@ -430,12 +430,12 @@ int disass_x86::get_instruction(instr* &get, address addr)
 				get->call = (jmp_addr->lval.sqword + addr + ud_insn_len(&u));
 				break;
 			default:
-				get->trace_call = new variable("??", -1);
+				get->trace_call = new statement("??", -1);
 				break;
 			}
 			break;
 		default:
-			get->trace_call = new variable("??", -1);
+			get->trace_call = new statement("??", -1);
 			break;
 		}
 		get->destaddra = addr + ud_insn_len(&u);
@@ -451,8 +451,8 @@ int disass_x86::get_instruction(instr* &get, address addr)
 	{
 		get->destaddra = addr + ud_insn_len(&u);
 		get->destaddrb = 0;
-		variable *to = interpret_operand(ud_insn_opr(&u, 0));
-		variable *from = interpret_operand(ud_insn_opr(&u, 1));
+		statement *to = interpret_operand(ud_insn_opr(&u, 0));
+		statement *from = interpret_operand(ud_insn_opr(&u, 1));
 		
 		if ((from != 0) && (to != 0))
 		{
@@ -471,32 +471,32 @@ int disass_x86::get_instruction(instr* &get, address addr)
 	{
 		get->destaddra = addr + ud_insn_len(&u);
 		get->destaddrb = 0;
-		variable *to = interpret_operand(ud_insn_opr(&u, 0));
+		statement *to = interpret_operand(ud_insn_opr(&u, 0));
 	
 		if (to != 0)
 		{
 			get->valid = true;
-			get->statements.push_back(new oper_assignment(to, new oper_add(to, new variable("1", -1))));
+			get->statements.push_back(new oper_assignment(to, new oper_add(to, new statement("1", -1))));
 		}
 	}
 	else if (op == "dec")
 	{
 		get->destaddra = addr + ud_insn_len(&u);
 		get->destaddrb = 0;
-		variable *to = interpret_operand(ud_insn_opr(&u, 0));
+		statement *to = interpret_operand(ud_insn_opr(&u, 0));
 	
 		if (to != 0)
 		{
 			get->valid = true;
-			get->statements.push_back(new oper_assignment(to, new oper_sub(to, new variable("1", -1))));
+			get->statements.push_back(new oper_assignment(to, new oper_sub(to, new statement("1", -1))));
 		}
 	}
 	else if (op == "add")
 	{
 		get->destaddra = addr + ud_insn_len(&u);
 		get->destaddrb = 0;
-		variable *to = interpret_operand(ud_insn_opr(&u, 0));
-		variable *from = interpret_operand(ud_insn_opr(&u, 1));
+		statement *to = interpret_operand(ud_insn_opr(&u, 0));
+		statement *from = interpret_operand(ud_insn_opr(&u, 1));
 		
 		if ((from != 0) && (to != 0))
 		{
@@ -515,8 +515,8 @@ int disass_x86::get_instruction(instr* &get, address addr)
 	{
 		get->destaddra = addr + ud_insn_len(&u);
 		get->destaddrb = 0;
-		variable *to = interpret_operand(ud_insn_opr(&u, 0));
-		variable *from = interpret_operand(ud_insn_opr(&u, 1));
+		statement *to = interpret_operand(ud_insn_opr(&u, 0));
+		statement *from = interpret_operand(ud_insn_opr(&u, 1));
 		
 		if ((from != 0) && (to != 0))
 		{
@@ -535,8 +535,8 @@ int disass_x86::get_instruction(instr* &get, address addr)
 	{
 		get->destaddra = addr + ud_insn_len(&u);
 		get->destaddrb = 0;
-		variable *to = interpret_operand(ud_insn_opr(&u, 0));
-		variable *from = interpret_operand(ud_insn_opr(&u, 1));
+		statement *to = interpret_operand(ud_insn_opr(&u, 0));
+		statement *from = interpret_operand(ud_insn_opr(&u, 1));
 		
 		if ((from != 0) && (to != 0))
 		{
@@ -555,8 +555,8 @@ int disass_x86::get_instruction(instr* &get, address addr)
 	{
 		get->destaddra = addr + ud_insn_len(&u);
 		get->destaddrb = 0;
-		variable *to = interpret_operand(ud_insn_opr(&u, 0));
-		variable *from = interpret_operand(ud_insn_opr(&u, 1));
+		statement *to = interpret_operand(ud_insn_opr(&u, 0));
+		statement *from = interpret_operand(ud_insn_opr(&u, 1));
 		
 		if ((from != 0) && (to != 0))
 		{
@@ -575,8 +575,8 @@ int disass_x86::get_instruction(instr* &get, address addr)
 	{
 		get->destaddra = addr + ud_insn_len(&u);
 		get->destaddrb = 0;
-		variable *to = interpret_operand(ud_insn_opr(&u, 0));
-		variable *from = interpret_operand(ud_insn_opr(&u, 1));
+		statement *to = interpret_operand(ud_insn_opr(&u, 0));
+		statement *from = interpret_operand(ud_insn_opr(&u, 1));
 		
 		if ((from != 0) && (to != 0))
 		{

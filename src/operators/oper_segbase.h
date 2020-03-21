@@ -1,17 +1,17 @@
 #ifndef __OPER_SEGBASE_H__
 #define __OPER_SEGBASE_H__
 
-#include "variable.h"
+#include "statement.h"
 
-class oper_segbase : public variable
+class oper_segbase : public statement
 {
 	public:
-		oper_segbase(variable *a, variable *b);
+		oper_segbase(statement *a, statement *b);
 		virtual ~oper_segbase();
 	protected:
 		virtual std::ostream &print(std::ostream &out);
-		variable *segment;
-		variable *base;
+		statement *segment;
+		statement *base;
 };
 
 #endif

@@ -28,6 +28,8 @@ class scanset
 		std::string &r;
 };
 
+/// Helper class for outputting multiple tabs to an output stream.
+/** Convenience class for creating multiple tabs in an output stream. Currently always outputs the specified number of tabs. Future functionality includes outputting the specified number of (spaces) or (2 spaces) or (n spaces). */
 class tabs
 {
 	public:

@@ -1,6 +1,6 @@
 #include "oper_add.h"
 
-oper_add::oper_add(variable *a, variable *b)
+oper_add::oper_add(statement *a, statement *b)
 	: oper2(a, b)
 {
 	p = OPER_LVL6;

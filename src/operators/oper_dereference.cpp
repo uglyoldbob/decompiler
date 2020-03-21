@@ -3,7 +3,7 @@
 #include "code_elements/code_element.h"
 #include "helpers.h"
 
-oper_dereference::oper_dereference(variable *a)
+oper_dereference::oper_dereference(statement *a)
 	: oper1(a)
 {
 	p = OPER_LVL3;

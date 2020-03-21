@@ -2,7 +2,7 @@
 #include "helpers.h"
 #include "oper_assignment.h"
 
-oper_assignment::oper_assignment(variable *a, variable *b)
+oper_assignment::oper_assignment(statement *a, statement *b)
 	: oper2(a,b)
 {
 	p = OPER_LVL15;

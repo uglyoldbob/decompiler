@@ -1,6 +1,6 @@
 #include "oper_right_shift.h"
 
-oper_right_shift::oper_right_shift(variable *a, variable *b)
+oper_right_shift::oper_right_shift(statement *a, statement *b)
 	: oper2(a, b)
 {
 	p = OPER_LVL6;

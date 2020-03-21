@@ -1,17 +1,17 @@
 #ifndef __OPER2_H__
 #define __OPER2_H__
 
-#include "variable.h"
+#include "statement.h"
 
 //all operations can be represented as a single variable
-class oper2 : public variable
+class oper2 : public statement
 {
 	public:
-		oper2(variable *a, variable *b);
+		oper2(statement *a, statement *b);
 		virtual ~oper2();
 	protected:
-		variable *arg1;
-		variable *arg2;
+		statement *arg1;
+		statement *arg2;
 };
 
 #endif

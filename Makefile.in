@@ -162,7 +162,7 @@ am_cfgtest_OBJECTS = src/code_elements/cfgtest-code_element.$(OBJEXT) \
 	src/code_elements/cfgtest-code_do_while_loop.$(OBJEXT) \
 	src/code_elements/cfgtest-code_while_loop.$(OBJEXT) \
 	src/code_elements/cfgtest-related_code.$(OBJEXT) \
-	src/cfgtest-helpers.$(OBJEXT) src/cfgtest-variable.$(OBJEXT) \
+	src/cfgtest-helpers.$(OBJEXT) src/cfgtest-statement.$(OBJEXT) \
 	src/var/cfgtest-type.$(OBJEXT) src/cfgtest-cfgtest.$(OBJEXT) \
 	src/disassembly/cfgtest-disassembler.$(OBJEXT) \
 	src/var/cfgtest-combo.$(OBJEXT) \
@@ -170,7 +170,7 @@ am_cfgtest_OBJECTS = src/code_elements/cfgtest-code_element.$(OBJEXT) \
 cfgtest_OBJECTS = $(am_cfgtest_OBJECTS)
 cfgtest_LDADD = $(LDADD)
 am_decompile16_OBJECTS = src/var/decompile16-type.$(OBJEXT) \
-	src/decompile16-variable.$(OBJEXT) \
+	src/decompile16-statement.$(OBJEXT) \
 	src/operators/decompile16-oper1.$(OBJEXT) \
 	src/operators/decompile16-oper2.$(OBJEXT) \
 	src/operators/decompile16-oper_dereference.$(OBJEXT) \
@@ -214,7 +214,7 @@ decompile16_DEPENDENCIES =
 decompile16_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(decompile16_LDFLAGS) $(LDFLAGS) -o $@
 am_decompile32_OBJECTS = src/var/decompile32-type.$(OBJEXT) \
-	src/decompile32-variable.$(OBJEXT) \
+	src/decompile32-statement.$(OBJEXT) \
 	src/operators/decompile32-oper1.$(OBJEXT) \
 	src/operators/decompile32-oper2.$(OBJEXT) \
 	src/operators/decompile32-oper_dereference.$(OBJEXT) \
@@ -258,7 +258,7 @@ decompile32_DEPENDENCIES =
 decompile32_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(decompile32_LDFLAGS) $(LDFLAGS) -o $@
 am_decompile64_OBJECTS = src/var/decompile64-type.$(OBJEXT) \
-	src/decompile64-variable.$(OBJEXT) \
+	src/decompile64-statement.$(OBJEXT) \
 	src/operators/decompile64-oper1.$(OBJEXT) \
 	src/operators/decompile64-oper2.$(OBJEXT) \
 	src/operators/decompile64-oper_dereference.$(OBJEXT) \
@@ -312,7 +312,7 @@ am_projecttest_OBJECTS = src/tests/projecttest-projects.$(OBJEXT) \
 	src/code_elements/projecttest-code_element.$(OBJEXT) \
 	src/var/projecttest-combo.$(OBJEXT) \
 	src/var/projecttest-type.$(OBJEXT) \
-	src/projecttest-variable.$(OBJEXT)
+	src/projecttest-statement.$(OBJEXT)
 projecttest_OBJECTS = $(am_projecttest_OBJECTS)
 projecttest_DEPENDENCIES = libgtest.a
 am_test_OBJECTS = src/example.$(OBJEXT)
@@ -771,7 +771,7 @@ src/code_elements/code_do_while_loop.cpp \
 src/code_elements/code_while_loop.cpp \
 src/code_elements/related_code.cpp \
 src/helpers.cpp \
-src/variable.cpp \
+src/statement.cpp \
 src/var/type.cpp \
 src/cfgtest.cpp \
 src/disassembly/disassembler.cpp \
@@ -793,7 +793,7 @@ src/code_elements/related_code.cpp \
 src/code_elements/code_element.cpp \
 src/var/combo.cpp \
 src/var/type.cpp \
-src/variable.cpp
+src/statement.cpp
 
 
 #BUILT_SOURCES = libudis86.a
@@ -805,7 +805,7 @@ decompile32_LDFLAGS = -L./udis86/libudis86/.libs $(am__append_2)
 decompile64_LDFLAGS = -L./udis86/libudis86/.libs $(am__append_3)
 decompile16_SOURCES = \
 src/var/type.cpp \
-src/variable.cpp \
+src/statement.cpp \
 src/operators/oper1.cpp \
 src/operators/oper2.cpp \
 src/operators/oper_dereference.cpp \
@@ -847,7 +847,7 @@ src/helpers.cpp
 
 decompile32_SOURCES = \
 src/var/type.cpp \
-src/variable.cpp \
+src/statement.cpp \
 src/operators/oper1.cpp \
 src/operators/oper2.cpp \
 src/operators/oper_dereference.cpp \
@@ -889,7 +889,7 @@ src/helpers.cpp
 
 decompile64_SOURCES = \
 src/var/type.cpp \
-src/variable.cpp \
+src/statement.cpp \
 src/operators/oper1.cpp \
 src/operators/oper2.cpp \
 src/operators/oper_dereference.cpp \
@@ -1115,7 +1115,7 @@ src/$(DEPDIR)/$(am__dirstamp):
 	@: > src/$(DEPDIR)/$(am__dirstamp)
 src/cfgtest-helpers.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
-src/cfgtest-variable.$(OBJEXT): src/$(am__dirstamp) \
+src/cfgtest-statement.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/var/$(am__dirstamp):
 	@$(MKDIR_P) src/var
@@ -1146,7 +1146,7 @@ cfgtest$(EXEEXT): $(cfgtest_OBJECTS) $(cfgtest_DEPENDENCIES) $(EXTRA_cfgtest_DEP
 	$(AM_V_CXXLD)$(CXXLINK) $(cfgtest_OBJECTS) $(cfgtest_LDADD) $(LIBS)
 src/var/decompile16-type.$(OBJEXT): src/var/$(am__dirstamp) \
 	src/var/$(DEPDIR)/$(am__dirstamp)
-src/decompile16-variable.$(OBJEXT): src/$(am__dirstamp) \
+src/decompile16-statement.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/operators/$(am__dirstamp):
 	@$(MKDIR_P) src/operators
@@ -1281,7 +1281,7 @@ decompile16$(EXEEXT): $(decompile16_OBJECTS) $(decompile16_DEPENDENCIES) $(EXTRA
 	$(AM_V_CXXLD)$(decompile16_LINK) $(decompile16_OBJECTS) $(decompile16_LDADD) $(LIBS)
 src/var/decompile32-type.$(OBJEXT): src/var/$(am__dirstamp) \
 	src/var/$(DEPDIR)/$(am__dirstamp)
-src/decompile32-variable.$(OBJEXT): src/$(am__dirstamp) \
+src/decompile32-statement.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/operators/decompile32-oper1.$(OBJEXT):  \
 	src/operators/$(am__dirstamp) \
@@ -1398,7 +1398,7 @@ decompile32$(EXEEXT): $(decompile32_OBJECTS) $(decompile32_DEPENDENCIES) $(EXTRA
 	$(AM_V_CXXLD)$(decompile32_LINK) $(decompile32_OBJECTS) $(decompile32_LDADD) $(LIBS)
 src/var/decompile64-type.$(OBJEXT): src/var/$(am__dirstamp) \
 	src/var/$(DEPDIR)/$(am__dirstamp)
-src/decompile64-variable.$(OBJEXT): src/$(am__dirstamp) \
+src/decompile64-statement.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/operators/decompile64-oper1.$(OBJEXT):  \
 	src/operators/$(am__dirstamp) \
@@ -1548,7 +1548,7 @@ src/var/projecttest-combo.$(OBJEXT): src/var/$(am__dirstamp) \
 	src/var/$(DEPDIR)/$(am__dirstamp)
 src/var/projecttest-type.$(OBJEXT): src/var/$(am__dirstamp) \
 	src/var/$(DEPDIR)/$(am__dirstamp)
-src/projecttest-variable.$(OBJEXT): src/$(am__dirstamp) \
+src/projecttest-statement.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
 projecttest$(EXEEXT): $(projecttest_OBJECTS) $(projecttest_DEPENDENCIES) $(EXTRA_projecttest_DEPENDENCIES) 
@@ -1579,25 +1579,25 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@googletest/googletest/src/$(DEPDIR)/libgtest_a-gtest-all.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cfgtest-cfgtest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cfgtest-helpers.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cfgtest-variable.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cfgtest-statement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile16-decompile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile16-exceptions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile16-function.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile16-helpers.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile16-variable.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile16-statement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile32-decompile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile32-exceptions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile32-function.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile32-helpers.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile32-variable.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile32-statement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile64-decompile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile64-exceptions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile64-function.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile64-helpers.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile64-variable.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/decompile64-statement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/example.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/projecttest-function.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/projecttest-variable.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/projecttest-statement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/code_elements/$(DEPDIR)/cfgtest-ce_basic.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/code_elements/$(DEPDIR)/cfgtest-ce_dummy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/code_elements/$(DEPDIR)/cfgtest-code_do_while_loop.Po@am__quote@
@@ -1913,19 +1913,19 @@ src/cfgtest-helpers.obj: src/helpers.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/cfgtest-helpers.obj `if test -f 'src/helpers.cpp'; then $(CYGPATH_W) 'src/helpers.cpp'; else $(CYGPATH_W) '$(srcdir)/src/helpers.cpp'; fi`
 
-src/cfgtest-variable.o: src/variable.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/cfgtest-variable.o -MD -MP -MF src/$(DEPDIR)/cfgtest-variable.Tpo -c -o src/cfgtest-variable.o `test -f 'src/variable.cpp' || echo '$(srcdir)/'`src/variable.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/cfgtest-variable.Tpo src/$(DEPDIR)/cfgtest-variable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/variable.cpp' object='src/cfgtest-variable.o' libtool=no @AMDEPBACKSLASH@
+src/cfgtest-statement.o: src/statement.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/cfgtest-statement.o -MD -MP -MF src/$(DEPDIR)/cfgtest-statement.Tpo -c -o src/cfgtest-statement.o `test -f 'src/statement.cpp' || echo '$(srcdir)/'`src/statement.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/cfgtest-statement.Tpo src/$(DEPDIR)/cfgtest-statement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/statement.cpp' object='src/cfgtest-statement.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/cfgtest-variable.o `test -f 'src/variable.cpp' || echo '$(srcdir)/'`src/variable.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/cfgtest-statement.o `test -f 'src/statement.cpp' || echo '$(srcdir)/'`src/statement.cpp
 
-src/cfgtest-variable.obj: src/variable.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/cfgtest-variable.obj -MD -MP -MF src/$(DEPDIR)/cfgtest-variable.Tpo -c -o src/cfgtest-variable.obj `if test -f 'src/variable.cpp'; then $(CYGPATH_W) 'src/variable.cpp'; else $(CYGPATH_W) '$(srcdir)/src/variable.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/cfgtest-variable.Tpo src/$(DEPDIR)/cfgtest-variable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/variable.cpp' object='src/cfgtest-variable.obj' libtool=no @AMDEPBACKSLASH@
+src/cfgtest-statement.obj: src/statement.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/cfgtest-statement.obj -MD -MP -MF src/$(DEPDIR)/cfgtest-statement.Tpo -c -o src/cfgtest-statement.obj `if test -f 'src/statement.cpp'; then $(CYGPATH_W) 'src/statement.cpp'; else $(CYGPATH_W) '$(srcdir)/src/statement.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/cfgtest-statement.Tpo src/$(DEPDIR)/cfgtest-statement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/statement.cpp' object='src/cfgtest-statement.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/cfgtest-variable.obj `if test -f 'src/variable.cpp'; then $(CYGPATH_W) 'src/variable.cpp'; else $(CYGPATH_W) '$(srcdir)/src/variable.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/cfgtest-statement.obj `if test -f 'src/statement.cpp'; then $(CYGPATH_W) 'src/statement.cpp'; else $(CYGPATH_W) '$(srcdir)/src/statement.cpp'; fi`
 
 src/var/cfgtest-type.o: src/var/type.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(cfgtest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/var/cfgtest-type.o -MD -MP -MF src/var/$(DEPDIR)/cfgtest-type.Tpo -c -o src/var/cfgtest-type.o `test -f 'src/var/type.cpp' || echo '$(srcdir)/'`src/var/type.cpp
@@ -2011,19 +2011,19 @@ src/var/decompile16-type.obj: src/var/type.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/var/decompile16-type.obj `if test -f 'src/var/type.cpp'; then $(CYGPATH_W) 'src/var/type.cpp'; else $(CYGPATH_W) '$(srcdir)/src/var/type.cpp'; fi`
 
-src/decompile16-variable.o: src/variable.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/decompile16-variable.o -MD -MP -MF src/$(DEPDIR)/decompile16-variable.Tpo -c -o src/decompile16-variable.o `test -f 'src/variable.cpp' || echo '$(srcdir)/'`src/variable.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/decompile16-variable.Tpo src/$(DEPDIR)/decompile16-variable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/variable.cpp' object='src/decompile16-variable.o' libtool=no @AMDEPBACKSLASH@
+src/decompile16-statement.o: src/statement.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/decompile16-statement.o -MD -MP -MF src/$(DEPDIR)/decompile16-statement.Tpo -c -o src/decompile16-statement.o `test -f 'src/statement.cpp' || echo '$(srcdir)/'`src/statement.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/decompile16-statement.Tpo src/$(DEPDIR)/decompile16-statement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/statement.cpp' object='src/decompile16-statement.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/decompile16-variable.o `test -f 'src/variable.cpp' || echo '$(srcdir)/'`src/variable.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/decompile16-statement.o `test -f 'src/statement.cpp' || echo '$(srcdir)/'`src/statement.cpp
 
-src/decompile16-variable.obj: src/variable.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/decompile16-variable.obj -MD -MP -MF src/$(DEPDIR)/decompile16-variable.Tpo -c -o src/decompile16-variable.obj `if test -f 'src/variable.cpp'; then $(CYGPATH_W) 'src/variable.cpp'; else $(CYGPATH_W) '$(srcdir)/src/variable.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/decompile16-variable.Tpo src/$(DEPDIR)/decompile16-variable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/variable.cpp' object='src/decompile16-variable.obj' libtool=no @AMDEPBACKSLASH@
+src/decompile16-statement.obj: src/statement.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/decompile16-statement.obj -MD -MP -MF src/$(DEPDIR)/decompile16-statement.Tpo -c -o src/decompile16-statement.obj `if test -f 'src/statement.cpp'; then $(CYGPATH_W) 'src/statement.cpp'; else $(CYGPATH_W) '$(srcdir)/src/statement.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/decompile16-statement.Tpo src/$(DEPDIR)/decompile16-statement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/statement.cpp' object='src/decompile16-statement.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/decompile16-variable.obj `if test -f 'src/variable.cpp'; then $(CYGPATH_W) 'src/variable.cpp'; else $(CYGPATH_W) '$(srcdir)/src/variable.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/decompile16-statement.obj `if test -f 'src/statement.cpp'; then $(CYGPATH_W) 'src/statement.cpp'; else $(CYGPATH_W) '$(srcdir)/src/statement.cpp'; fi`
 
 src/operators/decompile16-oper1.o: src/operators/oper1.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile16_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/operators/decompile16-oper1.o -MD -MP -MF src/operators/$(DEPDIR)/decompile16-oper1.Tpo -c -o src/operators/decompile16-oper1.o `test -f 'src/operators/oper1.cpp' || echo '$(srcdir)/'`src/operators/oper1.cpp
@@ -2571,19 +2571,19 @@ src/var/decompile32-type.obj: src/var/type.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/var/decompile32-type.obj `if test -f 'src/var/type.cpp'; then $(CYGPATH_W) 'src/var/type.cpp'; else $(CYGPATH_W) '$(srcdir)/src/var/type.cpp'; fi`
 
-src/decompile32-variable.o: src/variable.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/decompile32-variable.o -MD -MP -MF src/$(DEPDIR)/decompile32-variable.Tpo -c -o src/decompile32-variable.o `test -f 'src/variable.cpp' || echo '$(srcdir)/'`src/variable.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/decompile32-variable.Tpo src/$(DEPDIR)/decompile32-variable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/variable.cpp' object='src/decompile32-variable.o' libtool=no @AMDEPBACKSLASH@
+src/decompile32-statement.o: src/statement.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/decompile32-statement.o -MD -MP -MF src/$(DEPDIR)/decompile32-statement.Tpo -c -o src/decompile32-statement.o `test -f 'src/statement.cpp' || echo '$(srcdir)/'`src/statement.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/decompile32-statement.Tpo src/$(DEPDIR)/decompile32-statement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/statement.cpp' object='src/decompile32-statement.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/decompile32-variable.o `test -f 'src/variable.cpp' || echo '$(srcdir)/'`src/variable.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/decompile32-statement.o `test -f 'src/statement.cpp' || echo '$(srcdir)/'`src/statement.cpp
 
-src/decompile32-variable.obj: src/variable.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/decompile32-variable.obj -MD -MP -MF src/$(DEPDIR)/decompile32-variable.Tpo -c -o src/decompile32-variable.obj `if test -f 'src/variable.cpp'; then $(CYGPATH_W) 'src/variable.cpp'; else $(CYGPATH_W) '$(srcdir)/src/variable.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/decompile32-variable.Tpo src/$(DEPDIR)/decompile32-variable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/variable.cpp' object='src/decompile32-variable.obj' libtool=no @AMDEPBACKSLASH@
+src/decompile32-statement.obj: src/statement.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/decompile32-statement.obj -MD -MP -MF src/$(DEPDIR)/decompile32-statement.Tpo -c -o src/decompile32-statement.obj `if test -f 'src/statement.cpp'; then $(CYGPATH_W) 'src/statement.cpp'; else $(CYGPATH_W) '$(srcdir)/src/statement.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/decompile32-statement.Tpo src/$(DEPDIR)/decompile32-statement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/statement.cpp' object='src/decompile32-statement.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/decompile32-variable.obj `if test -f 'src/variable.cpp'; then $(CYGPATH_W) 'src/variable.cpp'; else $(CYGPATH_W) '$(srcdir)/src/variable.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/decompile32-statement.obj `if test -f 'src/statement.cpp'; then $(CYGPATH_W) 'src/statement.cpp'; else $(CYGPATH_W) '$(srcdir)/src/statement.cpp'; fi`
 
 src/operators/decompile32-oper1.o: src/operators/oper1.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile32_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/operators/decompile32-oper1.o -MD -MP -MF src/operators/$(DEPDIR)/decompile32-oper1.Tpo -c -o src/operators/decompile32-oper1.o `test -f 'src/operators/oper1.cpp' || echo '$(srcdir)/'`src/operators/oper1.cpp
@@ -3131,19 +3131,19 @@ src/var/decompile64-type.obj: src/var/type.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/var/decompile64-type.obj `if test -f 'src/var/type.cpp'; then $(CYGPATH_W) 'src/var/type.cpp'; else $(CYGPATH_W) '$(srcdir)/src/var/type.cpp'; fi`
 
-src/decompile64-variable.o: src/variable.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/decompile64-variable.o -MD -MP -MF src/$(DEPDIR)/decompile64-variable.Tpo -c -o src/decompile64-variable.o `test -f 'src/variable.cpp' || echo '$(srcdir)/'`src/variable.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/decompile64-variable.Tpo src/$(DEPDIR)/decompile64-variable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/variable.cpp' object='src/decompile64-variable.o' libtool=no @AMDEPBACKSLASH@
+src/decompile64-statement.o: src/statement.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/decompile64-statement.o -MD -MP -MF src/$(DEPDIR)/decompile64-statement.Tpo -c -o src/decompile64-statement.o `test -f 'src/statement.cpp' || echo '$(srcdir)/'`src/statement.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/decompile64-statement.Tpo src/$(DEPDIR)/decompile64-statement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/statement.cpp' object='src/decompile64-statement.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/decompile64-variable.o `test -f 'src/variable.cpp' || echo '$(srcdir)/'`src/variable.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/decompile64-statement.o `test -f 'src/statement.cpp' || echo '$(srcdir)/'`src/statement.cpp
 
-src/decompile64-variable.obj: src/variable.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/decompile64-variable.obj -MD -MP -MF src/$(DEPDIR)/decompile64-variable.Tpo -c -o src/decompile64-variable.obj `if test -f 'src/variable.cpp'; then $(CYGPATH_W) 'src/variable.cpp'; else $(CYGPATH_W) '$(srcdir)/src/variable.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/decompile64-variable.Tpo src/$(DEPDIR)/decompile64-variable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/variable.cpp' object='src/decompile64-variable.obj' libtool=no @AMDEPBACKSLASH@
+src/decompile64-statement.obj: src/statement.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/decompile64-statement.obj -MD -MP -MF src/$(DEPDIR)/decompile64-statement.Tpo -c -o src/decompile64-statement.obj `if test -f 'src/statement.cpp'; then $(CYGPATH_W) 'src/statement.cpp'; else $(CYGPATH_W) '$(srcdir)/src/statement.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/decompile64-statement.Tpo src/$(DEPDIR)/decompile64-statement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/statement.cpp' object='src/decompile64-statement.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/decompile64-variable.obj `if test -f 'src/variable.cpp'; then $(CYGPATH_W) 'src/variable.cpp'; else $(CYGPATH_W) '$(srcdir)/src/variable.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/decompile64-statement.obj `if test -f 'src/statement.cpp'; then $(CYGPATH_W) 'src/statement.cpp'; else $(CYGPATH_W) '$(srcdir)/src/statement.cpp'; fi`
 
 src/operators/decompile64-oper1.o: src/operators/oper1.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(decompile64_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/operators/decompile64-oper1.o -MD -MP -MF src/operators/$(DEPDIR)/decompile64-oper1.Tpo -c -o src/operators/decompile64-oper1.o `test -f 'src/operators/oper1.cpp' || echo '$(srcdir)/'`src/operators/oper1.cpp
@@ -3831,19 +3831,19 @@ src/var/projecttest-type.obj: src/var/type.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/var/projecttest-type.obj `if test -f 'src/var/type.cpp'; then $(CYGPATH_W) 'src/var/type.cpp'; else $(CYGPATH_W) '$(srcdir)/src/var/type.cpp'; fi`
 
-src/projecttest-variable.o: src/variable.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/projecttest-variable.o -MD -MP -MF src/$(DEPDIR)/projecttest-variable.Tpo -c -o src/projecttest-variable.o `test -f 'src/variable.cpp' || echo '$(srcdir)/'`src/variable.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/projecttest-variable.Tpo src/$(DEPDIR)/projecttest-variable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/variable.cpp' object='src/projecttest-variable.o' libtool=no @AMDEPBACKSLASH@
+src/projecttest-statement.o: src/statement.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/projecttest-statement.o -MD -MP -MF src/$(DEPDIR)/projecttest-statement.Tpo -c -o src/projecttest-statement.o `test -f 'src/statement.cpp' || echo '$(srcdir)/'`src/statement.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/projecttest-statement.Tpo src/$(DEPDIR)/projecttest-statement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/statement.cpp' object='src/projecttest-statement.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/projecttest-variable.o `test -f 'src/variable.cpp' || echo '$(srcdir)/'`src/variable.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/projecttest-statement.o `test -f 'src/statement.cpp' || echo '$(srcdir)/'`src/statement.cpp
 
-src/projecttest-variable.obj: src/variable.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/projecttest-variable.obj -MD -MP -MF src/$(DEPDIR)/projecttest-variable.Tpo -c -o src/projecttest-variable.obj `if test -f 'src/variable.cpp'; then $(CYGPATH_W) 'src/variable.cpp'; else $(CYGPATH_W) '$(srcdir)/src/variable.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/projecttest-variable.Tpo src/$(DEPDIR)/projecttest-variable.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/variable.cpp' object='src/projecttest-variable.obj' libtool=no @AMDEPBACKSLASH@
+src/projecttest-statement.obj: src/statement.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/projecttest-statement.obj -MD -MP -MF src/$(DEPDIR)/projecttest-statement.Tpo -c -o src/projecttest-statement.obj `if test -f 'src/statement.cpp'; then $(CYGPATH_W) 'src/statement.cpp'; else $(CYGPATH_W) '$(srcdir)/src/statement.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/projecttest-statement.Tpo src/$(DEPDIR)/projecttest-statement.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/statement.cpp' object='src/projecttest-statement.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/projecttest-variable.obj `if test -f 'src/variable.cpp'; then $(CYGPATH_W) 'src/variable.cpp'; else $(CYGPATH_W) '$(srcdir)/src/variable.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(projecttest_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/projecttest-statement.obj `if test -f 'src/statement.cpp'; then $(CYGPATH_W) 'src/statement.cpp'; else $(CYGPATH_W) '$(srcdir)/src/statement.cpp'; fi`
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

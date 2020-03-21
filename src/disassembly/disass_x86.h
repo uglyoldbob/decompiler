@@ -17,7 +17,7 @@ class disass_x86 : public disassembler
 		address shift_cs;
 		address shift_ss;
 
-		variable *interpret_operand(const ud_operand_t *m);
+		statement *interpret_operand(const ud_operand_t *m);
 };
 
 #endif

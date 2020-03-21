@@ -1,6 +1,6 @@
 #include "oper_bitwise_and.h"
 
-oper_bitwise_and::oper_bitwise_and(variable *a, variable *b)
+oper_bitwise_and::oper_bitwise_and(statement *a, statement *b)
 	: oper2(a, b)
 {
 	p = OPER_LVL10;

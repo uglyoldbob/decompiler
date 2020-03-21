@@ -8,7 +8,7 @@
 class oper_left_shift : public oper2
 {
 	public:
-		oper_left_shift(variable *a, variable *b);
+		oper_left_shift(statement *a, statement *b);
 	protected:
 		virtual std::ostream &print(std::ostream &out);
 	private:

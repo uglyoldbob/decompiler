@@ -33,7 +33,7 @@ src/code_elements/code_do_while_loop.cpp \
 src/code_elements/code_while_loop.cpp \
 src/code_elements/related_code.cpp \
 src/helpers.cpp \
-src/variable.cpp \
+src/statement.cpp \
 src/var/type.cpp \
 src/cfgtest.cpp \
 src/disassembly/disassembler.cpp \
@@ -55,7 +55,7 @@ src/code_elements/related_code.cpp \
 src/code_elements/code_element.cpp \
 src/var/combo.cpp \
 src/var/type.cpp \
-src/variable.cpp
+src/statement.cpp
 
 TESTS = cfgtest projecttest
 
@@ -76,7 +76,7 @@ decompile64_LDFLAGS += -lmingw32
 endif
 decompile16_SOURCES = \
 src/var/type.cpp \
-src/variable.cpp \
+src/statement.cpp \
 src/operators/oper1.cpp \
 src/operators/oper2.cpp \
 src/operators/oper_dereference.cpp \
@@ -119,7 +119,7 @@ src/helpers.cpp
 
 decompile32_SOURCES = \
 src/var/type.cpp \
-src/variable.cpp \
+src/statement.cpp \
 src/operators/oper1.cpp \
 src/operators/oper2.cpp \
 src/operators/oper_dereference.cpp \
@@ -161,7 +161,7 @@ src/helpers.cpp
 
 decompile64_SOURCES = \
 src/var/type.cpp \
-src/variable.cpp \
+src/statement.cpp \
 src/operators/oper1.cpp \
 src/operators/oper2.cpp \
 src/operators/oper_dereference.cpp \

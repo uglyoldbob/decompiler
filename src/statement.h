@@ -1,5 +1,5 @@
-#ifndef __VARIABLE_H__
-#define __VARIABLE_H__
+#ifndef __STATEMENT_H__
+#define __STATEMENT_H__
 
 class code_element;
 #include "config.h"
@@ -117,16 +117,17 @@ enum oper_precedence
 #define VAR_SIGN_SIGNED 1
 #define VAR_SIGN_UNSIGNED 2
 
-
-class variable
+/// Describes a source code statement.
+/** Holds everything required to describe a statement as used in source code. A statement might be (bob = 5;), (random_function_call(bob);), or (double sandwhiches;) */
+class statement
 {
 	public:
-		variable();
-		variable(std::string in, std::size_t size);
-		virtual ~variable();
-		std::size_t mysize() { return thesize; }
-		friend std::ostream &operator<<(std::ostream &out, variable &o);
-		oper_precedence get_p();
+		statement(); ///< Creates a basic statement.
+		statement(std::string in, std::size_t size); ///< Creates a statement called in, type void, size is the size
+		virtual ~statement();
+		std::size_t mysize() { return thesize; } ///< Returns the size of the statement
+		friend std::ostream &operator<<(std::ostream &out, statement &o);
+		oper_precedence get_p(); ///< Returns the precedence of the statement
 		std::size_t get_size();
 		std::string get_name();
 	protected:

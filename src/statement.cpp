@@ -1,15 +1,15 @@
-#include "variable.h"
+#include "statement.h"
 
 #include <cctype>
 #include "helpers.h"
 
-variable::variable() : var_type("void")
+statement::statement() : var_type("void")
 {
 	p = OPER_LVL0;
 	isconst = 0;
 }
 
-variable::variable(std::string in, std::size_t size) : var_type("void")
+statement::statement(std::string in, std::size_t size) : var_type("void")
 {
 	p = OPER_LVL0;
 	if (isdigit(in[0]))
@@ -28,21 +28,21 @@ variable::variable(std::string in, std::size_t size) : var_type("void")
 	thesize = size;
 }
 
-variable::~variable()
+statement::~statement()
 {
 }
 
-std::ostream &operator<<(std::ostream &out, variable &o)
+std::ostream &operator<<(std::ostream &out, statement &o)
 {
 	return o.print(out);
 }
 
-oper_precedence variable::get_p()
+oper_precedence statement::get_p()
 {
 	return p;
 }
 
-std::size_t variable::get_size()
+std::size_t statement::get_size()
 {
 	if (thesize & VAR_SIZE_OTHER)
 		return othersize;
@@ -57,12 +57,12 @@ std::size_t variable::get_size()
 	return 0;
 }
 
-std::string variable::get_name()
+std::string statement::get_name()
 {
 	return name;
 }
 
-std::ostream &variable::print(std::ostream &out)
+std::ostream &statement::print(std::ostream &out)
 {
 	out << name;
 	return out;

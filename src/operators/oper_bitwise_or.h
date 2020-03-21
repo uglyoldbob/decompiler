@@ -8,7 +8,7 @@
 class oper_bitwise_or : public oper2
 {
 	public:
-		oper_bitwise_or(variable *a, variable *b);
+		oper_bitwise_or(statement *a, statement *b);
 	protected:
 		virtual std::ostream &print(std::ostream &out);
 	private:

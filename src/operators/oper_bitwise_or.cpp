@@ -4,7 +4,7 @@
 #include "code_elements/code_element.h"
 #include "helpers.h"
 
-oper_bitwise_or::oper_bitwise_or(variable *a, variable *b)
+oper_bitwise_or::oper_bitwise_or(statement *a, statement *b)
 	: oper2(a, b)
 {
 	p = OPER_LVL12;

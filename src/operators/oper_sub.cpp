@@ -4,7 +4,7 @@
 #include "code_elements/code_element.h"
 #include "helpers.h"
 
-oper_sub::oper_sub(variable *a, variable *b)
+oper_sub::oper_sub(statement *a, statement *b)
 	: oper2(a, b)
 {
 	p = OPER_LVL6;

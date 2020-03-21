@@ -9,7 +9,7 @@ class code_element;
 class oper_assignment : public oper2
 {
 	public:
-		oper_assignment(variable *a, variable *b);
+		oper_assignment(statement *a, statement *b);
 	protected:
 		virtual std::ostream &print(std::ostream &out);
 	private:

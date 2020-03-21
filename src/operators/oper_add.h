@@ -8,7 +8,7 @@
 class oper_add : public oper2
 {
 	public:
-		oper_add(variable *a, variable *b);
+		oper_add(statement *a, statement *b);
 	protected:
 		virtual std::ostream &print(std::ostream &out);
 	private:

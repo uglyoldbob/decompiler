@@ -2,7 +2,7 @@
 #define __DISASSEMBLER_H__
 
 #include "config.h"
-#include "variable.h"
+#include "statement.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -11,7 +11,7 @@ struct instr
 {
 	address addr;
 	std::string preprint;
-	std::vector<variable *> statements;
+	std::vector<statement *> statements;
 	std::string comment;
 	int is_cbranch;	//set when it is a conditional branch statement
 	bool is_branch;	//is this a branch of any kind?
@@ -21,8 +21,8 @@ struct instr
 	address destaddra;	//stores the dest of the conditional branch statement
 	address destaddrb;	//stores the other dest
 	address call;		//a literal value for a function call
-	variable *trace_call;		//a function call whose address must be traced
-	variable *trace_jump;		//a jump address that must be traced
+	statement *trace_call;		//a function call whose address must be traced
+	statement *trace_jump;		//a jump address that must be traced
 };
 //only two possibilities for branching
 	//non-literal function calls are easier to trace values for becuase all the structure is present

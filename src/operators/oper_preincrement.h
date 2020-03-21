@@ -8,7 +8,7 @@
 class oper_preincrement : public oper1
 {
 	public:
-		oper_preincrement(variable *a);
+		oper_preincrement(statement *a);
 	private:
 		virtual std::ostream &print(std::ostream &out);
 };
