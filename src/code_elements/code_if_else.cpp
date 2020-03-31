@@ -2,6 +2,9 @@
 #include "code_if_else.h"
 #include "helpers.h"
 
+/*! \brief Helper class to register code_element creators
+ *
+ * This class is used to automatically register the code element maker. */
 class register_if_else
 {
 	public:

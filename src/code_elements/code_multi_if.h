@@ -5,6 +5,7 @@
 #include <vector>
 #include "code_element.h"
 
+/*! This specifies the types of complex if statements that can exist. */
 enum code_multi_type
 {
 	NONE,	//unitialized
@@ -13,6 +14,10 @@ enum code_multi_type
 	AND_NO_ELSE
 };
 
+/*! \brief A complex if statement.
+ *
+ * Complex if statements can include multiple conditions and-ed or or-ed together, with an optional else statement.
+ */
 class code_multi_if : public code_element
 {
 	public:

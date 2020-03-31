@@ -5,6 +5,10 @@
 #include <iostream>
 #include <vector>
 
+/*! \brief A group of sequential code_element objects.
+ *
+ * These code_elements are simply chunks of code that run in a row.
+ */
 class code_run : public code_element
 {
 	public:
@@ -14,12 +18,12 @@ class code_run : public code_element
 		void add_element(code_element *add);
 		void done();
 		void fprint(std::ostream &dest, int depth);
-		virtual void get_calls(std::vector<address> &c);	//get a list of function calls
+		virtual void get_calls(std::vector<address> &c);
 #ifdef PROVE_SIMPLIFY
 		virtual void print_graph(std::ostream &dest);
 #endif
 	private:
-		std::vector<code_element *> els;	//a string of elements
+		std::vector<code_element *> els;	///< The string of elements
 };
 
 #endif

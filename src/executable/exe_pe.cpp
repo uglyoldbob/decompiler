@@ -5,6 +5,9 @@
 #include "exceptions.h"
 #include "executable.h"
 
+/*! \brief Helper class to register executable format classes
+ *
+ * This class is used to automatically register the executable format parser. */
 class register_exe_pe
 {
 	public:

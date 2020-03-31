@@ -6,6 +6,10 @@
 
 #include "code_element.h"
 
+/*! \brief A simple if statement.
+ *
+ * Simple if statements include a single condition, with an optional else statement.
+ */
 class code_if_else : public code_element
 {
 	public:

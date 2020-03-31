@@ -4,6 +4,10 @@
 #include "code_element.h"
 #include <iostream>
 
+/*! \brief A do while loop.
+ *
+ * Uses a set of code_elements to represent a do while loop.
+ */
 class code_do_while_loop : public code_element
 {
 	public:

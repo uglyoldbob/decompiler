@@ -2,6 +2,9 @@
 #include "helpers.h"
 #include "related_code.h"
 
+/*! \brief Helper class to register code_element creators
+ *
+ * This class is used to automatically register the code element maker. */
 class register_while
 {
 	public:
