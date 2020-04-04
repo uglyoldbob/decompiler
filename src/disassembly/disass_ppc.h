@@ -22,6 +22,7 @@
 #define PPC_DISA_ILLEGAL    0x1000  // Illegal
 #define PPC_DISA_SIMPLIFIED 0x8000  // Simplified mnemonic is used
 
+//! \brief Structure for holding data on an opcode */
 struct PPCD_CB
 {
 	uint64_t	pc;                     // Program counter (input)
@@ -40,6 +41,7 @@ struct PPCD_CB
 void    PPCDisasm(PPCD_CB *disa);
 char*   PPCDisasmSimple(uint64_t pc, uint32_t instr);
 
+/*! \brief The powerppc disassembly class */
 class disass_ppc : public disassembler
 {
 	public:

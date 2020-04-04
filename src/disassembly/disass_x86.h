@@ -6,6 +6,7 @@
 
 #include "udis86.h"
 
+/*! \brief The disassembler for x86 (16 and 32 bit) */
 class disass_x86 : public disassembler
 {
 	public:
