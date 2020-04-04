@@ -12,12 +12,10 @@
 executable::executable()
 {
 	exe_type = EXEC_TYPE_UNKNOWN;
-	exe_object = 0;
 }
 
 executable::~executable()
 {
-	delete exe_object;
 }
 
 int executable::output(const char *fld_name)

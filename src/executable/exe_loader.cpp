@@ -13,9 +13,9 @@ void exe_loader::register_checker(exe_checker a)
 	exe_loader::checker->push_back(a);
 }
 
-exe_loader * exe_loader::check(std::shared_ptr<std::ifstream> me)
+std::shared_ptr<exe_loader> exe_loader::check(std::shared_ptr<std::ifstream> me)
 {
-	exe_loader *ret = 0;
+	std::shared_ptr<exe_loader> ret = 0;
 	if (exe_loader::checker != 0)
 	{
 		for (unsigned int i = 0; i < exe_loader::checker->size(); i++)

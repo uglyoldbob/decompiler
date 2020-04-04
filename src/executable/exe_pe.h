@@ -47,7 +47,7 @@ class exe_pe : public exe_real
 	public:
 		exe_pe(int reverse);
 		~exe_pe();
-		static exe_loader* check(std::shared_ptr<std::ifstream> me);
+		static std::shared_ptr<exe_loader> check(std::shared_ptr<std::ifstream> me);
 		int process(std::shared_ptr<std::ifstream> me);	//do basic processing
 		const char *entry_name();
 		address entry_addr();

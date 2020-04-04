@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <vector>
 
 #include "exe_loader.h"
@@ -45,7 +46,7 @@ class executable
 	private:
 		std::string folder; ///< The folder specified.
 		EXECUTABLE_TYPE exe_type; ///< The type of executable represented by this object.
-		exe_loader *exe_object; ///< The object responsible for interpreting data from the input stream.
+		std::shared_ptr<exe_loader> exe_object; ///< The object responsible for interpreting data from the input stream.
 		std::string exe_name; ///< The name of the executable
 		
 		bool check_func_list(address addr); ///< Returns true if a function exists that starts at the specified address.

@@ -4,6 +4,7 @@
 #include "disassembly/disass_x86.h"
 #include "exceptions.h"
 #include <iostream>
+#include <memory>
 
 /*! \brief Helper class to register executable format classes
  *
@@ -33,9 +34,9 @@ exe_elf::~exe_elf()
 	delete [] string_table;
 }
 
-exe_loader * exe_elf::check(std::shared_ptr<std::ifstream> me)
+std::shared_ptr<exe_loader> exe_elf::check(std::shared_ptr<std::ifstream> me)
 {
-	exe_loader *ret = 0;
+	std::shared_ptr<exe_loader> ret = 0;
 	unsigned int signature;
 	signature = 0;
 	me->seekg(0, std::ios::beg);
@@ -44,11 +45,11 @@ exe_loader * exe_elf::check(std::shared_ptr<std::ifstream> me)
 		me->read((char*)&signature, 4);//fread(&signature, 4, 1, me);
 		if (signature == 0x464C457F)
 		{
-			ret = new exe_elf(0);
+			ret = std::shared_ptr<exe_loader>(new exe_elf(0));
 		}
 		else if (signature == 0x7F454C46)
 		{
-			ret = new exe_elf(1);
+			ret = std::shared_ptr<exe_loader>(new exe_elf(1));
 		}
 	}
 

@@ -188,7 +188,7 @@ class exe_macho : public exe_real
 	public:
 		exe_macho(int reverse);
 		~exe_macho();
-		static exe_loader * check(std::shared_ptr<std::ifstream> me);
+		static std::shared_ptr<exe_loader> check(std::shared_ptr<std::ifstream> me);
 		int process(std::shared_ptr<std::ifstream> me);	//do basic processing
 		const char *entry_name();
 		address entry_addr();

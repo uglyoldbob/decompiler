@@ -43,9 +43,9 @@ exe_macho::~exe_macho()
 	delete [] lcmds;
 }
 
-exe_loader * exe_macho::check(std::shared_ptr<std::ifstream> me)
+std::shared_ptr<exe_loader> exe_macho::check(std::shared_ptr<std::ifstream> me)
 {
-	exe_loader *ret = 0;
+	std::shared_ptr<exe_loader> ret = 0;
 	unsigned int signature;
 	signature = 0;
 	me->seekg(0, std::ios::beg);
@@ -54,19 +54,19 @@ exe_loader * exe_macho::check(std::shared_ptr<std::ifstream> me)
 		me->read((char*)&signature, 4);
 		if (signature == EXE_MACHO_MAGIC_32)
 		{
-			ret = new exe_macho(0);
+			ret = std::shared_ptr<exe_loader>(new exe_macho(0));
 		}
 		else if (signature == EXE_MACHO_CIGAM_32)
 		{
-			ret = new exe_macho(1);
+			ret = std::shared_ptr<exe_loader>(new exe_macho(1));
 		}
 		else if (signature == EXE_MACHO_MAGIC_64)
 		{
-			ret = new exe_macho(0);
+			ret = std::shared_ptr<exe_loader>(new exe_macho(0));
 		}
 		else if (signature == EXE_MACHO_CIGAM_64)
 		{
-			ret = new exe_macho(1);
+			ret = std::shared_ptr<exe_loader>(new exe_macho(1));
 		}
 	}
 	return ret;

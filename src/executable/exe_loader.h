@@ -12,7 +12,7 @@
 
 class disassembler;
 class exe_loader;
-typedef exe_loader* (*exe_checker)(std::shared_ptr<std::ifstream> me);
+typedef std::shared_ptr<exe_loader> (*exe_checker)(std::shared_ptr<std::ifstream> me);
 
 /// Class that describes how data is gathered from a generic executable.
 /** Class that describes how data is gathered from a generic executable. Inherit this class and implement the virtual methods in order to add support for a new type of executable format. */
@@ -29,7 +29,7 @@ class exe_loader
 		disassembler *get_disasm(); ///< Retrieve the disassembler use to interpret machine code in the executable.
 		virtual std::vector<code_element *> gather_instructions(address start_address) = 0; //< This function starts decompiling at the specified address, dividing up code into code_elements based on conditional branching in the code.
 		static void register_checker(exe_checker a); ///< Push a function to the list of exe_checkers. This list is used to determine which exe_loader knows how to interpret an executable.
-		static exe_loader* check(std::shared_ptr<std::ifstream> me); ///< Call all registered exe_checker functions to determine which exe_loader to use for the specified input stream (of executable binary contents)
+		static std::shared_ptr<exe_loader> check(std::shared_ptr<std::ifstream> me); ///< Call all registered exe_checker functions to determine which exe_loader to use for the specified input stream (of executable binary contents)
 	protected:
 		std::shared_ptr<std::istream> exe; ///< The input stream for reading the executable
 		disassembler *disasm; ///< The disassembler used to interpret machine instructions in the executable.
