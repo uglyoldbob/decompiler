@@ -11,20 +11,20 @@
 /** Represents an opcode and also contains information about execution flow. */
 struct instr
 {
-	address addr;
-	std::string preprint;
-	std::vector<statement *> statements;
-	std::string comment;
-	int is_cbranch;	//set when it is a conditional branch statement
-	bool is_branch;	//is this a branch of any kind?
-	bool is_ret;	//is this an instruction to return from a function?
-	bool valid;
-	char len;	//length of the instruction
-	address destaddra;	//stores the dest of the conditional branch statement
-	address destaddrb;	//stores the other dest
-	address call;		//a literal value for a function call
-	statement *trace_call;		//a function call whose address must be traced
-	statement *trace_jump;		//a jump address that must be traced
+	address addr; ///< The starting address for the instruction.
+	std::string preprint; ///< A placeholder for the indenting that appears before the individual statements
+	std::vector<statement *> statements; ///< A list of statements for the instruction
+	std::string comment; ///< A comment that does at the end of the statement
+	int is_cbranch;	///<Set when it is a conditional branch statement
+	bool is_branch;	///<is this a branch of any kind?
+	bool is_ret;	///<is this an instruction to return from a function?
+	bool valid;	///< Is this decoded instruction even valid?
+	char len;	///<length of the instruction in bytes
+	address destaddra;	///<stores the dest of the conditional branch statement
+	address destaddrb;	///<stores the other dest
+	address call;		///<a literal value for a function call
+	statement *trace_call;		///< a function call whose address must be traced
+	statement *trace_jump;		///< a jump address that must be traced
 };
 //only two possibilities for branching
 	//non-literal function calls are easier to trace values for becuase all the structure is present

@@ -90,7 +90,7 @@ int exe_elf::process(std::shared_ptr<std::ifstream> me)	//do basic processing
 	exe->read((char*)&header, sizeof(header));
 	if (header.e_version != 1)
 		return -1;
-	if (header.e_type != ET_EXEC)
+	if ((header.e_type != ET_EXEC) && (header.e_type != ET_DYN))
 		return -1;
 	if (header.e_ident[EI_CLASS] != ELFCLASS)
 	{

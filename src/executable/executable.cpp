@@ -98,7 +98,7 @@ int executable::load(const char *bin_name)
 
 	exe_object = exe_loader::check(exe_file);
 
-	if (exe_object == 0)
+	if (exe_object.get() == 0)
 	{
 		exe_file->close();
 		throw unknown_exe_format(bin_name);

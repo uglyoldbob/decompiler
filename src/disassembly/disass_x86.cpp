@@ -380,7 +380,6 @@ int disass_x86::get_instruction(instr* &get, address addr)
 			get->trace_jump = new statement("const??", -1);
 			break;
 		case UD_OP_REG:
-			std::cout << "Unknown jump register" << std::endl;
 			get->trace_jump = new statement(get_type(jmp_addr->base), -1);
 			break;
 		default:
