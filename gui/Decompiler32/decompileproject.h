@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QQmlListProperty>
+#include <QUrl>
 #include <QVector>
 
 #include "decompiledobject.h"
@@ -33,11 +34,12 @@ public:
 public slots:
     /*! Add the specified object to the project for decompilation
      *  @param filename The name of the file to use. Will be copied to the object folder.
-     *  @param rel_name The name to use when copying to the object folder. Do not prepend with anything. "folder_name/blab" is acceptable. */
-    void add_object(QString filename, QString rel_name);
+     *  @param rpath The path that the output file belongs in. Empty string for root of object folder.
+     *  @param rel_name The name to use when copying to the object folder. */
+    void add_object(QString filename, QString rpath, QString rel_name);
     /*! Add the specified object to the project for decompilation. File is placed in the objects folder directly.
      *  @param filename The name of the file to use. Will be copied to the object folder. */
-    void add_object(QString filename);
+    void add_object(QUrl filename);
 signals:
     void objects_changed(); ///< Triggered when the list of decompiled objects changes.
     void things_changed();

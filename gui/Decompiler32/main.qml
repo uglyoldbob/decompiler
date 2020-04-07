@@ -1,7 +1,8 @@
 import QtQuick 2.14
-import QtQuick.Window 2.14
 import QtQuick.Controls 2.2
+import QtQuick.Dialogs 1.0
 import QtQuick.Layouts 1.12
+import QtQuick.Window 2.14
 import uglyoldbob 1.0
 
 Window {
@@ -10,13 +11,26 @@ Window {
     height: 480
     title: qsTr("Decompiler for 32 bit programs")
 
+    FileDialog {
+        id: fileDialog
+        title: "Please choose a file"
+        folder: shortcuts.home
+        onAccepted: {
+            console.log("You chose: " + fileDialog.fileUrl)
+            DecompileProject.add_object(fileDialog.fileUrl)
+        }
+        onRejected: {
+            console.log("Canceled")
+        }
+    }
+
     Column {
         Text {
-            text: SDecompileProject.Things[0] + " " + SDecompileProject.Things.length + " length"
+            text: DecompileProject.Things[0] + " " + DecompileProject.Things.length + " length"
         }
 
         Repeater {
-            model: SDecompileProject.Things
+            model: DecompileProject.Things
             Text {
                 text: model + " stuff"
             }
@@ -25,7 +39,7 @@ Window {
         ListView {
             id: list
             width: 180; height: 200
-            model: SDecompileProject.bob
+            model: DecompileProject.bob
             delegate: Item {
                 width: parent.width
                 height: txt1.height
@@ -47,7 +61,7 @@ Window {
         Button {
             text: "Add"
             onClicked: {
-
+                fileDialog.open()
             }
         }
     }
