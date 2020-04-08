@@ -16,17 +16,9 @@ class DecompileProject : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QQmlListProperty<DecompiledObject> Objects READ get_objects NOTIFY objects_changed) ///< The list of decompile objects
-    Q_PROPERTY(QQmlListProperty<QString> Things READ get_things NOTIFY things_changed) ///< broken string list property
-    Q_PROPERTY(QStringList bob READ get_l NOTIFY l_changed) ///< working string list property
 public:
     explicit DecompileProject(QObject *parent = nullptr);
     static void qml_register(); ///< This registers a singleton instance of the class that QML is responsible for creating and owning.
-
-    int ThingsCount() const;
-    QString *ThingsIndex(int) const;
-    QQmlListProperty<QString> get_things();
-
-    QStringList get_l();
 
     QQmlListProperty<DecompiledObject> get_objects(); ///< Return a list of decompiled objects.
     int ObjectsCount() const; ///< Returns the number of decompiled objects.
@@ -42,15 +34,9 @@ public slots:
     void add_object(QUrl filename);
 signals:
     void objects_changed(); ///< Triggered when the list of decompiled objects changes.
-    void things_changed();
-    void l_changed();
 private:
     QString project_directory;  ///< The directory where all project files are stored.
-    QList <DecompiledObject*> objects; ///< All of the decompiled objects.
-    QVector <QString *> things;
-    QList <QString> bob;
-    static int s_ThingsCount(QQmlListProperty<QString>* list);
-    static QString *s_ThingsIndex(QQmlListProperty<QString>* list, int i);
+    QVector <DecompiledObject*> objects; ///< All of the decompiled objects.
 
     static int s_ObjectsCount(QQmlListProperty<DecompiledObject>*); ///< Calls the member function ObjectsCount
     static DecompiledObject *s_ObjectsIndex(QQmlListProperty<DecompiledObject>*, int); ///< Calls the member function ObjectsIndex

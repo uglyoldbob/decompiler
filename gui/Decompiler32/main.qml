@@ -26,20 +26,13 @@ Window {
 
     Column {
         Text {
-            text: DecompileProject.Things[0] + " " + DecompileProject.Things.length + " length"
-        }
-
-        Repeater {
-            model: DecompileProject.Things
-            Text {
-                text: model + " stuff"
-            }
+            text: DecompileProject.Objects[0] + " " + DecompileProject.Objects.length + " length"
         }
 
         ListView {
             id: list
             width: 180; height: 200
-            model: DecompileProject.bob
+            model: DecompileProject.Objects
             delegate: Item {
                 width: parent.width
                 height: txt1.height
@@ -47,7 +40,7 @@ Window {
                     Text
                     {
                         id: txt1
-                        text: (index+1) + " - " + model.modelData
+                        text: (index+1) + " - " + model.modelData.name
                     }
                 }
                 MouseArea {
