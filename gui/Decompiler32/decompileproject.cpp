@@ -1,5 +1,6 @@
 #include "decompileproject.h"
 
+#include <QDataStream>
 #include <QDir>
 #include <QFile>
 #include <QQmlEngine>
@@ -34,9 +35,22 @@ void DecompileProject::add_object(QString filename, QString rpath, QString rel_n
         QFile::remove(output_name);
     }
     QFile::copy(filename, output_name);
-    DecompiledObject *obj = new DecompiledObject(rel_name, this);
-    objects.append(obj);
-    emit objects_changed();
+
+    std::shared_ptr<QFile> sf = std::shared_ptr<QFile>(new QFile(output_name));
+    files.push_back(sf);
+
+    if (sf->open(QIODevice::ReadOnly))
+    {   //success
+        DecompiledObject *obj = new DecompiledObject(rel_name, this);
+        obj->give_stream(std::shared_ptr<QDataStream>(new QDataStream(sf.get())));
+        objects.append(obj);
+        emit objects_changed();
+    }
+    else
+    {   //fail
+
+    }
+
 }
 
 void DecompileProject::add_object(QUrl filename)

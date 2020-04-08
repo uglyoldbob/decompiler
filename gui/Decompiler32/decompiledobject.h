@@ -1,7 +1,10 @@
 #ifndef DECOMPILEDOBJECT_H
 #define DECOMPILEDOBJECT_H
 
+#include <QDataStream>
 #include <QObject>
+
+#include <memory>
 
 /// Represents a single decompiled object.
 /** This is the base class for all types of decompile-able objects.
@@ -21,12 +24,18 @@ public:
 
     /*! Return the name of the object. */
     QString get_name() { return name; }
+
+    /*! Give a datastream to the object that corresponds to a stream for the decompiled object.
+     * @param ds The datastream to use for reading the bytes of the object to decompile. */
+    void give_stream(std::shared_ptr<QDataStream> ds);
 signals:
     void name_changed();    ///< Triggered when the name changes.
 
 protected:
     QString name; ///< The name of the generated object
     QString extension; ///< The extension of the generated object (if applicable)
+
+    std::shared_ptr<QDataStream> stream; ///< The data stream used to read data from the object.
 };
 
 #endif // DECOMPILEDOBJECT_H

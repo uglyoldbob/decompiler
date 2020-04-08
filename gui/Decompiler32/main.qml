@@ -26,7 +26,7 @@ Window {
 
     Column {
         Text {
-            text: DecompileProject.Objects[0] + " " + DecompileProject.Objects.length + " length"
+            text: "Decompilation Objects (" + DecompileProject.Objects.length + ")"
         }
 
         ListView {
