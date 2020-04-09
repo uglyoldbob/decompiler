@@ -22,6 +22,8 @@ public:
     explicit DecompiledObject(QString file, QObject *parent = nullptr);
     explicit DecompiledObject(QObject *parent = nullptr);   ///< Required for qmlRegisterType<DecompiledObject> to work
 
+    static void qml_register(); ///< This registers this class with QML
+
     /*! Return the name of the object. */
     QString get_name() { return name; }
 

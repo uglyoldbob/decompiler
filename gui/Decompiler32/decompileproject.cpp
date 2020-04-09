@@ -13,7 +13,6 @@ DecompileProject::DecompileProject(QObject *parent) : QObject(parent)
 
 void DecompileProject::qml_register()
 {
-    qmlRegisterType<DecompiledObject>("uglyoldbob", 1, 0, "DecompiledObject");
     qRegisterMetaType<QQmlListProperty<QString>>("QQmlListProperty<QString>");
     qRegisterMetaType<QQmlListProperty<DecompiledObject>>("QQmlListProperty<DecompiledObject>");
     qmlRegisterSingletonType<DecompileProject>("uglyoldbob", 1, 0, "DecompileProject",
