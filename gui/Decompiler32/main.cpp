@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
 
     DecompiledObject::qml_register();
     DecompileProject::qml_register();
+    ObjectMapper::setup_examiners();
     QGuiApplication app(argc, argv);
 
     app.setOrganizationName("uglyoldbob");

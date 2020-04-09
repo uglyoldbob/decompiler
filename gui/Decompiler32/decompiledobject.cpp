@@ -22,4 +22,5 @@ DecompiledObject::DecompiledObject(QObject *parent) : QObject(parent)
 void DecompiledObject::give_stream(std::shared_ptr<QDataStream> ds)
 {
     stream = ds;
+    mapper = ObjectMapper::examine_object(ds);
 }

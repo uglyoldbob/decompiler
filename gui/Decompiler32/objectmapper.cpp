@@ -1,5 +1,7 @@
 #include "objectmapper.h"
 
+#include "dummyobjectmapper.h"
+
 #include <QQmlEngine>
 
 std::vector<std::function<std::shared_ptr<ObjectMapper*>(std::shared_ptr<QDataStream>)>> ObjectMapper::examiners;
@@ -7,6 +9,11 @@ std::vector<std::function<std::shared_ptr<ObjectMapper*>(std::shared_ptr<QDataSt
 ObjectMapper::ObjectMapper(QObject *parent) : QObject(parent)
 {
 
+}
+
+void ObjectMapper::setup_examiners(void)
+{
+    examiners.push_back(DummyObjectMapper::examine_object);
 }
 
 void ObjectMapper::qml_register()

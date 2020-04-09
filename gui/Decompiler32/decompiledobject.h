@@ -6,6 +6,8 @@
 
 #include <memory>
 
+#include "objectmapper.h"
+
 /// Represents a single decompiled object.
 /** This is the base class for all types of decompile-able objects.
  * Could be an executable, a shared library, or something else. */
@@ -38,6 +40,7 @@ protected:
     QString extension; ///< The extension of the generated object (if applicable)
 
     std::shared_ptr<QDataStream> stream; ///< The data stream used to read data from the object.
+    std::shared_ptr<ObjectMapper *> mapper; ///< The mapper that allows us to get data from the object file
 };
 
 #endif // DECOMPILEDOBJECT_H

@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         decompiledobject.cpp \
         decompileproject.cpp \
+        dummyobjectmapper.cpp \
         main.cpp \
         objectmapper.cpp
 
@@ -35,4 +36,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     decompiledobject.h \
     decompileproject.h \
+    dummyobjectmapper.h \
     objectmapper.h
