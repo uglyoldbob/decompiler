@@ -35,13 +35,13 @@ void DecompileProject::add_object(QString filename, QString rpath, QString rel_n
     }
     QFile::copy(filename, output_name);
 
-    std::shared_ptr<QFile> sf = std::shared_ptr<QFile>(new QFile(output_name));
-    files.push_back(sf);
+    std::shared_ptr<QIODevice> sf = std::shared_ptr<QFile>(new QFile(output_name));
+    devices.push_back(sf);
 
     if (sf->open(QIODevice::ReadOnly))
     {   //success
         DecompiledObject *obj = new DecompiledObject(rel_name, this);
-        obj->give_stream(std::shared_ptr<QDataStream>(new QDataStream(sf.get())));
+        obj->give_device(sf);
         objects.append(obj);
         emit objects_changed();
     }

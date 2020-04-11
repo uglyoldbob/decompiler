@@ -18,7 +18,8 @@ SOURCES += \
         decompileproject.cpp \
         dummyobjectmapper.cpp \
         main.cpp \
-        objectmapper.cpp
+        objectmapper.cpp \
+        objectmapperpe.cpp
 
 RESOURCES += qml.qrc
 
@@ -37,4 +38,5 @@ HEADERS += \
     decompiledobject.h \
     decompileproject.h \
     dummyobjectmapper.h \
-    objectmapper.h
+    objectmapper.h \
+    objectmapperpe.h

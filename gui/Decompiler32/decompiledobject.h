@@ -1,7 +1,7 @@
 #ifndef DECOMPILEDOBJECT_H
 #define DECOMPILEDOBJECT_H
 
-#include <QDataStream>
+#include <QIODevice>
 #include <QObject>
 
 #include <memory>
@@ -32,9 +32,9 @@ public:
     /*! Return the type of the object. */
     QString get_type();
 
-    /*! Give a datastream to the object that corresponds to a stream for the decompiled object.
-     * @param ds The datastream to use for reading the bytes of the object to decompile. */
-    void give_stream(std::shared_ptr<QDataStream> ds);
+    /*! Give a device to the object that corresponds to a stream for the decompiled object.
+     * @param ds The device to use for reading the bytes of the object to decompile. */
+    void give_device(std::shared_ptr<QIODevice> ds);
 signals:
     void name_changed();    ///< Triggered when the name changes.
     void type_changed();    ///< The type of the object changed
@@ -44,7 +44,8 @@ protected:
     QString extension; ///< The extension of the generated object (if applicable)
     QString type; ///< A string representing the type of the object. This is simply for convenience to the user.
 
-    std::shared_ptr<QDataStream> stream; ///< The data stream used to read data from the object.
+    //QBuffer, QByteArray,
+    std::shared_ptr<QIODevice> device; ///< The device used to read data from the object.
     std::shared_ptr<ObjectMapper> mapper; ///< The mapper that allows us to get data from the object file
 };
 

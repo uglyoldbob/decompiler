@@ -21,9 +21,9 @@ DecompiledObject::DecompiledObject(QObject *parent) : QObject(parent)
     emit name_changed();
 }
 
-void DecompiledObject::give_stream(std::shared_ptr<QDataStream> ds)
+void DecompiledObject::give_device(std::shared_ptr<QIODevice> ds)
 {
-    stream = ds;
+    device = ds;
     mapper = ObjectMapper::examine_object(ds);
     connect(mapper.get(), &ObjectMapper::type_changed, this, &DecompiledObject::type_changed);
 }

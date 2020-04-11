@@ -1,6 +1,7 @@
 #ifndef OBJECTMAPPER_H
 #define OBJECTMAPPER_H
 
+#include <QIODevice>
 #include <QObject>
 
 #include <functional>
@@ -20,7 +21,7 @@ public:
      *  \param str The data stream for reading the contents of the object file.
      *  \return An instance of an ObjectMapper class if able to automatically determine the type
      */
-    static std::shared_ptr<ObjectMapper> examine_object(std::shared_ptr<QDataStream> str);
+    static std::shared_ptr<ObjectMapper> examine_object(std::shared_ptr<QIODevice> str);
     static void setup_examiners(void); ///< Setup all the examiners. Order is important.
     /*! Return the type of the object. */
     QString get_type() { return type; }
@@ -32,7 +33,7 @@ signals:
 protected:
     QString type; ///< A string representing the type of the object. This is simply for convenience to the user.
 private:
-    static std::vector<std::function<std::shared_ptr<ObjectMapper>(std::shared_ptr<QDataStream>)>> examiners; ///< The list of functions to examine an object.
+    static std::vector<std::function<std::shared_ptr<ObjectMapper>(std::shared_ptr<QIODevice>)>> examiners; ///< The list of functions to examine an object.
 };
 
 #endif // OBJECTMAPPER_H
