@@ -24,6 +24,15 @@ Window {
         }
     }
 
+    Menu {
+        id: contextMenu
+        Text { text: "Name: " + list.model[list.currentIndex].name }
+        Text { text: "Type: " + list.model[list.currentIndex].type }
+        MenuItem { text: "Cut " + list.currentIndex }
+        MenuItem { text: "Copy " + list.model[list.currentIndex].name }
+        MenuItem { text: "Paste" }
+    }
+
     Column {
         Text {
             text: "Decompilation Objects (" + DecompileProject.Objects.length + ")"
@@ -45,7 +54,12 @@ Window {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: list.currentIndex = index
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                    onClicked: {
+                        list.currentIndex = index
+                        if (mouse.button == Qt.RightButton)
+                            contextMenu.popup()
+                    }
                 }
             }
             highlight: Rectangle { color: "lightsteelblue"; radius: 5 }

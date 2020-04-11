@@ -15,6 +15,7 @@ class DecompiledObject : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString name READ get_name NOTIFY name_changed) ///< The name of the object.
+    Q_PROPERTY(QString type READ get_type NOTIFY type_changed) ///< String describing the type of the object
 public:
     /*! Create a decompiled object with the given file.
      * The file is the filename once it is copied to the project directory.
@@ -28,19 +29,23 @@ public:
 
     /*! Return the name of the object. */
     QString get_name() { return name; }
+    /*! Return the type of the object. */
+    QString get_type();
 
     /*! Give a datastream to the object that corresponds to a stream for the decompiled object.
      * @param ds The datastream to use for reading the bytes of the object to decompile. */
     void give_stream(std::shared_ptr<QDataStream> ds);
 signals:
     void name_changed();    ///< Triggered when the name changes.
+    void type_changed();    ///< The type of the object changed
 
 protected:
     QString name; ///< The name of the generated object
     QString extension; ///< The extension of the generated object (if applicable)
+    QString type; ///< A string representing the type of the object. This is simply for convenience to the user.
 
     std::shared_ptr<QDataStream> stream; ///< The data stream used to read data from the object.
-    std::shared_ptr<ObjectMapper *> mapper; ///< The mapper that allows us to get data from the object file
+    std::shared_ptr<ObjectMapper> mapper; ///< The mapper that allows us to get data from the object file
 };
 
 #endif // DECOMPILEDOBJECT_H
