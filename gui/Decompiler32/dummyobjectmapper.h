@@ -10,7 +10,8 @@ class DummyObjectMapper : public ObjectMapper
     Q_OBJECT
 public:
     DummyObjectMapper();
-    static std::shared_ptr<ObjectMapper> examine_object(std::shared_ptr<QDataStream> str);
+    static std::shared_ptr<ObjectMapper> examine_object_succeed(std::shared_ptr<QDataStream> str);
+    static std::shared_ptr<ObjectMapper> examine_object_fail(std::shared_ptr<QDataStream> str);
 };
 
 #endif // DUMMYOBJECTMAPPER_H

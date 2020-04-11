@@ -21,7 +21,7 @@ public:
      *  \return An instance of an ObjectMapper class if able to automatically determine the type
      */
     static std::shared_ptr<ObjectMapper> examine_object(std::shared_ptr<QDataStream> str);
-    static void setup_examiners(void); ///< Setup all the examiners
+    static void setup_examiners(void); ///< Setup all the examiners. Order is important.
     /*! Return the type of the object. */
     QString get_type() { return type; }
 

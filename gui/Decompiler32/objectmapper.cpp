@@ -14,7 +14,8 @@ ObjectMapper::ObjectMapper(QObject *parent) : QObject(parent)
 
 void ObjectMapper::setup_examiners(void)
 {
-    examiners.push_back(DummyObjectMapper::examine_object);
+    examiners.push_back(DummyObjectMapper::examine_object_fail);
+    examiners.push_back(DummyObjectMapper::examine_object_succeed);
 }
 
 void ObjectMapper::qml_register()

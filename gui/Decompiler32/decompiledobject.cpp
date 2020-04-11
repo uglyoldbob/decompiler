@@ -34,5 +34,5 @@ QString DecompiledObject::get_type()
     {
         return mapper->get_type();
     }
-    return "fdsasdf";
+    return type;
 }
