@@ -32,6 +32,7 @@ signals:
     void type_changed(); ///< The type of the object changed
 protected:
     QString type; ///< A string representing the type of the object. This is simply for convenience to the user.
+    std::shared_ptr<QIODevice> device;
 private:
     static std::vector<std::function<std::shared_ptr<ObjectMapper>(std::shared_ptr<QIODevice>)>> examiners; ///< The list of functions to examine an object.
 };
