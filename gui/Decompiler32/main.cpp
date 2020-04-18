@@ -7,10 +7,9 @@ int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
-    FileContainer::qml_register();
     DecompiledObject::qml_register();
     DecompileProject::qml_register();
-    FileContainer::setup_examiners();
+    DirectoryItem::qml_register();
     ObjectMapper::setup_examiners();
     QGuiApplication app(argc, argv);
 

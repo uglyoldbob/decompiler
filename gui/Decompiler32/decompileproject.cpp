@@ -9,6 +9,14 @@ DecompileProject::DecompileProject(QObject *parent) : QObject(parent)
 {
     project_directory = "./default_project/";
     emit objects_changed();
+
+    DirectoryItem *t1 = new DirectoryItem();
+    t1->set_name("test1");
+    filesys.push_back(t1);
+    t1 = new DirectoryItem();
+    t1->set_name("test2");
+    filesys.push_back(t1);
+    emit filesys_changed();
 }
 
 void DecompileProject::qml_register()
@@ -119,27 +127,10 @@ QQmlListProperty<DecompiledObject> DecompileProject::get_objects()
 }
 
 
-int DecompileProject::ContainersCount() const
+QList<QObject *> DecompileProject::get_filesys()
 {
-    return containers.size();
-}
-
-FileContainer *DecompileProject::ContainersIndex(int i) const
-{
-    return containers.at(i).get();
-}
-
-int DecompileProject::s_ContainersCount(QQmlListProperty<FileContainer>* list)
-{
-    return reinterpret_cast<DecompileProject*>(list->data)->ContainersCount();
-}
-
-FileContainer *DecompileProject::s_ContainersIndex(QQmlListProperty<FileContainer>* list, int i)
-{
-    return reinterpret_cast<DecompileProject*>(list->data)->ContainersIndex(i);
-}
-
-QQmlListProperty<FileContainer> DecompileProject::get_containers()
-{
-    return { this, this, &DecompileProject::s_ContainersCount, &DecompileProject::s_ContainersIndex };
+    QObjectList l;
+    for(auto e: filesys)
+        l << e;
+    return l;
 }

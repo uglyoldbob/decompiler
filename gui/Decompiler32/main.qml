@@ -33,42 +33,52 @@ Window {
         MenuItem { text: "Paste" }
     }
 
-    Column {
-        Text {
-            text: "Decompilation Objects (" + DecompileProject.Objects.length + ")"
-        }
+    Row {
+        Column {
+            Text {
+                text: "Decompilation Objects (" + DecompileProject.Objects.length + ")"
+            }
 
-        ListView {
-            id: list
-            width: 180; height: 200
-            model: DecompileProject.Objects
-            delegate: Item {
-                width: parent.width
-                height: txt1.height
-                Column {
-                    Text
-                    {
-                        id: txt1
-                        text: (index+1) + " - " + model.modelData.name
+            ListView {
+                id: list
+                width: 180; height: 200
+                model: DecompileProject.Objects
+                delegate: Item {
+                    width: parent.width
+                    height: txt1.height
+                    Column {
+                        Text
+                        {
+                            id: txt1
+                            text: (index+1) + " - " + model.modelData.name
+                        }
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        onClicked: {
+                            list.currentIndex = index
+                            if (mouse.button == Qt.RightButton)
+                                contextMenu.popup()
+                        }
                     }
                 }
-                MouseArea {
-                    anchors.fill: parent
-                    acceptedButtons: Qt.LeftButton | Qt.RightButton
-                    onClicked: {
-                        list.currentIndex = index
-                        if (mouse.button == Qt.RightButton)
-                            contextMenu.popup()
-                    }
+                highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
+            }
+
+            Button {
+                text: "Add"
+                onClicked: {
+                    fileDialog.open()
                 }
             }
-            highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
         }
 
-        Button {
-            text: "Add"
-            onClicked: {
-                fileDialog.open()
+        Column {
+            Text { text: "test" }
+            VirtualFileDialog {
+                p: "i am groot"
+                model: DecompileProject.FileSysModel
             }
         }
     }
