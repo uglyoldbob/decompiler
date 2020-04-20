@@ -26,13 +26,13 @@ Column {
             role: "name"
             width: 50
             delegate: Row {
-                Text { text: "b " }
+                Text { text: (tblv.model[styleData.row].IsDir) ? "D " : " " } //TODO: replace with images
                 Text { text: styleData.value }
             }
         }
         TableViewColumn {
             title: "Col2"
-            role: "fruitPrice"
+            role: "size"
             width: 50
         }
     }

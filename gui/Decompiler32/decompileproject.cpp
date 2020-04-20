@@ -10,29 +10,32 @@ DecompileProject::DecompileProject(QObject *parent) : QObject(parent)
     project_directory = "./default_project/";
     emit objects_changed();
 
+    root.set_directory();
+
     DirectoryItem *t1 = new DirectoryItem();
     t1->set_name("test1");
-    filesys.push_back(t1);
+    root.add_dir_item(t1);
     t1 = new DirectoryItem();
     t1->set_name("test2");
-    filesys.push_back(t1);
+    root.add_dir_item(t1);
 
-    t1 = new DirectoryItem();
-    t1->set_name("test3");
-    t1->set_directory();
+    DirectoryItem *subdir1 = new DirectoryItem();
+    subdir1->set_name("test3");
+    subdir1->set_directory();
 
     DirectoryItem *t2 = new DirectoryItem();
     t2->set_name("blab1");
-    t1->add_dir_item(t2);
+    subdir1->add_dir_item(t2);
 
     t2 = new DirectoryItem();
     t2->set_name("blab2");
-    t1->add_dir_item(t2);
+    subdir1->add_dir_item(t2);
 
     t2 = new DirectoryItem();
     t2->set_name("blab3");
-    t1->add_dir_item(t2);
-    filesys.push_back(t1);
+    subdir1->add_dir_item(t2);
+    root.add_dir_item(subdir1);
+    //subdir1->set_parent_directory(filesys);
 
     emit filesys_changed();
 }
@@ -147,8 +150,5 @@ QQmlListProperty<DecompiledObject> DecompileProject::get_objects()
 
 QList<QObject *> DecompileProject::get_filesys()
 {
-    QObjectList l;
-    for(auto e: filesys)
-        l << e;
-    return l;
+    return root.get_dir_contents();
 }

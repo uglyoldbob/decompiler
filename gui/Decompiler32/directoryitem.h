@@ -16,7 +16,7 @@ public:
     static void qml_register(); ///< This registers a singleton instance of the class that QML is responsible for creating and owning.
     /*! Return the name of the item. */
     QString get_name () { return name; }
-    /*! Return the size of the item. Not meaningful for directories. */
+    /*! Return the size of the item. Maybe not meaningful for directories. */
     int get_size() { return size; }
     /*! Temporary function to set the name of the object*/
     void set_name(QString n){ name = n; }

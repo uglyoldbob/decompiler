@@ -54,7 +54,7 @@ private:
     QString project_directory;  ///< The directory where all project files are stored.
     QVector <DecompiledObject*> objects; ///< All of the decompiled objects.
     std::vector<std::shared_ptr<QIODevice>> devices; ///< A vector of io devices used in the project
-    QList<DirectoryItem*> filesys; ///< The virtual filesystem for the project
+    DirectoryItem root; ///< The root of the virtual filesystem.
 
     static int s_ObjectsCount(QQmlListProperty<DecompiledObject>*); ///< Calls the member function ObjectsCount
     static DecompiledObject *s_ObjectsIndex(QQmlListProperty<DecompiledObject>*, int); ///< Calls the member function ObjectsIndex
