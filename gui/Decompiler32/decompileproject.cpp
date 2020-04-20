@@ -16,6 +16,24 @@ DecompileProject::DecompileProject(QObject *parent) : QObject(parent)
     t1 = new DirectoryItem();
     t1->set_name("test2");
     filesys.push_back(t1);
+
+    t1 = new DirectoryItem();
+    t1->set_name("test3");
+    t1->set_directory();
+
+    DirectoryItem *t2 = new DirectoryItem();
+    t2->set_name("blab1");
+    t1->add_dir_item(t2);
+
+    t2 = new DirectoryItem();
+    t2->set_name("blab2");
+    t1->add_dir_item(t2);
+
+    t2 = new DirectoryItem();
+    t2->set_name("blab3");
+    t1->add_dir_item(t2);
+    filesys.push_back(t1);
+
     emit filesys_changed();
 }
 
