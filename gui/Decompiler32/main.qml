@@ -78,7 +78,7 @@ Window {
             Text { text: "test" }
             VirtualFileDialog {
                 p: "i am groot"
-                model: DecompileProject.FileSysModel
+                initialModel: DecompileProject.FileSysModel
             }
         }
     }

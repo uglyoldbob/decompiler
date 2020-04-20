@@ -3,11 +3,12 @@ import QtQuick.Controls 1.4
 
 Column {
     property alias p: t1.text
-    property alias model: tblv.model
+    property var initialModel
     Text { id: t1; text: "blab" }
     TableView {
         id: tblv
         selectionMode: SelectionMode.SingleSelection
+        model: initialModel
         onDoubleClicked: {
             console.log("double click " + tblv.model[tblv.currentRow].name)
             if (tblv.model[tblv.currentRow].IsDir)
@@ -40,7 +41,7 @@ Column {
         Button {
             text: "Reset"
             onClicked: {
-                tblv.model = model
+                tblv.model = initialModel
             }
         }
         Button {
