@@ -16,3 +16,4 @@ stupid.c
 .metadata/*
 .project
 build/*
+target/*
