@@ -64,6 +64,38 @@ cd build
 
 make
 
+*Windows*
+
+Install msys2 (https://www.msys2.org/)
+
+Open msys2 msys from start menu
+
+pacman -S mingw-w64-x86_64-gcc
+
+pacman -S autoconf
+
+pacman -S automake
+
+pacman -S make
+
+pacman -S libtool
+
+Close msys2 and open msys mingw64
+
+Clone the repository and browse to it.
+
+Create a build folder
+
+Create a udis86/build/m4 folder
+
+In the udis86 directory, run autoreconf --force -v --install
+
+Change to the build folder
+
+Run ../configure
+
+Run make
+
 ***Reference materials:***
 
 **Books**
