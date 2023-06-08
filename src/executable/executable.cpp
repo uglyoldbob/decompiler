@@ -21,7 +21,7 @@ executable::~executable()
 int executable::output(const char *fld_name)
 {
 	folder = fld_name;
-	int status = mkdir(fld_name, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	int status = mkdir(fld_name);
 	if (status == -1)
 	{
 		switch (errno)
@@ -65,7 +65,7 @@ void executable::write_sources(std::string n)
 {
 	std::string temp(n + "/" + exe_name);
 	
-	int status = mkdir(temp.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	int status = mkdir(temp.c_str());
 	if (status == -1)
 	{
 		switch (errno)

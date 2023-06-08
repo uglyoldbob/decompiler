@@ -11,7 +11,7 @@ void project::set_output_dir(const char *n)
 	std::string temp(n);
 	dir = temp;
 	
-	int status = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	int status = mkdir(dir.c_str());
 	if (status == -1)
 	{
 		switch (errno)

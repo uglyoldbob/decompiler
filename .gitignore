@@ -1,3 +1,16 @@
+*.dirstamp
+config.h.in
+*.exe
+confdefs.h
+config.log
+config.h.in
+config.status
+configure
+Makefile.in
+ac_config.h
+Makefile
+stamp-h1
+*.Po
 *.o
 *.d
 *~

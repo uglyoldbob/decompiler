@@ -25,7 +25,7 @@ m4_include([m4/libs.m4])
 #detect os so the correct options can be setup for
 #the expected build configuration
 AC_CANONICAL_HOST
-case $build_os in
+case "$build_os" in
   darwin* )
 	#mac
 	BUILD_FROM="MAC"
@@ -38,6 +38,10 @@ case $build_os in
 	;;
   cygwin* )
     #windows
+	BUILD_FROM="WINDOWS"
+	AC_MSG_NOTICE("Building from windows")
+	;;
+  mingw32 )
 	BUILD_FROM="WINDOWS"
 	AC_MSG_NOTICE("Building from windows")
 	;;
