@@ -54,7 +54,7 @@ cd decompiler
 
 git submodule update --init --recursive
 
-*Building*
+***Building***
 
 mkdir build
 
@@ -64,7 +64,8 @@ cd build
 
 make
 
-*Windows*
+**Windows**
+```
 
 Install msys2 (https://www.msys2.org/)
 
@@ -95,6 +96,7 @@ Change to the build folder
 Run ../configure
 
 Run make
+```
 
 ***Reference materials:***
 
