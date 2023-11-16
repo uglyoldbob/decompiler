@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-eframe = "0.19.0"
-rfd = "0.10.0"
-ouroboros = "0.15.3"
-object = "0.29.0"
+egui-multiwin = "0.3.1"
+rfd = "0.12.1"
+ouroboros = "0.18"
+object = "0.32.1"
