@@ -1,30 +1,17 @@
+language: rust
 
-language: cpp
-dist: trusty
-sudo: required
+rust:
+ - stable
+ - beta
+ - nightly
 
-jdk:
-  - oraclejdk8
+jobs:
+ allow_failures:
+  - rust: nightly
+ fast_finish: true
 
-env:
-  global:
-    - secure: "2fBTD6WuBrLJtcEsBaQVle9pXPWDj+Jvr94q8x+yYvEn2eMGAQg65hXPMZHMwbHlva9vWqqvJIJo6eFutk80oOy9PbGpsENq9AXrIfsWAhXDQOQVJuofVJ4eU5rsuWiTNgheMSn3W41hZbf2nRAiek5i/mtO4YUhx8ZGEjzp7QQmpvjA5B0ODwPAtEu/JUkq27yRZMCIfold++6BQMX+WGK/EIKXp1Ih5T0VOeeImAISHk8So/xB+F/v3EydpQuOq1mSBCUU9HziBrvxNtq3WN30vNxTS4opQkDi+D2ib1w20VLfZ2j4gyno+7XmvnN2n6sNf1/ICxLCKNNSKwCaQFsAKLjmrWz3A3eDYPCTp3u75C586MwW47+E2/n7agFTOaqoQtZp8jEuNehbqnOhuLKdD1agjbSXU86CZJVleOdbX+O75kIu7GQUDWeU8eSGEQfLHgzkX4xtq6av4vTKOxvPfjFYmsQQqrUWmT5GAZ9MHRtV+vh8S/WjBYS7OccYL9zJuN0Vu08yUnihIb77SIEBFEDdYzSHg42jcIjjDt+Y+vdQNJBQEhgphpZIvFLmm3mevPOC9HhzeAoujr9LPkZoLQUodwip2SY74mlyZvu06AiE5hcOsElq4GNoijKc0tINnDyXC9vSU7nuv2qZXoCR/jyaRy2oNrM2jb9Qppw="
-
-addons:
-  sonarcloud:
-    organization: "uglyoldbob-github"
-    branches:
-     - master
-     - restructure
+cache: cargo
 
 script:
- - autoreconf --force --install
- - ./configure
- - build-wrapper-linux-x86-64 --out-dir bw-output make clean all
- - sonar-scanner -Dsonar.verbose=true -X
-
-install:
- - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
- - echo "sonar.branch=$BRANCH " >> ./sonar-project.properties
- - cat ./sonar-project.properties
- 
+  - cargo build --verbose --workspace
+  - cargo test --verbose --workspace

@@ -5,8 +5,6 @@ A decompiler targeting c and similar languages.
 
 [![Open Source Helpers](https://www.codetriage.com/uglyoldbob/decompiler/badges/users.svg)](https://www.codetriage.com/uglyoldbob/decompiler)
 
-https://sonarcloud.io/dashboard?id=uglyoldbob_decompiler
-
 The goal of this program is to decompile an executable program to source code (represented by C), that can then be compiled back into a program that performs the same as the original.
 
 **Generated programs**
@@ -28,75 +26,14 @@ This is intended to target 64 bit executables.
 
 These are suggested steps for cloning and compiling. The steps vary depending on which version of git you are using. I am assuming you are using git from a command line of some variety.
 
-*git version 2.13 or newer*
-
-git clone --recurse-submodules https://github.com/uglyoldbob/decompiler.git
-
-cd decompiler
-
-*git version 1.9 to 2.12*
-
-git clone --recursive https://github.com/uglyoldbob/decompiler.git
-
-cd decompiler
-
-*git version 1.6.5 or newer*
-
-git clone --recursive https://github.com/uglyoldbob/decompiler.git
-
-cd decompiler
-
-*older git*
-
 git clone https://github.com/uglyoldbob/decompiler.git
 
 cd decompiler
 
-git submodule update --init --recursive
 
 ***Building***
 
-mkdir build
-
-cd build
-
-../configure
-
-make
-
-**Windows**
-```
-
-Install msys2 (https://www.msys2.org/)
-
-Open msys2 msys from start menu
-
-pacman -S mingw-w64-x86_64-gcc
-
-pacman -S autoconf
-
-pacman -S automake
-
-pacman -S make
-
-pacman -S libtool
-
-Close msys2 and open msys mingw64
-
-Clone the repository and browse to it.
-
-Create a build folder
-
-Create a udis86/build/m4 folder
-
-In the udis86 directory, run autoreconf --force -v --install
-
-Change to the build folder
-
-Run ../configure
-
-Run make
-```
+cargo build
 
 ***Reference materials:***
 
