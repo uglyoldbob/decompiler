@@ -186,26 +186,12 @@ impl Project {
 }
 
 pub struct MyApp {
-    dropped_files: HashSet<PathBuf>,
-    show_input_files: bool,
     project: Option<Project>,
-    selected_object: Option<usize>,
-    current_object_index: Option<usize>,
-    open_files: HashSet<usize>,
-    show_invalid_project: bool,
 }
 
 impl Default for MyApp {
     fn default() -> Self {
-        Self {
-            dropped_files: HashSet::new(),
-            show_input_files: false,
-            project: None,
-            selected_object: None,
-            open_files: HashSet::new(),
-            current_object_index: None,
-            show_invalid_project: false,
-        }
+        Self { project: None }
     }
 }
 

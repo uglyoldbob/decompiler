@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, path::PathBuf};
 
 use crate::egui_multiwin_dynamic::{
     multi_window::NewWindowRequest,
@@ -7,24 +7,29 @@ use crate::egui_multiwin_dynamic::{
 use egui_multiwin::egui;
 use egui_multiwin::egui::FontId;
 use egui_multiwin::egui_glow::EguiGlow;
+use object::Object;
 
 use crate::MyApp;
 
 pub struct RootWindow {
-    pub button_press_count: u32,
-    pub num_popups_created: u32,
-    prev_time: std::time::Instant,
-    fps: Option<f32>,
+    dropped_files: HashSet<PathBuf>,
+    show_input_files: bool,
+    selected_object: Option<usize>,
+    current_object_index: Option<usize>,
+    open_files: HashSet<usize>,
+    show_invalid_project: bool,
 }
 
 impl RootWindow {
     pub fn request() -> NewWindowRequest {
         NewWindowRequest {
             window_state: super::MyWindows::Root(RootWindow {
-                button_press_count: 0,
-                num_popups_created: 0,
-                prev_time: std::time::Instant::now(),
-                fps: None,
+                dropped_files: HashSet::new(),
+                show_input_files: false,
+                selected_object: None,
+                open_files: HashSet::new(),
+                current_object_index: None,
+                show_invalid_project: false,
             }),
             builder: egui_multiwin::winit::window::WindowBuilder::new()
                 .with_resizable(true)
@@ -57,19 +62,6 @@ impl TrackedWindow for RootWindow {
         _clipboard: &mut egui_multiwin::arboard::Clipboard,
     ) -> RedrawResponse {
         let mut quit = false;
-
-        egui.egui_ctx.request_repaint();
-
-        let cur_time = std::time::Instant::now();
-        let delta = cur_time.duration_since(self.prev_time);
-        self.prev_time = cur_time;
-
-        let new_fps = 1_000_000_000.0 / delta.as_nanos() as f32;
-        if let Some(fps) = &mut self.fps {
-            *fps = (*fps * 0.95) + (0.05 * new_fps);
-        } else {
-            self.fps = Some(new_fps);
-        }
 
         let mut windows_to_create = vec![];
 
@@ -105,7 +97,7 @@ impl TrackedWindow for RootWindow {
                         if let Some(f) = file {
                             let p = crate::Project::open_project(f);
                             if p.is_none() {
-                                c.show_invalid_project = true;
+                                self.show_invalid_project = true;
                             } else {
                                 c.project = p;
                             }
@@ -117,7 +109,7 @@ impl TrackedWindow for RootWindow {
                     let button = egui::Button::new("Input Files");
 
                     if ui.add_enabled(c.project.is_some(), button).clicked() {
-                        c.show_input_files = true;
+                        self.show_input_files = true;
                         ui.close_menu();
                     }
 
@@ -125,8 +117,8 @@ impl TrackedWindow for RootWindow {
 
                     if ui.add_enabled(c.project.is_some(), button).clicked() {
                         c.project = None;
-                        c.selected_object = None;
-                        c.open_files = HashSet::new();
+                        self.selected_object = None;
+                        self.open_files = HashSet::new();
                         ui.close_menu();
                     }
                 });
@@ -145,31 +137,30 @@ impl TrackedWindow for RootWindow {
                     ui.group(|ui| {
                         for (k, n) in f.infiles.iter() {
                             let r = ui.selectable_label(
-                                c.selected_object.eq(&Some(*k)),
+                                self.selected_object.eq(&Some(*k)),
                                 format!("{}", n),
                             );
 
                             if r.clicked() {
-                                c.selected_object = Some(*k);
+                                self.selected_object = Some(*k);
                             }
 
                             if r.double_clicked() {
                                 open_file = Some(*k);
 
-                                c.open_files.insert(*k);
+                                self.open_files.insert(*k);
                             }
                         }
                     });
                 });
 
-                if let Some(i) = c.current_object_index {
+                if let Some(i) = self.current_object_index {
                     if let Some(file) = f.open_files.get(&i) {
                         ui.label("Elements");
 
                         ui.group(|ui| {
                             egui::ScrollArea::both().show(ui, |ui| {
                                 let obj = file.borrow_obj();
-
                                 for i in object::Object::sections(obj) {
                                     ui.label(format!("Section {:?}", i));
                                 }
@@ -189,21 +180,21 @@ impl TrackedWindow for RootWindow {
                 let mut remove_elements = Vec::new();
 
                 ui.horizontal(|ui| {
-                    for i in &c.open_files {
+                    for i in &self.open_files {
                         ui.group(|ui| {
                             if ui
                                 .selectable_label(
-                                    c.current_object_index == Some(*i),
+                                    self.current_object_index == Some(*i),
                                     &f.infiles[i][..],
                                 )
                                 .clicked()
                             {
-                                c.current_object_index = Some(*i);
+                                self.current_object_index = Some(*i);
                             }
 
                             if ui.button("✖").clicked() {
-                                if c.current_object_index == Some(*i) {
-                                    c.current_object_index = None;
+                                if self.current_object_index == Some(*i) {
+                                    self.current_object_index = None;
                                 }
 
                                 remove_elements.push(*i);
@@ -215,7 +206,7 @@ impl TrackedWindow for RootWindow {
                 for i in remove_elements {
                     f.close_file(i);
 
-                    c.open_files.remove(&i);
+                    self.open_files.remove(&i);
                 }
             });
         }
@@ -223,12 +214,11 @@ impl TrackedWindow for RootWindow {
         egui::CentralPanel::default().show(&egui.egui_ctx, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 if let Some(f) = &c.project {
-                    if let Some(i) = c.current_object_index {
+                    if let Some(i) = self.current_object_index {
                         if let Some(file) = f.open_files.get(&i) {
                             ui.label(format!("{}", file.borrow_name()));
-
                             let obj = file.borrow_obj();
-
+                            ui.label(format!("Entry point is {:X}", obj.entry()));
                             for i in object::Object::sections(obj) {
                                 ui.label(format!("Section {:?}", i));
                             }
@@ -245,7 +235,7 @@ impl TrackedWindow for RootWindow {
             for f in &egui.egui_ctx.input(|i| i.raw.dropped_files.clone()) {
                 if let Some(p) = &f.path {
                     prj.copy_input_file(p);
-                    c.dropped_files.insert(p.clone());
+                    self.dropped_files.insert(p.clone());
                 }
             }
         }
