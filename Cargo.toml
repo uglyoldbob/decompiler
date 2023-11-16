@@ -7,6 +7,8 @@ edition = "2021"
 
 [dependencies]
 egui-multiwin = "0.3.1"
-rfd = "0.12.1"
-ouroboros = "0.18"
+iced-x86 = "1.20.0"
 object = "0.32.1"
+ouroboros = "0.18"
+rfd = "0.12.1"
+

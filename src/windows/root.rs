@@ -238,6 +238,18 @@ impl TrackedWindow for RootWindow {
             });
         });
 
+        c.preview_files_being_dropped(&egui.egui_ctx);
+
+        // Collect dropped files:
+        if let Some(prj) = &mut c.project {
+            for f in &egui.egui_ctx.input(|i| i.raw.dropped_files.clone()) {
+                if let Some(p) = &f.path {
+                    prj.copy_input_file(p);
+                    c.dropped_files.insert(p.clone());
+                }
+            }
+        }
+
         RedrawResponse {
             quit,
             new_windows: windows_to_create,
