@@ -6,6 +6,53 @@ pub enum InstructionDecoderError {
     UnsupportedArchitecture,
 }
 
+/// The object for decoding instructions plus some extra convenience information
+pub struct InstructionDecoderPlus<'a> {
+    d: InstructionDecoder<'a>,
+    start: u64,
+    len: usize,
+}
+
+impl<'a> InstructionDecoderPlus<'a> {
+    /// Attempt to create an instruction decoder for the specified architecture, at the specified starting address,
+    /// with the chunk of what is presumably code.
+    pub fn new(
+        arch: object::Architecture,
+        address: u64,
+        data: &'a [u8],
+    ) -> Result<Self, InstructionDecoderError> {
+        let d = match arch {
+            object::Architecture::Unknown => Err(InstructionDecoderError::UnsupportedArchitecture),
+            object::Architecture::I386 => Ok(InstructionDecoder::X86(iced_x86::Decoder::with_ip(
+                32, data, address, 0,
+            ))),
+            object::Architecture::X86_64 => Ok(InstructionDecoder::X86(
+                iced_x86::Decoder::with_ip(64, data, address, 0),
+            )),
+            object::Architecture::X86_64_X32 => Ok(InstructionDecoder::X86(
+                iced_x86::Decoder::with_ip(32, data, address, 0),
+            )),
+            _ => Err(InstructionDecoderError::UnsupportedArchitecture),
+        }?;
+        Ok(InstructionDecoderPlus {
+            d,
+            start: address,
+            len: data.len(),
+        })
+    }
+
+    /// Returns true when this decoder contains the specified address
+    pub fn contains(&self, addr: u64) -> bool {
+        let end = self.start + self.len as u64;
+        (self.start..end).contains(&addr)
+    }
+
+    /// Return a mutable reference to the instruction decoder
+    pub fn decoder(&mut self) -> &'_ mut InstructionDecoder<'a> {
+        &mut self.d
+    }
+}
+
 /// The object for decoding instructions from a chunk of memory. The chunk of memory is not necessarily owned by this object.
 pub enum InstructionDecoder<'a> {
     /// Decode instructions for x86 16,32, and 64 bits.
@@ -80,9 +127,84 @@ impl<'a> std::fmt::Display for Instruction {
 
 impl Instruction {
     /// Calculates the set of addresses that follow this instruction.
-    fn calc_next(&self) -> BlockEnd {
+    pub fn calc_next(&self) -> BlockEnd {
         match self {
-            Instruction::X86(_xi) => BlockEnd::UnknownAddress,
+            Instruction::X86(xi) => match xi.mnemonic() {
+                iced_x86::Mnemonic::Ja
+                | iced_x86::Mnemonic::Jae
+                | iced_x86::Mnemonic::Jb
+                | iced_x86::Mnemonic::Jbe
+                | iced_x86::Mnemonic::Jcxz
+                | iced_x86::Mnemonic::Je
+                | iced_x86::Mnemonic::Jecxz
+                | iced_x86::Mnemonic::Jg
+                | iced_x86::Mnemonic::Jge
+                | iced_x86::Mnemonic::Jknzd
+                | iced_x86::Mnemonic::Jkzd
+                | iced_x86::Mnemonic::Jl
+                | iced_x86::Mnemonic::Jle
+                | iced_x86::Mnemonic::Jne
+                | iced_x86::Mnemonic::Jno
+                | iced_x86::Mnemonic::Jnp
+                | iced_x86::Mnemonic::Jns
+                | iced_x86::Mnemonic::Jo
+                | iced_x86::Mnemonic::Jp
+                | iced_x86::Mnemonic::Jrcxz
+                | iced_x86::Mnemonic::Js => match xi.op0_kind() {
+                    iced_x86::OpKind::Register => BlockEnd::UnknownBranch(xi.next_ip()),
+                    iced_x86::OpKind::NearBranch16 => {
+                        BlockEnd::KnownBranch(xi.near_branch16() as u64, xi.next_ip())
+                    }
+                    iced_x86::OpKind::NearBranch32 => {
+                        BlockEnd::KnownBranch(xi.near_branch32() as u64, xi.next_ip())
+                    }
+                    iced_x86::OpKind::NearBranch64 => {
+                        BlockEnd::KnownBranch(xi.near_branch64(), xi.next_ip())
+                    }
+                    iced_x86::OpKind::FarBranch16 => {
+                        BlockEnd::KnownBranch(xi.far_branch16() as u64, xi.next_ip())
+                    }
+                    iced_x86::OpKind::FarBranch32 => {
+                        BlockEnd::KnownBranch(xi.far_branch32() as u64, xi.next_ip())
+                    }
+                    iced_x86::OpKind::Immediate8 => {
+                        BlockEnd::KnownBranch(xi.immediate8() as u64, xi.next_ip())
+                    }
+                    iced_x86::OpKind::Immediate8_2nd => todo!(),
+                    iced_x86::OpKind::Immediate16 => {
+                        BlockEnd::KnownBranch(xi.immediate16() as u64, xi.next_ip())
+                    }
+                    iced_x86::OpKind::Immediate32 => {
+                        BlockEnd::KnownBranch(xi.immediate32() as u64, xi.next_ip())
+                    }
+                    iced_x86::OpKind::Immediate64 => {
+                        BlockEnd::KnownBranch(xi.immediate64(), xi.next_ip())
+                    }
+                    iced_x86::OpKind::Immediate8to16 => {
+                        BlockEnd::KnownBranch(xi.immediate8to16() as u64, xi.next_ip())
+                    }
+                    iced_x86::OpKind::Immediate8to32 => {
+                        BlockEnd::KnownBranch(xi.immediate8to32() as u64, xi.next_ip())
+                    }
+                    iced_x86::OpKind::Immediate8to64 => {
+                        BlockEnd::KnownBranch(xi.immediate8to64() as u64, xi.next_ip())
+                    }
+                    iced_x86::OpKind::Immediate32to64 => {
+                        BlockEnd::KnownBranch(xi.immediate32to64() as u64, xi.next_ip())
+                    }
+                    iced_x86::OpKind::MemorySegSI => BlockEnd::UnknownBranch(xi.next_ip()),
+                    iced_x86::OpKind::MemorySegESI => BlockEnd::UnknownBranch(xi.next_ip()),
+                    iced_x86::OpKind::MemorySegRSI => BlockEnd::UnknownBranch(xi.next_ip()),
+                    iced_x86::OpKind::MemorySegDI => BlockEnd::UnknownBranch(xi.next_ip()),
+                    iced_x86::OpKind::MemorySegEDI => BlockEnd::UnknownBranch(xi.next_ip()),
+                    iced_x86::OpKind::MemorySegRDI => BlockEnd::UnknownBranch(xi.next_ip()),
+                    iced_x86::OpKind::MemoryESDI => BlockEnd::UnknownBranch(xi.next_ip()),
+                    iced_x86::OpKind::MemoryESEDI => BlockEnd::UnknownBranch(xi.next_ip()),
+                    iced_x86::OpKind::MemoryESRDI => BlockEnd::UnknownBranch(xi.next_ip()),
+                    iced_x86::OpKind::Memory => BlockEnd::UnknownBranch(xi.next_ip()),
+                },
+                _ => BlockEnd::KnownAddress(xi.next_ip()),
+            },
         }
     }
 }
@@ -124,12 +246,31 @@ impl<T> Graph<T> {
 impl Graph<Block> {
     /// Add the specified instruction to the graph
     pub fn add_instruction(&mut self, i: Instruction) {
-        let new_block = self.elements.len() == 0;
+        let mut new_block = self.elements.len() == 0;
+
         if new_block {
             let mut nb = Block::new();
             let next = i.calc_next();
             nb.add_instruction(i);
             self.elements.insert((nb, next));
+        }
+    }
+
+    /// Process the given address, modifying the graph as required
+    pub fn process_address(
+        &mut self,
+        addr: u64,
+        ids: &mut Vec<crate::block::InstructionDecoderPlus>,
+    ) {
+        for id in ids {
+            if id.contains(addr) {
+                let decoder = id.decoder();
+                decoder.goto(addr);
+                if let Some(instru) = decoder.decode() {
+                    println!("Instruction at {:x} is {}", addr, instru);
+                    self.add_instruction(instru);
+                }
+            }
         }
     }
 }

@@ -222,8 +222,6 @@ pub struct MyApp {
     project: Option<Project>,
 }
 
-
-
 impl MyApp {
     /// Process events received on the gui event loop
     fn process_event(&mut self, event: crate::event::Event) -> Vec<NewWindowRequest> {

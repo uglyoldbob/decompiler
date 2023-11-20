@@ -2,9 +2,9 @@
 
 use std::{collections::HashMap, sync::Arc};
 
-use object::{Object, ObjectSection};
+use object::{Object, ObjectSection, SectionKind};
 
-use crate::{ProjectInputFile};
+use crate::ProjectInputFile;
 
 /// A message to the `InternalDecompiler` object from the `Decompiler` object.
 pub enum MessageToDecompiler {
@@ -142,27 +142,31 @@ impl InternalDecompilerFileProcessor {
     fn go(&mut self) {
         let obj = self.file.borrow_obj();
         println!("Entry point is {:X}", obj.entry());
-        for i in object::Object::sections(obj) {
-            let start = i.address();
-            let end = i.address() + i.size();
-            if (start..end).contains(&obj.entry()) {
-                println!("FOUND ENTRY SECTION @ {}", i.name().unwrap());
-                if let Ok(d) = i.data() {
-                    println!("The section has {} bytes", d.len());
-                    if let Ok(mut dis) =
-                        crate::block::InstructionDecoder::new(obj.architecture(), start, d)
-                    {
-                        println!("Got a valid disassembler object");
-                        //dis.goto(obj.entry());
-                        let instru = dis.decode();
-                        if let Some(instru) = instru {
-                            println!("First instruction is {}", instru);
-                            self.code.add_instruction(instru);
+        let mut ids: Vec<crate::block::InstructionDecoderPlus> = object::Object::sections(obj)
+            .into_iter()
+            .filter_map(|a| {
+                if a.kind() == SectionKind::Text {
+                    if let Ok(d) = a.data() {
+                        let id = crate::block::InstructionDecoderPlus::new(
+                            obj.architecture(),
+                            a.address(),
+                            d,
+                        );
+                        if let Ok(id) = id {
+                            Some(id)
+                        } else {
+                            None
                         }
+                    } else {
+                        None
                     }
+                } else {
+                    None
                 }
-            }
-        }
+            })
+            .collect();
+        self.code.process_address(obj.entry(), &mut ids);
+
         loop {
             println!("Processing file in file processor?");
             std::thread::sleep(std::time::Duration::from_secs(5));
