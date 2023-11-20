@@ -7,7 +7,7 @@ use crate::egui_multiwin_dynamic::{
 use egui_multiwin::egui;
 use egui_multiwin::egui::FontId;
 use egui_multiwin::egui_glow::EguiGlow;
-use object::Object;
+use object::{Object, ObjectSection};
 
 use crate::MyApp;
 
@@ -172,6 +172,7 @@ impl TrackedWindow for RootWindow {
 
             if let Some(file) = open_file {
                 f.open_file(file);
+                f.trigger_parse_file(file);
             }
         }
 
@@ -221,6 +222,12 @@ impl TrackedWindow for RootWindow {
                             ui.label(format!("Entry point is {:X}", obj.entry()));
                             for i in object::Object::sections(obj) {
                                 ui.label(format!("Section {:?}", i));
+                                let start = i.address();
+                                let end = i.address() + i.size();
+                                ui.label(format!("Searching {}..{}", start, end));
+                                if (start..end).contains(&obj.entry()) {
+                                    ui.label("FOUND ENTRY SECTION");
+                                }
                             }
                         }
                     }

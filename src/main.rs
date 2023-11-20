@@ -1,28 +1,28 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
+#![deny(missing_docs)]
+#![deny(clippy::missing_docs_in_private_items)]
+
+//! The decompiler. It attempts to decompile various types of programs into compilable source code.
 
 use egui_multiwin::egui;
 use egui_multiwin_dynamic::multi_window::NewWindowRequest;
 
+/// Dynamically generated code from the egui-multiwin crate
 pub mod egui_multiwin_dynamic {
-    egui_multiwin::tracked_window!(
-        crate::MyApp,
-        egui_multiwin::NoEvent,
-        crate::windows::MyWindows
-    );
-    egui_multiwin::multi_window!(
-        crate::MyApp,
-        egui_multiwin::NoEvent,
-        crate::windows::MyWindows
-    );
+    egui_multiwin::tracked_window!(crate::MyApp, crate::event::Event, crate::windows::MyWindows);
+    egui_multiwin::multi_window!(crate::MyApp, crate::event::Event, crate::windows::MyWindows);
 }
 
+mod block;
+mod decompiler;
+mod event;
 mod windows;
 
 use std::collections::HashMap;
-use std::collections::HashSet;
 use std::io::Read;
 use std::ops::Index;
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use ouroboros::self_referencing;
 
@@ -39,12 +39,14 @@ fn main() {
     });
 }
 
+/// A HashMap implementation that auto-indexes contents. Behaves somewhat like a `Vec<T>`.
 pub struct AutoHashMap<T> {
     d: HashMap<usize, T>,
     next: usize,
 }
 
 impl<T> AutoHashMap<T> {
+    /// Generate a new object.
     pub fn new() -> Self {
         Self {
             d: HashMap::new(),
@@ -52,18 +54,22 @@ impl<T> AutoHashMap<T> {
         }
     }
 
+    /// Return an iterator over the HashMap contained within
     pub fn iter(&self) -> std::collections::hash_map::Iter<'_, usize, T> {
         self.d.iter()
     }
 
+    /// Return the length of the map
     pub fn len(&self) -> usize {
         self.d.len()
     }
 
+    /// Get a particular element of the map, if it exists.
     pub fn get(&self, k: &usize) -> Option<&T> {
         self.d.get(k)
     }
 
+    /// Insert an element into the map, automatically assigning an index to it.
     pub fn insert(&mut self, v: T) {
         self.d.insert(self.next, v);
         self.next += 1;
@@ -87,14 +93,22 @@ pub struct ProjectInputFile {
     pub obj: object::File<'this>,
 }
 
+/// A decompile project
 pub struct Project {
+    /// The folder path for the project.
     pub path: PathBuf,
+    /// The input file path in the project.
     pub inputs: PathBuf,
+    /// The input files for the project.s
     pub infiles: AutoHashMap<String>,
-    pub open_files: HashMap<usize, ProjectInputFile>,
+    /// The list of open files for the project.
+    pub open_files: HashMap<usize, Arc<ProjectInputFile>>,
+    /// The decompiler object for the project
+    decompiler: crate::decompiler::Decompiler,
 }
 
 impl Project {
+    /// Create a new object
     pub fn new(p: PathBuf) -> Self {
         let mut inp = p.clone();
         inp.push("input");
@@ -103,9 +117,11 @@ impl Project {
             inputs: inp,
             infiles: AutoHashMap::new(),
             open_files: HashMap::new(),
+            decompiler: crate::decompiler::Decompiler::new(),
         }
     }
 
+    /// Open an existing project, if it exists, by specifying the path.
     pub fn open_project(p: PathBuf) -> Option<Self> {
         let mut prj = Project::new(p);
         let entries = std::fs::read_dir(&prj.inputs);
@@ -126,10 +142,12 @@ impl Project {
         }
     }
 
+    /// Create the project foler
     pub fn setup(&self) {
         std::fs::create_dir(&self.inputs);
     }
 
+    /// Copy a file to the input folder of the project.
     pub fn copy_input_file(&mut self, p: &PathBuf) {
         let name = p.file_stem();
         if let Some(n) = name {
@@ -147,6 +165,7 @@ impl Project {
         }
     }
 
+    /// Open a file with the given index
     pub fn open_file(&mut self, index: usize) -> Result<(), ()> {
         if !self.open_files.contains_key(&index) {
             if let Some(name) = self.infiles.get(&index) {
@@ -163,7 +182,7 @@ impl Project {
                         f: file,
                     }
                     .build();
-                    self.open_files.insert(index, nf);
+                    self.open_files.insert(index, Arc::new(nf));
                     return Ok(());
                 } else {
                     return Err(());
@@ -176,6 +195,15 @@ impl Project {
         }
     }
 
+    /// Trigger parsing of the file with the given index, file must already be open
+    pub fn trigger_parse_file(&mut self, index: usize) {
+        let f = self.open_files.get(&index);
+        if let Some(f) = f {
+            self.decompiler.process_file(f);
+        }
+    }
+
+    /// Close the file with the given index
     pub fn close_file(&mut self, index: usize) {
         if !self.open_files.contains_key(&index) {
             if let Some(name) = self.infiles.get(&index) {
@@ -185,7 +213,9 @@ impl Project {
     }
 }
 
+/// The main shared object for the decompiler.
 pub struct MyApp {
+    /// The project for the decompiler
     project: Option<Project>,
 }
 
@@ -196,11 +226,20 @@ impl Default for MyApp {
 }
 
 impl MyApp {
-    fn process_event(&mut self, event: egui_multiwin::NoEvent) -> Vec<NewWindowRequest> {
-        let mut windows_to_create = vec![];
+    /// Process events received on the gui event loop
+    fn process_event(&mut self, event: crate::event::Event) -> Vec<NewWindowRequest> {
+        let windows_to_create = vec![];
+        match event.message {
+            crate::event::EventType::CheckDecompiler => {
+                if let Some(p) = &mut self.project {
+                    p.decompiler.process_events();
+                }
+            }
+        }
         windows_to_create
     }
 
+    /// Used to receive files with drag and drop.
     fn preview_files_being_dropped(&mut self, ctx: &egui::Context) {
         use egui::*;
 
