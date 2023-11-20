@@ -56,6 +56,11 @@ impl<T> AutoHashMap<T> {
         }
     }
 
+    /// Return an mutable iterator over the HashMap contained within
+    pub fn iter_mut(&mut self) -> std::collections::hash_map::IterMut<'_, usize, T> {
+        self.d.iter_mut()
+    }
+
     /// Return an iterator over the HashMap contained within
     pub fn iter(&self) -> std::collections::hash_map::Iter<'_, usize, T> {
         self.d.iter()

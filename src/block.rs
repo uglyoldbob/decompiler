@@ -126,6 +126,13 @@ impl<'a> std::fmt::Display for Instruction {
 }
 
 impl Instruction {
+    /// Returns the address of the instruction
+    pub fn address(&self) -> u64 {
+        match self {
+            Instruction::X86(xi) => xi.ip(),
+        }
+    }
+
     /// Calculates the set of addresses that follow this instruction.
     pub fn calc_next(&self) -> BlockEnd {
         match self {
@@ -209,29 +216,57 @@ impl Instruction {
     }
 }
 
-/// A basic sequence of `Instruction`, that runs without any branching. Non-branching jumps may be present in the sequence, meaning the addresses of the instructions contained may be a bit jumbled.
-/// A block could contain a bunch of non-conditional jumps but still be a single block of instructions.
-pub struct Block {
-    /// The instructions for the block
-    code: Vec<Instruction>,
+
+/// A single unit of code.
+pub enum Block {
+    /// A basic sequence of `Instruction`, that runs without any branching. Non-branching jumps may be present in the sequence, meaning the addresses of the instructions contained may be a bit jumbled.
+    /// A block could contain a bunch of non-conditional jumps but still be a single block of instructions.
+    Instruction(Vec<Instruction>),
 }
 
 impl Block {
     /// Construct an empty block of instructions.
-    pub fn new() -> Self {
-        Self { code: Vec::new() }
+    pub fn new_instructions() -> Self {
+        Block::Instruction(Vec::new())
+    }
+
+    pub fn calc_next(&self) -> BlockEnd {
+        match self {
+            Block::Instruction(b) => {
+                b.last().unwrap().calc_next()
+            }
+        }
     }
 
     /// Add the specified instruction to the end of this block.
     pub fn add_instruction(&mut self, i: Instruction) {
-        self.code.push(i);
+        if let Block::Instruction(b) = self {
+            b.push(i);
+        }
+        else {
+            panic!("Attempt to add instructions to Block that does not accept instructions");
+        }
+    }
+
+    /// Does this block contain an instruction that starts at the specified address?
+    pub fn contains(&self, addr: u64) -> bool {
+        match self {
+            Block::Instruction(b) => {
+                for i in b {
+                    if i.address() == addr {
+                        return true;
+                    }
+                }
+                false
+            }
+        }
     }
 }
 
 /// An arbitrary graph of some type of object, where each object points to zero or more other objects in the graph.
 pub struct Graph<T> {
     /// The elements in the graph
-    elements: crate::AutoHashMap<(T, BlockEnd)>,
+    elements: crate::AutoHashMap<T>,
 }
 
 impl<T> Graph<T> {
@@ -246,32 +281,48 @@ impl<T> Graph<T> {
 impl Graph<Block> {
     /// Add the specified instruction to the graph
     pub fn add_instruction(&mut self, i: Instruction) {
-        let mut new_block = self.elements.len() == 0;
 
-        if new_block {
-            let mut nb = Block::new();
-            let next = i.calc_next();
-            nb.add_instruction(i);
-            self.elements.insert((nb, next));
+        for (_index, b) in self.elements.iter_mut() {
+            if b.contains(i.address()) {
+                return;
+            }
+            else {
+                let n = b.calc_next();
+                if let BlockEnd::KnownAddress(a) = n {
+                    if a == i.address() {
+                        b.add_instruction(i);
+                        return;
+                    }
+                }
+            }
         }
+
+        let mut nb = Block::new_instructions();
+        nb.add_instruction(i);
+        self.elements.insert(nb);
     }
 
-    /// Process the given address, modifying the graph as required
+    /// Process the given address, modifying the graph as required.
     pub fn process_address(
         &mut self,
         addr: u64,
         ids: &mut Vec<crate::block::InstructionDecoderPlus>,
-    ) {
+    ) -> Option<u64> {
         for id in ids {
             if id.contains(addr) {
                 let decoder = id.decoder();
                 decoder.goto(addr);
                 if let Some(instru) = decoder.decode() {
                     println!("Instruction at {:x} is {}", addr, instru);
+                    let next = instru.calc_next();
                     self.add_instruction(instru);
+                    if let BlockEnd::KnownAddress(a) = next {
+                        return Some(a);
+                    }
                 }
             }
         }
+        None
     }
 }
 
