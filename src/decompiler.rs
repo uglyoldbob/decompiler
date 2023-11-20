@@ -2,6 +2,8 @@
 
 use std::{collections::HashMap, sync::Arc};
 
+use object::{Object, ObjectSection};
+
 use crate::ProjectInputFile;
 
 pub enum MessageToDecompiler {
@@ -19,7 +21,8 @@ pub struct Decompiler {
 
 impl Decompiler {
     pub fn process_file(&mut self, f: &Arc<ProjectInputFile>) {
-        self.sender.send(MessageToDecompiler::ProcessFile(f.to_owned()));
+        self.sender
+            .send(MessageToDecompiler::ProcessFile(f.to_owned()));
     }
 }
 
@@ -103,14 +106,35 @@ enum MessageFromFileProcessor {
 }
 
 struct InternalDecompilerFileProcessor {
+    file: Arc<ProjectInputFile>,
     sender: std::sync::mpsc::Sender<MessageFromFileProcessor>,
     receiver: std::sync::mpsc::Receiver<MessageToFileProcessor>,
 }
 
 impl InternalDecompilerFileProcessor {
     fn go(&mut self) {
+        let obj = self.file.borrow_obj();
+        println!("Entry point is {:X}", obj.entry());
+        for i in object::Object::sections(obj) {
+            let start = i.address();
+            let end = i.address() + i.size();
+            if (start..end).contains(&obj.entry()) {
+                println!("FOUND ENTRY SECTION @ {}", i.name().unwrap());
+                if let Ok(d) = i.data() {
+                    println!("The section has {} bytes", d.len());
+                    if let Ok(mut dis) = crate::block::InstructionDecoder::new(obj.architecture(), start, d) {
+                        println!("Got a valid disassembler object");
+                        //dis.goto(obj.entry());
+                        let instru = dis.decode();
+                        if let Some(instru) = instru {
+                            println!("First instruction is {}", instru);
+                        }
+                    }
+                }
+            }
+        }
         loop {
-            println!("Processing file in file processor");
+            println!("Processing file in file processor?");
             std::thread::sleep(std::time::Duration::from_secs(5));
         }
     }
@@ -128,7 +152,11 @@ impl DecompilerFileProcessor {
         sender: std::sync::mpsc::Sender<MessageFromFileProcessor>,
         receiver: std::sync::mpsc::Receiver<MessageToFileProcessor>,
     ) {
-        let fp = InternalDecompilerFileProcessor { sender, receiver };
+        let fp = InternalDecompilerFileProcessor {
+            file: self.file.clone(),
+            sender,
+            receiver,
+        };
         std::thread::spawn(move || {
             let mut a = fp;
             a.go();
