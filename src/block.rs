@@ -86,11 +86,18 @@ impl<'a> InstructionDecoder<'a> {
     pub fn goto(&mut self, address: u64) {
         match self {
             InstructionDecoder::X86(x) => {
-                x.set_position(0).unwrap();
                 let ip = x.ip();
-                let a = (address - ip) as usize;
-                if a <= x.max_position() {
-                    x.set_position(a);
+                if ip > address {
+                    let error = ip - address;
+                    let pos = x.position();
+                    let newpos = pos - error as usize;
+                    x.set_position(newpos);
+                }
+                else {
+                    let error = address - ip;
+                    let pos = x.position();
+                    let newpos = pos + error as usize;
+                    x.set_position(newpos);
                 }
             }
         }
@@ -308,6 +315,7 @@ impl Graph<Block> {
         addr: u64,
         ids: &mut Vec<crate::block::InstructionDecoderPlus>,
     ) -> Option<u64> {
+        println!("Process address {:X}", addr);
         for id in ids {
             if id.contains(addr) {
                 let decoder = id.decoder();

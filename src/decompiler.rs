@@ -165,9 +165,12 @@ impl InternalDecompilerFileProcessor {
                 }
             })
             .collect();
-        let n = self.code.process_address(obj.entry(), &mut ids);
-        if let Some(x) = n {
-            println!("Next address is {:x}", x);
+        let mut n = self.code.process_address(obj.entry(), &mut ids);
+        if let Some(mut n) = n {
+            while let Some(n_next) = self.code.process_address(n, &mut ids) {
+                println!("Processing {:X} next", n_next);
+                n = n_next;
+            }
         }
 
         loop {
