@@ -41,7 +41,9 @@ fn main() {
 
 /// A HashMap implementation that auto-indexes contents. Behaves somewhat like a `Vec<T>`.
 pub struct AutoHashMap<T> {
+    /// The data contained in the map
     d: HashMap<usize, T>,
+    /// Used for generating the next index when inserting into the map
     next: usize,
 }
 
@@ -167,7 +169,7 @@ impl Project {
 
     /// Open a file with the given index
     pub fn open_file(&mut self, index: usize) -> Result<(), ()> {
-        if !self.open_files.contains_key(&index) {
+        if let std::collections::hash_map::Entry::Vacant(e) = self.open_files.entry(index) {
             if let Some(name) = self.infiles.get(&index) {
                 let mut fp = self.inputs.clone();
                 fp.push(name);
@@ -175,23 +177,23 @@ impl Project {
                 if let Ok(mut file) = f {
                     let mut v = Vec::new();
                     file.read_to_end(&mut v);
-                    let mut nf = ProjectInputFileBuilder {
+                    let nf = ProjectInputFileBuilder {
                         data: v,
                         obj_builder: |a| object::File::parse(&a[..]).unwrap(),
                         name: name.clone(),
                         f: file,
                     }
                     .build();
-                    self.open_files.insert(index, Arc::new(nf));
-                    return Ok(());
+                    e.insert(Arc::new(nf));
+                    Ok(())
                 } else {
-                    return Err(());
+                    Err(())
                 }
             } else {
-                return Err(());
+                Err(())
             }
         } else {
-            return Err(());
+            Err(())
         }
     }
 
@@ -206,7 +208,7 @@ impl Project {
     /// Close the file with the given index
     pub fn close_file(&mut self, index: usize) {
         if !self.open_files.contains_key(&index) {
-            if let Some(name) = self.infiles.get(&index) {
+            if let Some(_name) = self.infiles.get(&index) {
                 self.open_files.remove(&index);
             }
         }
@@ -214,16 +216,13 @@ impl Project {
 }
 
 /// The main shared object for the decompiler.
+#[derive(Default)]
 pub struct MyApp {
     /// The project for the decompiler
     project: Option<Project>,
 }
 
-impl Default for MyApp {
-    fn default() -> Self {
-        Self { project: None }
-    }
-}
+
 
 impl MyApp {
     /// Process events received on the gui event loop

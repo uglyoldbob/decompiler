@@ -1,3 +1,5 @@
+//! The root window for the decompiler. This is the first window that a user will see and the primary window for interacting with the program.
+
 use std::{collections::HashSet, path::PathBuf};
 
 use crate::egui_multiwin_dynamic::{
@@ -5,31 +7,33 @@ use crate::egui_multiwin_dynamic::{
     tracked_window::{RedrawResponse, TrackedWindow},
 };
 use egui_multiwin::egui;
-use egui_multiwin::egui::FontId;
+
 use egui_multiwin::egui_glow::EguiGlow;
 use object::{Object, ObjectSection};
 
 use crate::MyApp;
 
+/// The main window for the decompiler.
 pub struct RootWindow {
+    /// The list of files dropped onto the window.
     dropped_files: HashSet<PathBuf>,
-    show_input_files: bool,
+    /// The index of the currently selected file in the sidebar
     selected_object: Option<usize>,
+    /// The index of the object selected on the tab select
     current_object_index: Option<usize>,
+    /// The set of files that are currently open for analysis out of all files in the current project.
     open_files: HashSet<usize>,
-    show_invalid_project: bool,
 }
 
 impl RootWindow {
+    /// Construct a request to build a new window.
     pub fn request() -> NewWindowRequest {
         NewWindowRequest {
             window_state: super::MyWindows::Root(RootWindow {
                 dropped_files: HashSet::new(),
-                show_input_files: false,
                 selected_object: None,
                 open_files: HashSet::new(),
                 current_object_index: None,
-                show_invalid_project: false,
             }),
             builder: egui_multiwin::winit::window::WindowBuilder::new()
                 .with_resizable(true)
@@ -61,9 +65,9 @@ impl TrackedWindow for RootWindow {
         _window: &egui_multiwin::winit::window::Window,
         _clipboard: &mut egui_multiwin::arboard::Clipboard,
     ) -> RedrawResponse {
-        let mut quit = false;
+        let quit = false;
 
-        let mut windows_to_create = vec![];
+        let windows_to_create = vec![];
 
         egui::TopBottomPanel::top("my_panel").show(&egui.egui_ctx, |ui| {
             egui::menu::bar(ui, |ui| {
@@ -96,20 +100,11 @@ impl TrackedWindow for RootWindow {
 
                         if let Some(f) = file {
                             let p = crate::Project::open_project(f);
-                            if p.is_none() {
-                                self.show_invalid_project = true;
-                            } else {
+                            if p.is_some() {
                                 c.project = p;
                             }
                         }
 
-                        ui.close_menu();
-                    }
-
-                    let button = egui::Button::new("Input Files");
-
-                    if ui.add_enabled(c.project.is_some(), button).clicked() {
-                        self.show_input_files = true;
                         ui.close_menu();
                     }
 
@@ -138,7 +133,7 @@ impl TrackedWindow for RootWindow {
                         for (k, n) in f.infiles.iter() {
                             let r = ui.selectable_label(
                                 self.selected_object.eq(&Some(*k)),
-                                format!("{}", n),
+                                n.to_string(),
                             );
 
                             if r.clicked() {
@@ -217,7 +212,7 @@ impl TrackedWindow for RootWindow {
                 if let Some(f) = &c.project {
                     if let Some(i) = self.current_object_index {
                         if let Some(file) = f.open_files.get(&i) {
-                            ui.label(format!("{}", file.borrow_name()));
+                            ui.label(file.borrow_name().to_string());
                             let obj = file.borrow_obj();
                             ui.label(format!("Entry point is {:X}", obj.entry()));
                             for i in object::Object::sections(obj) {
