@@ -147,7 +147,6 @@ impl InternalDecompilerFileProcessor {
         let obj = self.file.borrow_obj();
         println!("Entry point is {:X}", obj.entry());
         let mut ids: Vec<crate::block::InstructionDecoderPlus> = object::Object::sections(obj)
-            .into_iter()
             .filter_map(|a| {
                 if a.kind() == SectionKind::Text {
                     if let Ok(d) = a.data() {
@@ -191,9 +190,12 @@ impl InternalDecompilerFileProcessor {
             }
         }
 
-        println!("There are {} blocks of code", self.code.num_blocks());
-        self.code
-            .write_to_dot(PathBuf::from("./output.dot"), "example");
+        if let Err(e) = self
+            .code
+            .write_to_dot(PathBuf::from("./output.dot"), "example")
+        {
+            println!("Failed to write dot file: {:?}", e);
+        }
 
         loop {
             println!("Processing file in file processor?");

@@ -10,8 +10,11 @@ pub enum InstructionDecoderError {
 
 /// The object for decoding instructions plus some extra convenience information
 pub struct InstructionDecoderPlus<'a> {
+    /// The instruction decoder object
     d: InstructionDecoder<'a>,
+    /// The start address of the block used for the instruction decoder.
     start: u64,
+    /// The length of the block used by the instruction decoder.
     len: usize,
 }
 
@@ -126,7 +129,7 @@ pub enum Instruction {
     X86(iced_x86::Instruction),
 }
 
-impl<'a> std::fmt::Display for Instruction {
+impl std::fmt::Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Instruction::X86(xi) => f.write_str(&format!("{:?}", xi.mnemonic())),
@@ -341,6 +344,7 @@ impl<T> Graph<T> {
         }
     }
 
+    /// Returns the number of blocks in the graph
     pub fn num_blocks(&self) -> usize {
         self.elements.len()
     }
@@ -351,8 +355,8 @@ impl Graph<Block> {
     pub fn write_to_dot(&self, pb: std::path::PathBuf, name: &str) -> Result<(), std::io::Error> {
         let mut unknown = 0;
         let mut f = std::fs::File::create(pb)?;
-        f.write(format!("digraph {}{{\n", name).as_bytes())?;
-        for (i, b) in self.elements.iter() {
+        f.write_all(format!("digraph {}{{\n", name).as_bytes())?;
+        for (_i, b) in self.elements.iter() {
             let start = b.address();
             let next = b.calc_next();
             let s = match next {
@@ -380,9 +384,9 @@ impl Graph<Block> {
                     format!("addr_{:X};\n", start)
                 }
             };
-            f.write(s.as_bytes())?;
+            f.write_all(s.as_bytes())?;
         }
-        f.write(format!("}}\n").as_bytes());
+        f.write_all(format!("}}\n").as_bytes())?;
         f.flush()?;
         Ok(())
     }
