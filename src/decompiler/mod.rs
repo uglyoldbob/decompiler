@@ -48,6 +48,8 @@ struct InternalDecompiler {
     receiver: std::sync::mpsc::Receiver<MessageToDecompiler>,
     /// The list of all files being processed, along with the processing object for each one.
     file_processors: HashMap<String, DecompilerFileProcessor>,
+    /// The files that have been fully processed so far
+    results: Vec<FileResults>,
     /// The project culmination object
     project: project::Project,
 }
@@ -62,6 +64,7 @@ impl InternalDecompiler {
         let i = InternalDecompiler {
             sender,
             receiver,
+            results: Vec::new(),
             file_processors: HashMap::new(),
             project: project::Project::new(project::autotools::BuildSystem::new().into(), pb),
         };
@@ -74,7 +77,7 @@ impl InternalDecompiler {
     /// The main algorithm for the `InternalDecompiler`
     fn go(&mut self) {
         loop {
-            if let Ok(m) = self.receiver.recv() {
+            if let Ok(m) = self.receiver.try_recv() {
                 match m {
                     MessageToDecompiler::ProcessFile(f) => {
                         let (s, r) = std::sync::mpsc::channel();
@@ -86,6 +89,7 @@ impl InternalDecompiler {
                                 sender: s,
                                 receiver: r2,
                                 file: f,
+                                results: None,
                             };
                             file_processor.run(s2, r);
                             file_processor
@@ -93,6 +97,19 @@ impl InternalDecompiler {
                     }
                 }
             }
+            let mut keys_remove = Vec::new();
+            for (i, fp) in self.file_processors.iter_mut() {
+                fp.process_messages();
+                if let Some(fr) = fp.results.take() {
+                    keys_remove.push(i.to_owned());
+                    self.results.push(fr);
+                    println!("Done processing a file, removing file processor");
+                }
+            }
+            for k in keys_remove {
+                self.file_processors.remove(&k);
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
         }
     }
 }
@@ -131,8 +148,13 @@ enum MessageToFileProcessor {
 
 /// A message sent from the `InternalDecompilerFileProcessor` to the `DecompilerFileProcessor`
 enum MessageFromFileProcessor {
-    /// Placeholder message, will be removed
-    Test,
+    /// The results of processing a file
+    Done(FileResults),
+}
+
+/// The results of processing a single file
+pub struct FileResults {
+    name: String,
 }
 
 /// This object belongs to a separate thread, one for each file being processed for decompilation.
@@ -203,10 +225,11 @@ impl InternalDecompilerFileProcessor {
             println!("Failed to write dot file: {:?}", e);
         }
 
-        loop {
-            println!("Processing file in file processor?");
-            std::thread::sleep(std::time::Duration::from_secs(5));
-        }
+        let results: FileResults = FileResults {
+            name: "dummy".to_string(),
+        };
+        let _ = self.sender.send(MessageFromFileProcessor::Done(results));
+        println!("Done processing a file");
     }
 }
 
@@ -218,6 +241,8 @@ struct DecompilerFileProcessor {
     sender: std::sync::mpsc::Sender<MessageToFileProcessor>,
     /// The object for receiving messages from the `InternalDecompilerFileProcessor` object.
     receiver: std::sync::mpsc::Receiver<MessageFromFileProcessor>,
+    /// The results
+    results: Option<FileResults>,
 }
 
 impl DecompilerFileProcessor {
@@ -238,5 +263,15 @@ impl DecompilerFileProcessor {
             let mut a = fp;
             a.go();
         });
+    }
+
+    pub fn process_messages(&mut self) {
+        while let Ok(a) = self.receiver.try_recv() {
+            match a {
+                MessageFromFileProcessor::Done(r) => {
+                    self.results = Some(r);
+                }
+            }
+        }
     }
 }
