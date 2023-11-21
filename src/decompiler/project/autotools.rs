@@ -1,13 +1,19 @@
 //! Defines code that generates files for the autotools build system
 
-use std::{io::Write, path::PathBuf};
+use std::io::Write;
+
+use crate::decompiler::FileResults;
 
 /// The struct for the autotools build system
 pub struct BuildSystem {}
 
 impl super::BuildSystemTrait for BuildSystem {
     #[doc = " Write the build files to the filesystem at the specified path"]
-    fn write(&self, details: &super::ProjectDetails) -> Result<(), std::io::Error> {
+    fn write(
+        &self,
+        details: &super::ProjectDetails,
+        o: &Vec<FileResults>,
+    ) -> Result<(), std::io::Error> {
         let mut configure_ac = details.path.clone();
         configure_ac.push("configure.ac");
         let mut f = std::fs::File::create(configure_ac)?;
@@ -23,6 +29,21 @@ impl super::BuildSystemTrait for BuildSystem {
         f.write_all("AC_OUTPUT\n".as_bytes())?;
         f.flush()?;
         drop(f);
+
+        let mut makefile_am = details.path.clone();
+        makefile_am.push("Makefile.am");
+        let mut f = std::fs::File::create(makefile_am)?;
+        f.write_all("AUTOMAKE_OPTIONS = subdir-objects\n".as_bytes())?;
+        if o.len() > 0 {
+            f.write_all("bin_PROGRAMS = ".as_bytes())?;
+            for file in o {
+                f.write_all(format!("\\\n {}", file.name).as_bytes())?;
+            }
+            f.write_all("\n".as_bytes())?;
+        }
+        f.flush()?;
+        drop(f);
+
         Ok(())
     }
 }

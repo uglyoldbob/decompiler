@@ -4,11 +4,13 @@ pub mod autotools;
 
 use std::path::PathBuf;
 
+use super::FileResults;
+
 /// The trait that allows various build systems to be used.
 #[enum_dispatch::enum_dispatch(BuildSystemEnum)]
 pub trait BuildSystemTrait {
     /// Write the build files to the filesystem at the specified path
-    fn write(&self, details: &ProjectDetails) -> Result<(), std::io::Error>;
+    fn write(&self, details: &ProjectDetails, o: &Vec<FileResults>) -> Result<(), std::io::Error>;
 }
 
 /// The enumeration of all possible build systems.
@@ -53,7 +55,7 @@ impl Project {
     }
 
     /// Write all outputs to the specified path
-    pub fn write(&self) {
-        self.build.write(&self.details);
+    pub fn write(&self, f: &Vec<FileResults>) {
+        self.build.write(&self.details, f);
     }
 }

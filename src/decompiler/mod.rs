@@ -124,7 +124,7 @@ impl InternalDecompiler {
             }
             if self.write_outputs && self.file_processors.len() == 0 {
                 println!("Writing project outputs to disk now that all files have been processed");
-                self.project.write();
+                self.project.write(&self.results);
                 self.write_outputs = false;
             }
             std::thread::sleep(std::time::Duration::from_millis(10));
@@ -244,7 +244,7 @@ impl InternalDecompilerFileProcessor {
         }
 
         let results: FileResults = FileResults {
-            name: "dummy".to_string(),
+            name: self.file.borrow_name().to_owned(),
         };
         let _ = self.sender.send(MessageFromFileProcessor::Done(results));
         println!("Done processing a file");
