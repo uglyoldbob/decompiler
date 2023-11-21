@@ -1,5 +1,7 @@
 //! This module contains code and object definitions related to distinct blocks of instructions
 
+use std::io::Write;
+
 /// The errors that can occur when building an instruction decoder
 pub enum InstructionDecoderError {
     /// The architecture is currently not supported by the decompiler.
@@ -92,8 +94,7 @@ impl<'a> InstructionDecoder<'a> {
                     let pos = x.position();
                     let newpos = pos - error as usize;
                     x.set_position(newpos);
-                }
-                else {
+                } else {
                     let error = address - ip;
                     let pos = x.position();
                     let newpos = pos + error as usize;
@@ -145,6 +146,54 @@ impl Instruction {
     pub fn calc_next(&self) -> BlockEnd {
         match self {
             Instruction::X86(xi) => match xi.mnemonic() {
+                iced_x86::Mnemonic::Jmp | iced_x86::Mnemonic::Jmpe => match xi.op0_kind() {
+                    iced_x86::OpKind::Register => BlockEnd::UnknownAddress,
+                    iced_x86::OpKind::NearBranch16 => {
+                        BlockEnd::KnownAddress(xi.near_branch16() as u64)
+                    }
+                    iced_x86::OpKind::NearBranch32 => {
+                        BlockEnd::KnownAddress(xi.near_branch32() as u64)
+                    }
+                    iced_x86::OpKind::NearBranch64 => BlockEnd::KnownAddress(xi.near_branch64()),
+                    iced_x86::OpKind::FarBranch16 => {
+                        BlockEnd::KnownAddress(xi.far_branch16() as u64)
+                    }
+                    iced_x86::OpKind::FarBranch32 => {
+                        BlockEnd::KnownAddress(xi.far_branch32() as u64)
+                    }
+                    iced_x86::OpKind::Immediate8 => BlockEnd::KnownAddress(xi.immediate8() as u64),
+                    iced_x86::OpKind::Immediate8_2nd => todo!(),
+                    iced_x86::OpKind::Immediate16 => {
+                        BlockEnd::KnownAddress(xi.immediate16() as u64)
+                    }
+                    iced_x86::OpKind::Immediate32 => {
+                        BlockEnd::KnownAddress(xi.immediate32() as u64)
+                    }
+                    iced_x86::OpKind::Immediate64 => BlockEnd::KnownAddress(xi.immediate64()),
+                    iced_x86::OpKind::Immediate8to16 => {
+                        BlockEnd::KnownAddress(xi.immediate8to16() as u64)
+                    }
+                    iced_x86::OpKind::Immediate8to32 => {
+                        BlockEnd::KnownAddress(xi.immediate8to32() as u64)
+                    }
+                    iced_x86::OpKind::Immediate8to64 => {
+                        BlockEnd::KnownAddress(xi.immediate8to64() as u64)
+                    }
+                    iced_x86::OpKind::Immediate32to64 => {
+                        BlockEnd::KnownAddress(xi.immediate32to64() as u64)
+                    }
+                    iced_x86::OpKind::MemorySegSI
+                    | iced_x86::OpKind::MemorySegESI
+                    | iced_x86::OpKind::MemorySegRSI
+                    | iced_x86::OpKind::MemorySegDI
+                    | iced_x86::OpKind::MemorySegEDI
+                    | iced_x86::OpKind::MemorySegRDI
+                    | iced_x86::OpKind::MemoryESDI
+                    | iced_x86::OpKind::MemoryESEDI
+                    | iced_x86::OpKind::MemoryESRDI
+                    | iced_x86::OpKind::Memory => BlockEnd::UnknownAddress,
+                },
+                iced_x86::Mnemonic::Ret | iced_x86::Mnemonic::Retf => BlockEnd::None,
                 iced_x86::Mnemonic::Ja
                 | iced_x86::Mnemonic::Jae
                 | iced_x86::Mnemonic::Jb
@@ -165,7 +214,7 @@ impl Instruction {
                 | iced_x86::Mnemonic::Jo
                 | iced_x86::Mnemonic::Jp
                 | iced_x86::Mnemonic::Jrcxz
-                | iced_x86::Mnemonic::Js 
+                | iced_x86::Mnemonic::Js
                 | iced_x86::Mnemonic::Loop
                 | iced_x86::Mnemonic::Loope
                 | iced_x86::Mnemonic::Loopne => match xi.op0_kind() {
@@ -210,23 +259,22 @@ impl Instruction {
                     iced_x86::OpKind::Immediate32to64 => {
                         BlockEnd::KnownBranch(xi.immediate32to64() as u64, xi.next_ip())
                     }
-                    iced_x86::OpKind::MemorySegSI => BlockEnd::UnknownBranch(xi.next_ip()),
-                    iced_x86::OpKind::MemorySegESI => BlockEnd::UnknownBranch(xi.next_ip()),
-                    iced_x86::OpKind::MemorySegRSI => BlockEnd::UnknownBranch(xi.next_ip()),
-                    iced_x86::OpKind::MemorySegDI => BlockEnd::UnknownBranch(xi.next_ip()),
-                    iced_x86::OpKind::MemorySegEDI => BlockEnd::UnknownBranch(xi.next_ip()),
-                    iced_x86::OpKind::MemorySegRDI => BlockEnd::UnknownBranch(xi.next_ip()),
-                    iced_x86::OpKind::MemoryESDI => BlockEnd::UnknownBranch(xi.next_ip()),
-                    iced_x86::OpKind::MemoryESEDI => BlockEnd::UnknownBranch(xi.next_ip()),
-                    iced_x86::OpKind::MemoryESRDI => BlockEnd::UnknownBranch(xi.next_ip()),
-                    iced_x86::OpKind::Memory => BlockEnd::UnknownBranch(xi.next_ip()),
+                    iced_x86::OpKind::MemorySegSI
+                    | iced_x86::OpKind::MemorySegESI
+                    | iced_x86::OpKind::MemorySegRSI
+                    | iced_x86::OpKind::MemorySegDI
+                    | iced_x86::OpKind::MemorySegEDI
+                    | iced_x86::OpKind::MemorySegRDI
+                    | iced_x86::OpKind::MemoryESDI
+                    | iced_x86::OpKind::MemoryESEDI
+                    | iced_x86::OpKind::MemoryESRDI
+                    | iced_x86::OpKind::Memory => BlockEnd::UnknownBranch(xi.next_ip()),
                 },
                 _ => BlockEnd::KnownAddress(xi.next_ip()),
             },
         }
     }
 }
-
 
 /// A single unit of code.
 pub enum Block {
@@ -241,11 +289,17 @@ impl Block {
         Block::Instruction(Vec::new())
     }
 
+    /// Return the address of the head of this block
+    pub fn address(&self) -> u64 {
+        match self {
+            Block::Instruction(a) => a.first().unwrap().address(),
+        }
+    }
+
+    /// Calculate the next address or addresses for this block
     pub fn calc_next(&self) -> BlockEnd {
         match self {
-            Block::Instruction(b) => {
-                b.last().unwrap().calc_next()
-            }
+            Block::Instruction(b) => b.last().unwrap().calc_next(),
         }
     }
 
@@ -253,8 +307,7 @@ impl Block {
     pub fn add_instruction(&mut self, i: Instruction) {
         if let Block::Instruction(b) = self {
             b.push(i);
-        }
-        else {
+        } else {
             panic!("Attempt to add instructions to Block that does not accept instructions");
         }
     }
@@ -294,14 +347,52 @@ impl<T> Graph<T> {
 }
 
 impl Graph<Block> {
+    /// Write the graph to a dot file
+    pub fn write_to_dot(&self, pb: std::path::PathBuf, name: &str) -> Result<(), std::io::Error> {
+        let mut unknown = 0;
+        let mut f = std::fs::File::create(pb)?;
+        f.write(format!("digraph {}{{\n", name).as_bytes())?;
+        for (i, b) in self.elements.iter() {
+            let start = b.address();
+            let next = b.calc_next();
+            let s = match next {
+                BlockEnd::KnownAddress(a) => {
+                    format!("addr_{:X} -> addr_{:X}\n", start, a)
+                }
+                BlockEnd::UnknownAddress => {
+                    unknown += 1;
+                    format!("addr_{:X} -> addr_unknown{:X}\n", start, unknown)
+                }
+                BlockEnd::KnownBranch(a, b) => {
+                    format!(
+                        "addr_{:X} -> addr_{:X}\naddr_{0:X} -> addr_{2:X}\n",
+                        start, a, b
+                    )
+                }
+                BlockEnd::UnknownBranch(a) => {
+                    unknown += 1;
+                    format!(
+                        "addr_{:X} -> addr_{:X}\naddr_{0:X} -> addr_unknown{2:X}\n",
+                        start, a, unknown
+                    )
+                }
+                BlockEnd::None => {
+                    format!("addr_{:X};\n", start)
+                }
+            };
+            f.write(s.as_bytes())?;
+        }
+        f.write(format!("}}\n").as_bytes());
+        f.flush()?;
+        Ok(())
+    }
+
     /// Add the specified instruction to the graph
     pub fn add_instruction(&mut self, i: Instruction) -> bool {
-
         for (_index, b) in self.elements.iter_mut() {
             if b.contains(i.address()) {
                 return false;
-            }
-            else {
+            } else {
                 let n = b.calc_next();
                 if let BlockEnd::KnownAddress(a) = n {
                     if a == i.address() {
@@ -334,8 +425,7 @@ impl Graph<Block> {
                     let next = instru.calc_next();
                     if self.add_instruction(instru) {
                         return Some(next);
-                    }
-                    else {
+                    } else {
                         return None;
                     }
                 }
@@ -355,4 +445,6 @@ pub enum BlockEnd {
     KnownBranch(u64, u64),
     /// The instruction has a conditional branch where it leads to one of two destinations. Only one address is a known address.
     UnknownBranch(u64),
+    /// The instruction does not have a next instruction (like a return instruction).
+    None,
 }

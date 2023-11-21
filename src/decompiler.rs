@@ -1,6 +1,10 @@
 //! Defines code that defines the main functionality of the decompiler. This is where the majority of work happens.
 
-use std::{collections::{HashMap, VecDeque}, sync::Arc};
+use std::{
+    collections::{HashMap, VecDeque},
+    path::PathBuf,
+    sync::Arc,
+};
 
 use object::{Object, ObjectSection, SectionKind};
 
@@ -165,13 +169,14 @@ impl InternalDecompilerFileProcessor {
                 }
             })
             .collect();
-        let mut addresses : VecDeque<u64> = VecDeque::new();
+        let mut addresses: VecDeque<u64> = VecDeque::new();
         addresses.push_back(obj.entry());
         loop {
             if let Some(a) = addresses.pop_front() {
                 let next = self.code.process_address(a, &mut ids);
                 if let Some(n) = next {
                     match n {
+                        crate::block::BlockEnd::None => {}
                         crate::block::BlockEnd::KnownAddress(a) => addresses.push_back(a),
                         crate::block::BlockEnd::UnknownAddress => {}
                         crate::block::BlockEnd::KnownBranch(a, b) => {
@@ -181,13 +186,14 @@ impl InternalDecompilerFileProcessor {
                         crate::block::BlockEnd::UnknownBranch(a) => addresses.push_back(a),
                     }
                 }
-            }
-            else {
+            } else {
                 break;
             }
         }
 
         println!("There are {} blocks of code", self.code.num_blocks());
+        self.code
+            .write_to_dot(PathBuf::from("./output.dot"), "example");
 
         loop {
             println!("Processing file in file processor?");
