@@ -165,7 +165,10 @@ impl Instruction {
                 | iced_x86::Mnemonic::Jo
                 | iced_x86::Mnemonic::Jp
                 | iced_x86::Mnemonic::Jrcxz
-                | iced_x86::Mnemonic::Js => match xi.op0_kind() {
+                | iced_x86::Mnemonic::Js 
+                | iced_x86::Mnemonic::Loop
+                | iced_x86::Mnemonic::Loope
+                | iced_x86::Mnemonic::Loopne => match xi.op0_kind() {
                     iced_x86::OpKind::Register => BlockEnd::UnknownBranch(xi.next_ip()),
                     iced_x86::OpKind::NearBranch16 => {
                         BlockEnd::KnownBranch(xi.near_branch16() as u64, xi.next_ip())
@@ -283,6 +286,10 @@ impl<T> Graph<T> {
         Self {
             elements: crate::AutoHashMap::new(),
         }
+    }
+
+    pub fn num_blocks(&self) -> usize {
+        self.elements.len()
     }
 }
 

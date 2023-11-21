@@ -187,6 +187,8 @@ impl InternalDecompilerFileProcessor {
             }
         }
 
+        println!("There are {} blocks of code", self.code.num_blocks());
+
         loop {
             println!("Processing file in file processor?");
             std::thread::sleep(std::time::Duration::from_secs(5));
