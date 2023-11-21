@@ -279,11 +279,43 @@ impl Instruction {
     }
 }
 
+/// The trait that all blocks of code must implement
+#[enum_dispatch::enum_dispatch(Block)]
+pub trait BlockTrait {
+    /// Return the address of the head of this block
+    fn address(&self) -> u64;
+    /// Calculate the next address or addresses for this block
+    fn calc_next(&self) -> BlockEnd;
+    /// Does this block contain an instruction that starts at the specified address?
+    fn contains(&self, addr: u64) -> bool;
+}
+
 /// A single unit of code.
+#[enum_dispatch::enum_dispatch]
 pub enum Block {
     /// A basic sequence of `Instruction`, that runs without any branching. Non-branching jumps may be present in the sequence, meaning the addresses of the instructions contained may be a bit jumbled.
     /// A block could contain a bunch of non-conditional jumps but still be a single block of instructions.
     Instruction(Vec<Instruction>),
+}
+
+impl BlockTrait for Vec<Instruction> {
+    fn address(&self) -> u64 {
+        self.first().unwrap().address()
+    }
+
+    fn calc_next(&self) -> BlockEnd {
+        self.last().unwrap().calc_next()
+    }
+
+    /// Does this block contain an instruction that starts at the specified address?
+    fn contains(&self, addr: u64) -> bool {
+        for i in self {
+            if i.address() == addr {
+                return true;
+            }
+        }
+        false
+    }
 }
 
 impl Block {
@@ -292,40 +324,12 @@ impl Block {
         Block::Instruction(Vec::new())
     }
 
-    /// Return the address of the head of this block
-    pub fn address(&self) -> u64 {
-        match self {
-            Block::Instruction(a) => a.first().unwrap().address(),
-        }
-    }
-
-    /// Calculate the next address or addresses for this block
-    pub fn calc_next(&self) -> BlockEnd {
-        match self {
-            Block::Instruction(b) => b.last().unwrap().calc_next(),
-        }
-    }
-
     /// Add the specified instruction to the end of this block.
     pub fn add_instruction(&mut self, i: Instruction) {
         if let Block::Instruction(b) = self {
             b.push(i);
         } else {
             panic!("Attempt to add instructions to Block that does not accept instructions");
-        }
-    }
-
-    /// Does this block contain an instruction that starts at the specified address?
-    pub fn contains(&self, addr: u64) -> bool {
-        match self {
-            Block::Instruction(b) => {
-                for i in b {
-                    if i.address() == addr {
-                        return true;
-                    }
-                }
-                false
-            }
         }
     }
 }
