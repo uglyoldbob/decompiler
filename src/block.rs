@@ -279,6 +279,11 @@ impl Instruction {
     }
 }
 
+/// Errors that can occur when spawning a block
+pub enum SpawnError {
+    InvalidAddress,
+}
+
 /// The trait that all blocks of code must implement
 #[enum_dispatch::enum_dispatch(Block)]
 pub trait BlockTrait {
@@ -288,6 +293,8 @@ pub trait BlockTrait {
     fn calc_next(&self) -> BlockEnd;
     /// Does this block contain an instruction that starts at the specified address?
     fn contains(&self, addr: u64) -> bool;
+    /// Spawn another block from the specified address in this block
+    fn spawn(&mut self, addr: u64) -> Result<Block, SpawnError>;
 }
 
 /// A single unit of code.
@@ -315,6 +322,22 @@ impl BlockTrait for Vec<Instruction> {
             }
         }
         false
+    }
+
+    fn spawn(&mut self, addr: u64) -> Result<Block, SpawnError> {
+        if self.contains(addr) {
+            let mut index = 0;
+            for (i, el) in self.iter().enumerate() {
+                if el.address() == addr {
+                    index = i;
+                    break;
+                }
+            }
+            let spawn = self.split_off(index);
+            Ok(Block::Instruction(spawn))
+        } else {
+            Err(SpawnError::InvalidAddress)
+        }
     }
 }
 
