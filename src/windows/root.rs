@@ -146,6 +146,9 @@ impl TrackedWindow for RootWindow {
                                 self.open_files.insert(*k);
                             }
                         }
+                        if ui.button("Write outputs").clicked() {
+                            f.write_outputs();
+                        }
                     });
                 });
 

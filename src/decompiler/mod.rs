@@ -16,6 +16,8 @@ use crate::ProjectInputFile;
 pub enum MessageToDecompiler {
     /// A request for processing the given file contents.
     ProcessFile(Arc<crate::ProjectInputFile>),
+    /// Request to have all outputs written to disk
+    WriteOutputs,
 }
 
 /// A message from the `InternalDecompiler` object, sent back to the `Decompiler` object.
@@ -38,6 +40,11 @@ impl Decompiler {
         self.sender
             .send(MessageToDecompiler::ProcessFile(f.to_owned()));
     }
+
+    /// Write all decompilation outputs to disk
+    pub fn write_outputs(&self) {
+        self.sender.send(MessageToDecompiler::WriteOutputs);
+    }
 }
 
 /// The internal object of the decompiler
@@ -52,6 +59,8 @@ struct InternalDecompiler {
     results: Vec<FileResults>,
     /// The project culmination object
     project: project::Project,
+    /// True when the results should eventually be written to disk
+    write_outputs: bool,
 }
 
 impl InternalDecompiler {
@@ -67,6 +76,7 @@ impl InternalDecompiler {
             results: Vec::new(),
             file_processors: HashMap::new(),
             project: project::Project::new(project::autotools::BuildSystem::new().into(), pb),
+            write_outputs: false,
         };
         std::thread::spawn(move || {
             let mut a = i;
@@ -79,6 +89,9 @@ impl InternalDecompiler {
         loop {
             if let Ok(m) = self.receiver.try_recv() {
                 match m {
+                    MessageToDecompiler::WriteOutputs => {
+                        self.write_outputs = true;
+                    }
                     MessageToDecompiler::ProcessFile(f) => {
                         let (s, r) = std::sync::mpsc::channel();
                         let (s2, r2) = std::sync::mpsc::channel();
@@ -108,6 +121,11 @@ impl InternalDecompiler {
             }
             for k in keys_remove {
                 self.file_processors.remove(&k);
+            }
+            if self.write_outputs && self.file_processors.len() == 0 {
+                println!("Writing project outputs to disk now that all files have been processed");
+                self.project.write();
+                self.write_outputs = false;
             }
             std::thread::sleep(std::time::Duration::from_millis(10));
         }

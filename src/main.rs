@@ -210,6 +210,11 @@ impl Project {
         }
     }
 
+    /// Write all decompilation outputs to disk.
+    pub fn write_outputs(&self) {
+        self.decompiler.write_outputs();
+    }
+
     /// Close the file with the given index
     pub fn close_file(&mut self, index: usize) {
         if !self.open_files.contains_key(&index) {
