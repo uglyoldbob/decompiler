@@ -1,6 +1,6 @@
 //! This module contains code and object definitions related to distinct blocks of instructions
 
-use std::io::Write;
+use std::{collections::VecDeque, io::Write};
 
 /// The errors that can occur when building an instruction decoder
 pub enum InstructionDecoderError {
@@ -303,6 +303,48 @@ pub enum Block {
     /// A basic sequence of `Instruction`, that runs without any branching. Non-branching jumps may be present in the sequence, meaning the addresses of the instructions contained may be a bit jumbled.
     /// A block could contain a bunch of non-conditional jumps but still be a single block of instructions.
     Instruction(Vec<Instruction>),
+    /// A linear sequence of one or more blocks.
+    Sequence(Vec<Block>),
+}
+
+impl BlockTrait for Vec<Block> {
+    fn address(&self) -> u64 {
+        self.first().unwrap().address()
+    }
+
+    fn calc_next(&self) -> BlockEnd {
+        self.last().unwrap().calc_next()
+    }
+
+    fn contains(&self, addr: u64) -> bool {
+        for el in self {
+            if el.contains(addr) {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn spawn(&mut self, addr: u64) -> Result<Block, SpawnError> {
+        if self.contains(addr) {
+            let mut index = 0;
+            for (i, el) in self.iter().enumerate() {
+                if el.address() == addr {
+                    index = i;
+                    break;
+                }
+            }
+            let mut spawn = VecDeque::from(self.split_off(index));
+            let mut splitme = spawn.pop_front().unwrap();
+            let newblock = splitme.spawn(addr)?;
+            spawn.push_front(newblock);
+            self.push(splitme);
+            let s: Vec<Block> = spawn.into_iter().collect();
+            Ok(Block::Sequence(s))
+        } else {
+            Err(SpawnError::InvalidAddress)
+        }
+    }
 }
 
 impl BlockTrait for Vec<Instruction> {
