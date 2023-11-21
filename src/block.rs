@@ -99,6 +99,7 @@ impl<'a> InstructionDecoder<'a> {
                     let newpos = pos + error as usize;
                     x.set_position(newpos);
                 }
+                x.set_ip(address);
             }
         }
     }
@@ -287,45 +288,48 @@ impl<T> Graph<T> {
 
 impl Graph<Block> {
     /// Add the specified instruction to the graph
-    pub fn add_instruction(&mut self, i: Instruction) {
+    pub fn add_instruction(&mut self, i: Instruction) -> bool {
 
         for (_index, b) in self.elements.iter_mut() {
             if b.contains(i.address()) {
-                return;
+                return false;
             }
             else {
                 let n = b.calc_next();
                 if let BlockEnd::KnownAddress(a) = n {
                     if a == i.address() {
+                        println!("Instruction at {:x} is {}", i.address(), i);
                         b.add_instruction(i);
-                        return;
+                        return true;
                     }
                 }
             }
         }
 
         let mut nb = Block::new_instructions();
+        println!("Instruction at {:x} is {}", i.address(), i);
         nb.add_instruction(i);
         self.elements.insert(nb);
+        true
     }
 
-    /// Process the given address, modifying the graph as required.
+    /// Process the given address, modifying the graph as required. Returns the next statement or statements.
     pub fn process_address(
         &mut self,
         addr: u64,
         ids: &mut Vec<crate::block::InstructionDecoderPlus>,
-    ) -> Option<u64> {
-        println!("Process address {:X}", addr);
+    ) -> Option<BlockEnd> {
         for id in ids {
             if id.contains(addr) {
                 let decoder = id.decoder();
                 decoder.goto(addr);
                 if let Some(instru) = decoder.decode() {
-                    println!("Instruction at {:x} is {}", addr, instru);
                     let next = instru.calc_next();
-                    self.add_instruction(instru);
-                    if let BlockEnd::KnownAddress(a) = next {
-                        return Some(a);
+                    if self.add_instruction(instru) {
+                        return Some(next);
+                    }
+                    else {
+                        return None;
                     }
                 }
             }
