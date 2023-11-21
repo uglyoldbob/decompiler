@@ -120,11 +120,11 @@ impl Project {
         let mut inp = p.clone();
         inp.push("input");
         Self {
-            path: p,
+            path: p.clone(),
             inputs: inp,
             infiles: AutoHashMap::new(),
             open_files: HashMap::new(),
-            decompiler: crate::decompiler::Decompiler::new(),
+            decompiler: crate::decompiler::Decompiler::new(p),
         }
     }
 

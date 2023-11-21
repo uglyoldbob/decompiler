@@ -340,6 +340,7 @@ name = "decompiler"
 version = "0.1.0"
 dependencies = [
  "egui-multiwin",
+ "enum_dispatch",
  "iced-x86",
  "object",
  "ouroboros",

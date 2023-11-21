@@ -1,5 +1,7 @@
 //! Defines code that defines the main functionality of the decompiler. This is where the majority of work happens.
 
+mod project;
+
 use std::{
     collections::{HashMap, VecDeque},
     path::PathBuf,
@@ -46,6 +48,8 @@ struct InternalDecompiler {
     receiver: std::sync::mpsc::Receiver<MessageToDecompiler>,
     /// The list of all files being processed, along with the processing object for each one.
     file_processors: HashMap<String, DecompilerFileProcessor>,
+    /// The project culmination object
+    project: project::Project,
 }
 
 impl InternalDecompiler {
@@ -53,11 +57,13 @@ impl InternalDecompiler {
     fn run(
         sender: std::sync::mpsc::Sender<MessageFromDecompiler>,
         receiver: std::sync::mpsc::Receiver<MessageToDecompiler>,
+        pb: PathBuf,
     ) {
         let i = InternalDecompiler {
             sender,
             receiver,
             file_processors: HashMap::new(),
+            project: project::Project::new(project::autotools::BuildSystem::new().into(), pb),
         };
         std::thread::spawn(move || {
             let mut a = i;
@@ -93,10 +99,10 @@ impl InternalDecompiler {
 
 impl Decompiler {
     /// Build a new decompiler
-    pub fn new() -> Self {
+    pub fn new(pb: PathBuf) -> Self {
         let (s, r) = std::sync::mpsc::channel();
         let (s2, r2) = std::sync::mpsc::channel();
-        InternalDecompiler::run(s2, r);
+        InternalDecompiler::run(s2, r, pb);
         Self {
             sender: s,
             receiver: r2,
