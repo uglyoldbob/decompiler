@@ -124,7 +124,7 @@ impl<'a> InstructionDecoder<'a> {
 }
 
 /// A basic instruction from disasssembly of the code being decompiled.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Instruction {
     /// An x86 instruction, 16, 32, or 64 bits.
     X86(iced_x86::Instruction),
@@ -288,9 +288,11 @@ pub enum SpawnError {
     CannotSpawn,
 }
 
+#[derive(Clone)]
 /// An operation is a way to describe a portion of source code. `a = 5;` is an equality operation
 pub enum Operation {}
 
+#[derive(Clone)]
 /// The basic instruction that has been translated from assembly
 pub struct Statement {
     /// The operation and address pairs for the statement
@@ -343,6 +345,7 @@ pub trait BlockTrait {
 
 /// A single unit of code. Each variety here can be assumed to run in sequence as a unit. Non-branching jumps may be present in a sequence, meaning the addresses of the instructions contained may be a bit jumbled.
 /// A block could contain a bunch of non-conditional jumps but still be a single block of instructions.
+#[derive(Clone)]
 #[enum_dispatch::enum_dispatch]
 pub enum Block {
     /// A basic sequence of `Instruction`.
@@ -355,6 +358,7 @@ pub enum Block {
     SimpleIfElse(SimpleIfElseBlock),
 }
 
+#[derive(Clone)]
 /// Represents a simple if else chain. Each if statement in the chain has a single condition. All blocks "executed" point to the next block.
 /// Executed in this instance refers to the code executed in an if or else block of code.
 pub struct SimpleIfElseBlock {
@@ -527,6 +531,7 @@ impl Block {
     }
 }
 
+#[derive(Clone)]
 /// An arbitrary graph of some type of object, where each object points to zero or more other objects in the graph.
 pub struct Graph<T> {
     /// The elements in the graph

@@ -3,6 +3,7 @@
 use std::collections::HashMap;
 use std::ops::Index;
 
+#[derive(Clone)]
 /// A HashMap implementation that auto-indexes contents. Behaves somewhat like a `Vec<T>`.
 pub struct AutoHashMap<T> {
     /// The data contained in the map

@@ -37,19 +37,36 @@ impl super::BuildSystemTrait for BuildSystem {
         if o.len() > 0 {
             f.write_all("bin_PROGRAMS = ".as_bytes())?;
             for file in o {
-                f.write_all(format!("\\\n {}", file.name).as_bytes())?;
+                let name = file.name.clone();
+                f.write_all(format!("\\\n {}", name).as_bytes())?;
             }
             f.write_all("\n".as_bytes())?;
+
+            for file in o {
+                f.write_all("\n".as_bytes())?;
+                let name = file.name.clone();
+                f.write_all(format!("{}_SOURCES = ", name).as_bytes())?;
+                for src in &file.sources {
+                    f.write_all(format!("\\\n src/{}", src.name).as_bytes())?;
+                }
+                f.write_all("\n".as_bytes())?;
+            }
         }
         f.flush()?;
         drop(f);
 
-        for result in o {
+        for file in o {
             let mut pb = details.path.clone();
-            pb.push(format!("{}.dot", result.name));
-            let mut f = std::fs::File::create(pb)?;
-            f.write_all(&result.dot)?;
-            f.flush()?;
+            pb.push("src");
+            std::fs::create_dir_all(&pb)?;
+            for src in &file.sources {
+                let mut pb = pb.clone();
+                pb.push(format!("{}", src.name));
+                println!("Creating source file {}", pb.display());
+                let mut f = std::fs::File::create(pb)?;
+                f.write_all("//A simple source file\n".as_bytes())?;
+                f.flush()?;
+            }
         }
 
         Ok(())

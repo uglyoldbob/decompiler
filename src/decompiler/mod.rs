@@ -159,7 +159,7 @@ impl InternalDecompiler {
                     println!("Error writing outputs: {:?}", e);
                 }
                 self.write_outputs = false;
-                self.sender.send(MessageFromDecompiler::DoneWriting);
+                let _e = self.sender.send(MessageFromDecompiler::DoneWriting);
             }
             std::thread::sleep(std::time::Duration::from_millis(10));
         }
@@ -208,12 +208,32 @@ enum MessageFromFileProcessor {
     Done(FileResults),
 }
 
+/// A decompiled function, capable of being output to a source file
+pub struct Function {
+    /// The name of the function
+    name: String,
+    /// The name and type of each argument
+    arguments: Vec<(String, String)>,
+    /// The code for the function
+    code: crate::block::Graph<crate::block::Block>,
+    /// The dot of the results
+    dot: Vec<u8>,
+}
+
+/// A single source file for a binary object
+pub struct SourceFile {
+    /// The name of the source file
+    name: String,
+    /// Functions that belong to the file
+    functions: Vec<Function>,
+}
+
 /// The results of processing a single file
 pub struct FileResults {
     /// The name of the binary
     name: String,
-    /// The dot of the results
-    dot: Vec<u8>,
+    /// All of the source files used to create the binary
+    sources: Vec<SourceFile>,
 }
 
 /// This object belongs to a separate thread, one for each file being processed for decompilation.
@@ -282,9 +302,27 @@ impl InternalDecompilerFileProcessor {
             println!("Failed to create dot contents: {:?}", e);
         }
 
+        let entry_function = Function {
+            name: "main".to_string(),
+            arguments: Vec::new(),
+            code: self.code.clone(),
+            dot,
+        };
+
+        let mut functions = Vec::new();
+        functions.push(entry_function);
+
+        let source_file = SourceFile {
+            name: "main.c".to_string(),
+            functions,
+        };
+
+        let mut sources = Vec::new();
+        sources.push(source_file);
+
         let results: FileResults = FileResults {
             name: self.file.borrow_name().to_owned(),
-            dot,
+            sources,
         };
         let _ = self.sender.send(MessageFromFileProcessor::Done(results));
         println!("Done processing a file");
