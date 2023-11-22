@@ -212,6 +212,8 @@ enum MessageFromFileProcessor {
 pub struct FileResults {
     /// The name of the binary
     name: String,
+    /// The dot of the results
+    dot: Vec<u8>,
 }
 
 /// This object belongs to a separate thread, one for each file being processed for decompilation.
@@ -275,15 +277,14 @@ impl InternalDecompilerFileProcessor {
             }
         }
 
-        if let Err(e) = self
-            .code
-            .write_to_dot(PathBuf::from("./output.dot"), "example")
-        {
-            println!("Failed to write dot file: {:?}", e);
+        let mut dot = Vec::new();
+        if let Err(e) = self.code.write_to_dot("example", &mut dot) {
+            println!("Failed to create dot contents: {:?}", e);
         }
 
         let results: FileResults = FileResults {
             name: self.file.borrow_name().to_owned(),
+            dot,
         };
         let _ = self.sender.send(MessageFromFileProcessor::Done(results));
         println!("Done processing a file");

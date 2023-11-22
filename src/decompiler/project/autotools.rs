@@ -44,6 +44,14 @@ impl super::BuildSystemTrait for BuildSystem {
         f.flush()?;
         drop(f);
 
+        for result in o {
+            let mut pb = details.path.clone();
+            pb.push(format!("{}.dot", result.name));
+            let mut f = std::fs::File::create(pb)?;
+            f.write_all(&result.dot)?;
+            f.flush()?;
+        }
+
         Ok(())
     }
 }

@@ -549,9 +549,8 @@ impl<T> Graph<T> {
 
 impl Graph<Block> {
     /// Write the graph to a dot file
-    pub fn write_to_dot(&self, pb: std::path::PathBuf, name: &str) -> Result<(), std::io::Error> {
+    pub fn write_to_dot(&self, name: &str, f: &mut impl Write) -> Result<(), std::io::Error> {
         let mut unknown = 0;
-        let mut f = std::fs::File::create(pb)?;
         f.write_all(format!("digraph {}{{\n", name).as_bytes())?;
         for (_i, b) in self.elements.iter() {
             let start = b.address();
