@@ -284,6 +284,46 @@ pub enum SpawnError {
     InvalidAddress,
 }
 
+/// An operation is a way to describe a portion of source code. `a = 5;` is an equality operation
+pub enum Operation {}
+
+/// The basic instruction that has been translated from assembly
+pub struct Statement {
+    /// The operation and address pairs for the statement
+    ops: Vec<(u64, Operation)>,
+    /// A comment printed at the end of the statement
+    comment: String,
+    /// The next address set
+    next: BlockEnd,
+}
+
+impl Statement {
+    /// Return the starting address of the statement
+    pub fn address(&self) -> u64 {
+        self.ops.first().unwrap().0
+    }
+
+    /// Return the blockend for this statement
+    pub fn calc_next(&self) -> BlockEnd {
+        self.next
+    }
+
+    /// Does this statement contain the specified address
+    pub fn contains(&self, addr: u64) -> bool {
+        for (a, _ops) in &self.ops {
+            if *a == addr {
+                return true;
+            }
+        }
+        false
+    }
+
+    /// Spawn a new Statement starting at the specified address
+    pub fn spawn(&mut self, addr: u64) -> Result<Statement, SpawnError> {
+        todo!();
+    }
+}
+
 /// The trait that all blocks of code must implement
 #[enum_dispatch::enum_dispatch(Block)]
 pub trait BlockTrait {
@@ -297,14 +337,56 @@ pub trait BlockTrait {
     fn spawn(&mut self, addr: u64) -> Result<Block, SpawnError>;
 }
 
-/// A single unit of code.
+/// A single unit of code. Each variety here can be assumed to run in sequence as a unit. Non-branching jumps may be present in a sequence, meaning the addresses of the instructions contained may be a bit jumbled.
+/// A block could contain a bunch of non-conditional jumps but still be a single block of instructions.
 #[enum_dispatch::enum_dispatch]
 pub enum Block {
-    /// A basic sequence of `Instruction`, that runs without any branching. Non-branching jumps may be present in the sequence, meaning the addresses of the instructions contained may be a bit jumbled.
-    /// A block could contain a bunch of non-conditional jumps but still be a single block of instructions.
+    /// A basic sequence of `Instruction`.
     Instruction(Vec<Instruction>),
     /// A linear sequence of one or more blocks.
     Sequence(Vec<Block>),
+    /// A basic sequence of statements.
+    Statements(Vec<Statement>),
+}
+
+impl BlockTrait for Vec<Statement> {
+    fn address(&self) -> u64 {
+        self.first().unwrap().address()
+    }
+
+    fn calc_next(&self) -> BlockEnd {
+        self.last().unwrap().calc_next()
+    }
+
+    fn contains(&self, addr: u64) -> bool {
+        for el in self {
+            if el.contains(addr) {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn spawn(&mut self, addr: u64) -> Result<Block, SpawnError> {
+        if self.contains(addr) {
+            let mut index = 0;
+            for (i, el) in self.iter().enumerate() {
+                if el.address() == addr {
+                    index = i;
+                    break;
+                }
+            }
+            let mut spawn = VecDeque::from(self.split_off(index));
+            let mut splitme = spawn.pop_front().unwrap();
+            let newblock = splitme.spawn(addr)?;
+            spawn.push_front(newblock);
+            self.push(splitme);
+            let s: Vec<Statement> = spawn.into_iter().collect();
+            Ok(Block::Statements(s))
+        } else {
+            Err(SpawnError::InvalidAddress)
+        }
+    }
 }
 
 impl BlockTrait for Vec<Block> {
@@ -508,6 +590,7 @@ impl Graph<Block> {
     }
 }
 
+#[derive(Copy, Clone)]
 /// The end link for a node of a graph
 pub enum BlockEnd {
     /// The address of the next instruction to be executed after this one is a known constant address
