@@ -30,3 +30,4 @@ stupid.c
 .project
 build/*
 target/*
+projects/*

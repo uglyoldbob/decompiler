@@ -9,21 +9,51 @@ use std::{
 };
 
 use object::{Object, ObjectSection, SectionKind};
+use ouroboros::self_referencing;
 
-use crate::ProjectInputFile;
+#[self_referencing]
+pub struct ProjectInputFile {
+    pub name: String,
+    f: std::fs::File,
+    data: Vec<u8>,
+    #[borrows(data)]
+    #[covariant]
+    pub obj: object::File<'this>,
+}
+
+impl ProjectInputFile {
+    /// Build a new project input file. The `obj_builder` argument is a closure that builds the `object::File` object.
+    pub fn builder<T>(
+        name: String,
+        f: std::fs::File,
+        data: Vec<u8>,
+        obj_builder: T,
+    ) -> ProjectInputFile
+    where
+        T: FnOnce(&'_ Vec<u8>) -> object::File<'_>,
+    {
+        let builder = ProjectInputFileBuilder {
+            name,
+            f,
+            data,
+            obj_builder,
+        };
+        builder.build()
+    }
+}
 
 /// A message to the `InternalDecompiler` object from the `Decompiler` object.
 pub enum MessageToDecompiler {
     /// A request for processing the given file contents.
-    ProcessFile(Arc<crate::ProjectInputFile>),
+    ProcessFile(Arc<ProjectInputFile>),
     /// Request to have all outputs written to disk
     WriteOutputs,
 }
 
 /// A message from the `InternalDecompiler` object, sent back to the `Decompiler` object.
 pub enum MessageFromDecompiler {
-    /// A placeholder message, will be removed.
-    Test,
+    /// The decompiler is done writing files
+    DoneWriting,
 }
 
 /// The gui side of the decompiler. Communicates with an `InternalDecompiler` object that runs on a separate thread.
@@ -124,8 +154,12 @@ impl InternalDecompiler {
             }
             if self.write_outputs && self.file_processors.len() == 0 {
                 println!("Writing project outputs to disk now that all files have been processed");
-                self.project.write(&self.results);
+                let e = self.project.write(&self.results);
+                if let Err(e) = e {
+                    println!("Error writing outputs: {:?}", e);
+                }
                 self.write_outputs = false;
+                self.sender.send(MessageFromDecompiler::DoneWriting);
             }
             std::thread::sleep(std::time::Duration::from_millis(10));
         }
@@ -144,17 +178,21 @@ impl Decompiler {
         }
     }
 
-    /// Process any outstanding events from worker threads.
-    pub fn process_events(&mut self) {
+    /// Process any outstanding events from worker threads. Returns true if there is more work to do.
+    pub fn process_events(&mut self) -> bool {
+        let mut work = true;
         loop {
             if let Ok(m) = self.receiver.try_recv() {
                 match m {
-                    MessageFromDecompiler::Test => {}
+                    MessageFromDecompiler::DoneWriting => {
+                        work = false;
+                    }
                 }
             } else {
                 break;
             }
         }
+        work
     }
 }
 
@@ -172,6 +210,7 @@ enum MessageFromFileProcessor {
 
 /// The results of processing a single file
 pub struct FileResults {
+    /// The name of the binary
     name: String,
 }
 
@@ -283,6 +322,7 @@ impl DecompilerFileProcessor {
         });
     }
 
+    /// Process any messages received from the file processor
     pub fn process_messages(&mut self) {
         while let Ok(a) = self.receiver.try_recv() {
             match a {

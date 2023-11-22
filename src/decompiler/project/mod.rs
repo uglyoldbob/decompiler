@@ -22,12 +22,16 @@ pub enum BuildSystemEnum {
 
 /// The details of the project
 pub struct ProjectDetails {
+    /// The name of the project
     name: String,
+    /// The version of the project
     version: String,
+    /// The path for the project output files
     path: PathBuf,
 }
 
 impl ProjectDetails {
+    /// Create a default project details
     pub fn new(pb: PathBuf) -> Self {
         Self {
             name: "project".to_string(),
@@ -55,7 +59,11 @@ impl Project {
     }
 
     /// Write all outputs to the specified path
-    pub fn write(&self, f: &Vec<FileResults>) {
-        self.build.write(&self.details, f);
+    pub fn write(&self, f: &Vec<FileResults>) -> Result<(), std::io::Error> {
+        if self.details.path.exists() {
+            std::fs::remove_dir_all(&self.details.path)?;
+        }
+        std::fs::create_dir(&self.details.path)?;
+        self.build.write(&self.details, f)
     }
 }

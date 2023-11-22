@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+clap = { version = "4.4.8", features = ["derive"] }
 egui-multiwin = "0.3.1"
 enum_dispatch = "0.3.12"
 iced-x86 = "1.20.0"
@@ -13,3 +14,10 @@ object = "0.32.1"
 ouroboros = "0.18"
 rfd = "0.12.1"
 
+[[bin]]
+name = "decompiler-gui"
+path = "src/main.rs"
+
+[[bin]]
+name = "decompiler-cli"
+path = "src/cli.rs"

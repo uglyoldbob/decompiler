@@ -16,15 +16,15 @@ pub mod egui_multiwin_dynamic {
 mod block;
 mod decompiler;
 mod event;
+mod map;
 mod windows;
 
+use decompiler::ProjectInputFile;
+use map::AutoHashMap;
 use std::collections::HashMap;
 use std::io::Read;
-use std::ops::Index;
 use std::path::PathBuf;
 use std::sync::Arc;
-
-use ouroboros::self_referencing;
 
 fn main() {
     egui_multiwin_dynamic::multi_window::MultiWindow::start(|multi_window, event_loop, _proxy| {
@@ -37,67 +37,6 @@ fn main() {
         }
         ac
     });
-}
-
-/// A HashMap implementation that auto-indexes contents. Behaves somewhat like a `Vec<T>`.
-pub struct AutoHashMap<T> {
-    /// The data contained in the map
-    d: HashMap<usize, T>,
-    /// Used for generating the next index when inserting into the map
-    next: usize,
-}
-
-impl<T> AutoHashMap<T> {
-    /// Generate a new object.
-    pub fn new() -> Self {
-        Self {
-            d: HashMap::new(),
-            next: 0,
-        }
-    }
-
-    /// Return an mutable iterator over the HashMap contained within
-    pub fn iter_mut(&mut self) -> std::collections::hash_map::IterMut<'_, usize, T> {
-        self.d.iter_mut()
-    }
-
-    /// Return an iterator over the HashMap contained within
-    pub fn iter(&self) -> std::collections::hash_map::Iter<'_, usize, T> {
-        self.d.iter()
-    }
-
-    /// Return the length of the map
-    pub fn len(&self) -> usize {
-        self.d.len()
-    }
-
-    /// Get a particular element of the map, if it exists.
-    pub fn get(&self, k: &usize) -> Option<&T> {
-        self.d.get(k)
-    }
-
-    /// Insert an element into the map, automatically assigning an index to it.
-    pub fn insert(&mut self, v: T) {
-        self.d.insert(self.next, v);
-        self.next += 1;
-    }
-}
-
-impl<T> Index<&usize> for AutoHashMap<T> {
-    type Output = T;
-    fn index(&self, k: &usize) -> &Self::Output {
-        &self.d[k]
-    }
-}
-
-#[self_referencing]
-pub struct ProjectInputFile {
-    pub name: String,
-    f: std::fs::File,
-    data: Vec<u8>,
-    #[borrows(data)]
-    #[covariant]
-    pub obj: object::File<'this>,
 }
 
 /// A decompile project
@@ -182,13 +121,9 @@ impl Project {
                 if let Ok(mut file) = f {
                     let mut v = Vec::new();
                     file.read_to_end(&mut v);
-                    let nf = ProjectInputFileBuilder {
-                        data: v,
-                        obj_builder: |a| object::File::parse(&a[..]).unwrap(),
-                        name: name.clone(),
-                        f: file,
-                    }
-                    .build();
+                    let nf = ProjectInputFile::builder(name.clone(), file, v, |a| {
+                        object::File::parse(&a[..]).unwrap()
+                    });
                     e.insert(Arc::new(nf));
                     Ok(())
                 } else {

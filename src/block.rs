@@ -1,5 +1,6 @@
 //! This module contains code and object definitions related to distinct blocks of instructions
 
+use crate::map::AutoHashMap;
 use std::{collections::VecDeque, io::Write};
 
 /// The errors that can occur when building an instruction decoder
@@ -281,7 +282,10 @@ impl Instruction {
 
 /// Errors that can occur when spawning a block
 pub enum SpawnError {
+    /// The target block trying to be split does not contain the specified address
     InvalidAddress,
+    /// The target block cannot be split
+    CannotSpawn,
 }
 
 /// An operation is a way to describe a portion of source code. `a = 5;` is an equality operation
@@ -347,6 +351,48 @@ pub enum Block {
     Sequence(Vec<Block>),
     /// A basic sequence of statements.
     Statements(Vec<Statement>),
+    /// A simple if else chain
+    SimpleIfElse(SimpleIfElseBlock),
+}
+
+/// Represents a simple if else chain. Each if statement in the chain has a single condition. All blocks "executed" point to the next block.
+/// Executed in this instance refers to the code executed in an if or else block of code.
+pub struct SimpleIfElseBlock {
+    /// The if blocks of the block. Each successive entry is an else block of the previous one
+    blocks: Vec<(Block, Block)>,
+    /// The optional else block at the end of the if else chain
+    els: Option<Box<Block>>,
+}
+
+impl BlockTrait for SimpleIfElseBlock {
+    fn address(&self) -> u64 {
+        self.blocks.first().unwrap().0.address()
+    }
+
+    fn calc_next(&self) -> BlockEnd {
+        return self.blocks.first().unwrap().1.calc_next();
+    }
+
+    fn contains(&self, addr: u64) -> bool {
+        for (el1, el2) in &self.blocks {
+            if el1.contains(addr) {
+                return true;
+            }
+            if el2.contains(addr) {
+                return true;
+            }
+        }
+        if let Some(b) = &self.els {
+            if b.contains(addr) {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn spawn(&mut self, addr: u64) -> Result<Block, SpawnError> {
+        Err(SpawnError::CannotSpawn)
+    }
 }
 
 impl BlockTrait for Vec<Statement> {
@@ -484,14 +530,14 @@ impl Block {
 /// An arbitrary graph of some type of object, where each object points to zero or more other objects in the graph.
 pub struct Graph<T> {
     /// The elements in the graph
-    elements: crate::AutoHashMap<T>,
+    elements: AutoHashMap<T>,
 }
 
 impl<T> Graph<T> {
     /// Construct a blank graph
     pub fn new() -> Self {
         Self {
-            elements: crate::AutoHashMap::new(),
+            elements: AutoHashMap::new(),
         }
     }
 
