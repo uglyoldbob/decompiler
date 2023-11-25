@@ -63,7 +63,7 @@ impl Project {
         if self.details.path.exists() {
             std::fs::remove_dir_all(&self.details.path)?;
         }
-        std::fs::create_dir(&self.details.path)?;
+        std::fs::create_dir_all(&self.details.path)?;
         self.build.write(&self.details, f)
     }
 }

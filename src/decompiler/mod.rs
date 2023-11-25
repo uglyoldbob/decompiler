@@ -5,7 +5,7 @@ mod project;
 use std::{
     collections::{HashMap, VecDeque},
     path::PathBuf,
-    sync::Arc,
+    sync::Arc, io::Write,
 };
 
 use object::{Object, ObjectSection, SectionKind};
@@ -226,6 +226,43 @@ pub struct SourceFile {
     name: String,
     /// Functions that belong to the file
     functions: Vec<Function>,
+}
+
+impl SourceFile {
+    /// Write the source code to the specified writer.
+    pub fn write_source(&self, mut o: impl std::io::Write) -> Result<(), std::io::Error> {
+        o.write_all("//A simple source file\n".as_bytes())?;
+        for f in &self.functions {
+            o.write_all(format!("void {}(", f.name).as_bytes())?;
+            if f.arguments.len() > 0 {
+                for (index, (n, t)) in f.arguments.iter().enumerate() {
+                    if index > 0 {
+                        o.write_all(", ".as_bytes())?;
+                    }
+                    o.write_all(format!("{} {}\n\t", n, t).as_bytes())?;
+                }
+            }
+            else {
+                o.write_all("void".as_bytes())?;
+            }
+            o.write_all(") {\n".as_bytes())?;
+            o.write_all("}".as_bytes())?;
+        }
+        o.flush()?;
+        Ok(())
+    }
+
+    /// Write the dot file of every function to the specified directory
+    pub fn write_dots(&self, pb: &PathBuf) -> Result<(), std::io::Error> {
+        for f in &self.functions {
+            let mut p = pb.clone();
+            p.push(format!("{}.dot", f.name));
+            let mut fi = std::fs::File::create(p)?;
+            fi.write_all(&f.dot)?;
+            fi.flush()?;
+        }
+        Ok(())
+    }
 }
 
 /// The results of processing a single file

@@ -60,12 +60,12 @@ impl super::BuildSystemTrait for BuildSystem {
             pb.push("src");
             std::fs::create_dir_all(&pb)?;
             for src in &file.sources {
+                src.write_dots(&pb);
                 let mut pb = pb.clone();
                 pb.push(format!("{}", src.name));
                 println!("Creating source file {}", pb.display());
-                let mut f = std::fs::File::create(pb)?;
-                f.write_all("//A simple source file\n".as_bytes())?;
-                f.flush()?;
+                let f = std::fs::File::create(pb)?;
+                src.write_source(f)?;
             }
         }
 
