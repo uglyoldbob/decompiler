@@ -630,17 +630,17 @@ impl Graph<Block> {
     }
 
     /// Add the specified instruction to the graph
-    pub fn add_instruction(&mut self, i: Instruction) -> bool {
+    pub fn add_instruction(&mut self, i: Instruction) -> Option<BlockEnd> {
         for (_index, b) in self.elements.iter_mut() {
             if b.contains(i.address()) {
-                return false;
+                return None;
             } else {
                 let n = b.calc_next();
                 if let BlockEnd::KnownAddress(a) = n {
                     if a == i.address() {
                         println!("Instruction at {:x} is {}", i.address(), i);
                         b.add_instruction(i);
-                        return true;
+                        return Some(b.calc_next());
                     }
                 }
             }
@@ -649,8 +649,9 @@ impl Graph<Block> {
         let mut nb = Block::new_instructions();
         println!("Instruction at {:x} is {}", i.address(), i);
         nb.add_instruction(i);
+        let n = nb.calc_next();
         self.elements.insert(nb);
-        true
+        return Some(n);
     }
 
     /// Process the given address, modifying the graph as required. Returns the next statement or statements.
@@ -664,12 +665,7 @@ impl Graph<Block> {
                 let decoder = id.decoder();
                 decoder.goto(addr);
                 if let Some(instru) = decoder.decode() {
-                    let next = instru.calc_next();
-                    if self.add_instruction(instru) {
-                        return Some(next);
-                    } else {
-                        return None;
-                    }
+                    return self.add_instruction(instru);
                 }
             }
         }

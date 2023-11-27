@@ -253,7 +253,7 @@ impl SourceFile {
                 b.write_source(1, &mut o)?;
             }
 
-            o.write_all("}".as_bytes())?;
+            o.write_all("}\n\n".as_bytes())?;
         }
         o.flush()?;
         Ok(())
