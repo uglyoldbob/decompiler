@@ -4,12 +4,15 @@ mod project;
 
 use std::{
     collections::{HashMap, VecDeque},
+    io::Write,
     path::PathBuf,
-    sync::Arc, io::Write,
+    sync::Arc,
 };
 
 use object::{Object, ObjectSection, SectionKind};
 use ouroboros::self_referencing;
+
+use crate::block::BlockTrait;
 
 #[self_referencing]
 pub struct ProjectInputFile {
@@ -241,11 +244,15 @@ impl SourceFile {
                     }
                     o.write_all(format!("{} {}\n\t", n, t).as_bytes())?;
                 }
-            }
-            else {
+            } else {
                 o.write_all("void".as_bytes())?;
             }
             o.write_all(") {\n".as_bytes())?;
+
+            for (_index,b) in f.code.iter() {
+                b.write_source(1, &mut o)?;
+            }
+
             o.write_all("}".as_bytes())?;
         }
         o.flush()?;

@@ -341,6 +341,13 @@ pub trait BlockTrait {
     fn contains(&self, addr: u64) -> bool;
     /// Spawn another block from the specified address in this block
     fn spawn(&mut self, addr: u64) -> Result<Block, SpawnError>;
+    /// Print the source code for the block, with the specified level of indents
+    fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error>;
+    /// Indent the specified number of times (proviced)
+    fn indent(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
+        let o = vec![b'\t'; level as usize];
+        w.write_all(&o)
+    }
 }
 
 /// A single unit of code. Each variety here can be assumed to run in sequence as a unit. Non-branching jumps may be present in a sequence, meaning the addresses of the instructions contained may be a bit jumbled.
@@ -369,6 +376,12 @@ pub struct SimpleIfElseBlock {
 }
 
 impl BlockTrait for SimpleIfElseBlock {
+    fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
+        self.indent(level, w)?;
+        w.write_all("#error if else block\n".as_bytes())?;
+        Ok(())
+    }
+
     fn address(&self) -> u64 {
         self.blocks.first().unwrap().0.address()
     }
@@ -400,6 +413,12 @@ impl BlockTrait for SimpleIfElseBlock {
 }
 
 impl BlockTrait for Vec<Statement> {
+    fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
+        self.indent(level, w)?;
+        w.write_all("#error series of statements\n".as_bytes())?;
+        Ok(())
+    }
+
     fn address(&self) -> u64 {
         self.first().unwrap().address()
     }
@@ -440,6 +459,13 @@ impl BlockTrait for Vec<Statement> {
 }
 
 impl BlockTrait for Vec<Block> {
+    fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
+        for b in self {
+            b.write_source(level, w)?;
+        }
+        Ok(())
+    }
+
     fn address(&self) -> u64 {
         self.first().unwrap().address()
     }
@@ -480,6 +506,12 @@ impl BlockTrait for Vec<Block> {
 }
 
 impl BlockTrait for Vec<Instruction> {
+    fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
+        self.indent(level, w)?;
+        w.write_all("#error instruction block\n".as_bytes())?;
+        Ok(())
+    }
+
     fn address(&self) -> u64 {
         self.first().unwrap().address()
     }
@@ -549,6 +581,11 @@ impl<T> Graph<T> {
     /// Returns the number of blocks in the graph
     pub fn num_blocks(&self) -> usize {
         self.elements.len()
+    }
+
+    /// Iterate over the elements in the graph
+    pub fn iter(&self) -> std::collections::hash_map::Iter<'_, usize, T> {
+        self.elements.iter()
     }
 }
 
