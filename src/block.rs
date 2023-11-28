@@ -133,7 +133,7 @@ pub enum Instruction {
 impl std::fmt::Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Instruction::X86(xi) => f.write_str(&format!("{:?}", xi.mnemonic())),
+            Instruction::X86(xi) => xi.fmt(f),
         }
     }
 }
@@ -509,6 +509,10 @@ impl BlockTrait for Vec<Instruction> {
     fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
         self.indent(level, w)?;
         w.write_all("#error instruction block\n".as_bytes())?;
+        for i in self {
+            self.indent(level, w)?;
+            w.write_all(format!("{}\n", i).as_bytes())?;
+        }
         Ok(())
     }
 
