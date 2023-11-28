@@ -249,7 +249,7 @@ impl SourceFile {
             }
             o.write_all(") {\n".as_bytes())?;
 
-            for (_index,b) in f.code.iter() {
+            for (_index, b) in f.code.iter() {
                 b.write_source(1, &mut o)?;
             }
 

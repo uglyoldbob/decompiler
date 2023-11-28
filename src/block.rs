@@ -123,6 +123,64 @@ impl<'a> InstructionDecoder<'a> {
     }
 }
 
+/// The values that an item can have
+pub enum Value {
+    /// The element contains the contents of another register.
+    Register(Register),
+    /// The element contains a literal 8 bit value (sign is unknown)
+    Bits8(u8),
+    /// The element contains a literal 16 bit value (sign is unknown)
+    Bits16(u16),
+    /// The element contains a literal 32 bit value (sign is unknown)
+    Bits32(u32),
+    /// The element contains a literal 64 bit value (sign is unknown)
+    Bits64(u64),
+    /// The element contains a literal signed 16 bit value
+    SignedBits16(i16),
+    /// The element contains a literal signed 32 bit value
+    SignedBits32(i32),
+    /// The element contains a literal signed 64 bit value
+    SignedBits64(i64),
+    /// The value is unknown
+    Unknown,
+}
+
+impl Value {
+    /// Returns true when the value is known
+    pub fn is_known(&self) -> bool {
+        match self {
+            Value::Unknown | Value::Register(_) => false,
+            Value::Bits8(_)
+            | Value::Bits16(_)
+            | Value::Bits32(_)
+            | Value::Bits64(_)
+            | Value::SignedBits16(_)
+            | Value::SignedBits32(_)
+            | Value::SignedBits64(_) => true,
+        }
+    }
+}
+
+#[derive(Copy, Clone)]
+/// An x86 register
+pub enum X86Register {
+    /// An instruction addressable register
+    RegularRegister(iced_x86::Register),
+    /// The 32 bit EFLAGS register
+    Flags32(u32),
+    /// The 64 bit RFLAGS register
+    Flags64(u64),
+}
+
+#[derive(Copy, Clone)]
+/// A register for the target architecture
+pub enum Register {
+    /// An x86 register
+    X86(X86Register),
+    /// Some other register set
+    Other,
+}
+
 /// A basic instruction from disasssembly of the code being decompiled.
 #[derive(Debug, Clone)]
 pub enum Instruction {
@@ -144,6 +202,75 @@ impl Instruction {
         match self {
             Instruction::X86(xi) => xi.ip(),
         }
+    }
+
+    pub fn trace_register(&self, reg: Register) -> Value {
+        let mut val = Value::Register(reg);
+        match self {
+            Instruction::X86(xi) => {
+                if let Register::X86(xr) = reg {
+                    match xi.mnemonic() {
+                        iced_x86::Mnemonic::Mov => {
+                            if xi.op0_kind() == iced_x86::OpKind::Register {
+                                if let X86Register::RegularRegister(r) = xr {
+                                    if r == xi.op0_register() {
+                                        match xi.op1_kind() {
+                                            iced_x86::OpKind::Register => {
+                                                val = Value::Register(Register::X86(
+                                                    X86Register::RegularRegister(xi.op1_register()),
+                                                ));
+                                            }
+                                            iced_x86::OpKind::NearBranch16 => todo!(),
+                                            iced_x86::OpKind::NearBranch32 => todo!(),
+                                            iced_x86::OpKind::NearBranch64 => todo!(),
+                                            iced_x86::OpKind::FarBranch16 => todo!(),
+                                            iced_x86::OpKind::FarBranch32 => todo!(),
+                                            iced_x86::OpKind::Immediate8 => {
+                                                val = Value::Bits8(xi.immediate8());
+                                            }
+                                            iced_x86::OpKind::Immediate8_2nd => todo!(),
+                                            iced_x86::OpKind::Immediate16 => {
+                                                val = Value::Bits16(xi.immediate16());
+                                            }
+                                            iced_x86::OpKind::Immediate32 => {
+                                                val = Value::Bits32(xi.immediate32());
+                                            }
+                                            iced_x86::OpKind::Immediate64 => {
+                                                val = Value::Bits64(xi.immediate64());
+                                            }
+                                            iced_x86::OpKind::Immediate8to16 => {
+                                                val = Value::SignedBits16(xi.immediate8to16());
+                                            }
+                                            iced_x86::OpKind::Immediate8to32 => {
+                                                val = Value::SignedBits32(xi.immediate8to32());
+                                            }
+                                            iced_x86::OpKind::Immediate8to64 => {
+                                                val = Value::SignedBits64(xi.immediate8to64());
+                                            }
+                                            iced_x86::OpKind::Immediate32to64 => {
+                                                val = Value::SignedBits64(xi.immediate32to64());
+                                            }
+                                            iced_x86::OpKind::MemorySegSI => todo!(),
+                                            iced_x86::OpKind::MemorySegESI => todo!(),
+                                            iced_x86::OpKind::MemorySegRSI => todo!(),
+                                            iced_x86::OpKind::MemorySegDI => todo!(),
+                                            iced_x86::OpKind::MemorySegEDI => todo!(),
+                                            iced_x86::OpKind::MemorySegRDI => todo!(),
+                                            iced_x86::OpKind::MemoryESDI => todo!(),
+                                            iced_x86::OpKind::MemoryESEDI => todo!(),
+                                            iced_x86::OpKind::MemoryESRDI => todo!(),
+                                            iced_x86::OpKind::Memory => todo!(),
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+        val
     }
 
     /// Calculates the set of addresses that follow this instruction.
@@ -348,6 +475,8 @@ pub trait BlockTrait {
         let o = vec![b'\t'; level as usize];
         w.write_all(&o)
     }
+    /// Attempt to find the value of the given register, over all instructions of the block.
+    fn trace_register_all(&self, reg: Register) -> Value;
 }
 
 /// A single unit of code. Each variety here can be assumed to run in sequence as a unit. Non-branching jumps may be present in a sequence, meaning the addresses of the instructions contained may be a bit jumbled.
@@ -410,6 +539,10 @@ impl BlockTrait for SimpleIfElseBlock {
     fn spawn(&mut self, addr: u64) -> Result<Block, SpawnError> {
         Err(SpawnError::CannotSpawn)
     }
+
+    fn trace_register_all(&self, reg: Register) -> Value {
+        todo!();
+    }
 }
 
 impl BlockTrait for Vec<Statement> {
@@ -455,6 +588,10 @@ impl BlockTrait for Vec<Statement> {
         } else {
             Err(SpawnError::InvalidAddress)
         }
+    }
+
+    fn trace_register_all(&self, reg: Register) -> Value {
+        todo!();
     }
 }
 
@@ -503,12 +640,17 @@ impl BlockTrait for Vec<Block> {
             Err(SpawnError::InvalidAddress)
         }
     }
+
+    fn trace_register_all(&self, reg: Register) -> Value {
+        todo!();
+    }
 }
 
 impl BlockTrait for Vec<Instruction> {
     fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
         self.indent(level, w)?;
-        w.write_all("#error instruction block\n".as_bytes())?;
+        w.write_all("#error instruction block ".as_bytes())?;
+        w.write_all(format!("{:X}\n", self.address()).as_bytes())?;
         for i in self {
             self.indent(level, w)?;
             w.write_all(format!("{}\n", i).as_bytes())?;
@@ -548,6 +690,18 @@ impl BlockTrait for Vec<Instruction> {
         } else {
             Err(SpawnError::InvalidAddress)
         }
+    }
+
+    /// Trace the value of a register until a known value is found, or to the beginning of the block.
+    fn trace_register_all(&self, reg: Register) -> Value {
+        let mut val = Value::Unknown;
+        for instr in self.iter().rev() {
+            val = instr.trace_register(reg);
+            if val.is_known() {
+                break;
+            }
+        }
+        val
     }
 }
 
