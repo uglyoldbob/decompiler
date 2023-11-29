@@ -326,9 +326,12 @@ impl InternalDecompilerFileProcessor {
                 let next = self.code.process_address(a, &mut ids);
                 if let Some(n) = next {
                     match n {
+                        crate::block::BlockEnd::Single(a) => {
+                            if a.is_known() {
+                                addresses.push_back(a.to_u64().unwrap());
+                            }
+                        }
                         crate::block::BlockEnd::None => {}
-                        crate::block::BlockEnd::KnownAddress(a) => addresses.push_back(a),
-                        crate::block::BlockEnd::UnknownAddress(v) => {}
                         crate::block::BlockEnd::KnownBranch(a, b) => {
                             addresses.push_back(a);
                             addresses.push_back(b);

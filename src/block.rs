@@ -146,6 +146,21 @@ pub enum Value {
     Unknown,
 }
 
+impl std::fmt::UpperHex for Value {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Value::Unknown | Value::Register(_) => f.write_str("UNKNOWN"),
+            Value::Bits8(a) => f.write_fmt(format_args!("{:X}", a)),
+            Value::Bits16(a) => f.write_fmt(format_args!("{:X}", a)),
+            Value::Bits32(a) => f.write_fmt(format_args!("{:X}", a)),
+            Value::Bits64(a) => f.write_fmt(format_args!("{:X}", a)),
+            Value::SignedBits16(a) => f.write_fmt(format_args!("{:X}", a)),
+            Value::SignedBits32(a) => f.write_fmt(format_args!("{:X}", a)),
+            Value::SignedBits64(a) => f.write_fmt(format_args!("{:X}", a)),
+        }
+    }
+}
+
 impl Value {
     /// Returns true when the value is known
     pub fn is_known(&self) -> bool {
@@ -158,6 +173,20 @@ impl Value {
             | Value::SignedBits16(_)
             | Value::SignedBits32(_)
             | Value::SignedBits64(_) => true,
+        }
+    }
+
+    /// Try to get a u64 from the value
+    pub fn to_u64(&self) -> Option<u64> {
+        match self {
+            Value::Unknown | Value::Register(_) => None,
+            Value::Bits8(a) => Some(*a as u64),
+            Value::Bits16(a) => Some(*a as u64),
+            Value::Bits32(a) => Some(*a as u64),
+            Value::Bits64(a) => Some(*a),
+            Value::SignedBits16(a) => Some(*a as u64),
+            Value::SignedBits32(a) => Some(*a as u64),
+            Value::SignedBits64(a) => Some(*a as u64),
         }
     }
 }
@@ -279,42 +308,46 @@ impl Instruction {
         match self {
             Instruction::X86(xi) => match xi.mnemonic() {
                 iced_x86::Mnemonic::Jmp | iced_x86::Mnemonic::Jmpe => match xi.op0_kind() {
-                    iced_x86::OpKind::Register => BlockEnd::UnknownAddress(Value::Register(
-                        Register::X86(X86Register::RegularRegister(xi.op0_register())),
-                    )),
+                    iced_x86::OpKind::Register => BlockEnd::Single(Value::Register(Register::X86(
+                        X86Register::RegularRegister(xi.op0_register()),
+                    ))),
                     iced_x86::OpKind::NearBranch16 => {
-                        BlockEnd::KnownAddress(xi.near_branch16() as u64)
+                        BlockEnd::Single(Value::Bits16(xi.near_branch16()))
                     }
                     iced_x86::OpKind::NearBranch32 => {
-                        BlockEnd::KnownAddress(xi.near_branch32() as u64)
+                        BlockEnd::Single(Value::Bits32(xi.near_branch32()))
                     }
-                    iced_x86::OpKind::NearBranch64 => BlockEnd::KnownAddress(xi.near_branch64()),
+                    iced_x86::OpKind::NearBranch64 => {
+                        BlockEnd::Single(Value::Bits64(xi.near_branch64()))
+                    }
                     iced_x86::OpKind::FarBranch16 => {
-                        BlockEnd::KnownAddress(xi.far_branch16() as u64)
+                        BlockEnd::Single(Value::Bits16(xi.far_branch16()))
                     }
                     iced_x86::OpKind::FarBranch32 => {
-                        BlockEnd::KnownAddress(xi.far_branch32() as u64)
+                        BlockEnd::Single(Value::Bits32(xi.far_branch32()))
                     }
-                    iced_x86::OpKind::Immediate8 => BlockEnd::KnownAddress(xi.immediate8() as u64),
+                    iced_x86::OpKind::Immediate8 => BlockEnd::Single(Value::Bits8(xi.immediate8())),
                     iced_x86::OpKind::Immediate8_2nd => todo!(),
                     iced_x86::OpKind::Immediate16 => {
-                        BlockEnd::KnownAddress(xi.immediate16() as u64)
+                        BlockEnd::Single(Value::Bits16(xi.immediate16()))
                     }
                     iced_x86::OpKind::Immediate32 => {
-                        BlockEnd::KnownAddress(xi.immediate32() as u64)
+                        BlockEnd::Single(Value::Bits32(xi.immediate32()))
                     }
-                    iced_x86::OpKind::Immediate64 => BlockEnd::KnownAddress(xi.immediate64()),
+                    iced_x86::OpKind::Immediate64 => {
+                        BlockEnd::Single(Value::Bits64(xi.immediate64()))
+                    }
                     iced_x86::OpKind::Immediate8to16 => {
-                        BlockEnd::KnownAddress(xi.immediate8to16() as u64)
+                        BlockEnd::Single(Value::SignedBits16(xi.immediate8to16()))
                     }
                     iced_x86::OpKind::Immediate8to32 => {
-                        BlockEnd::KnownAddress(xi.immediate8to32() as u64)
+                        BlockEnd::Single(Value::SignedBits32(xi.immediate8to32()))
                     }
                     iced_x86::OpKind::Immediate8to64 => {
-                        BlockEnd::KnownAddress(xi.immediate8to64() as u64)
+                        BlockEnd::Single(Value::SignedBits64(xi.immediate8to64()))
                     }
                     iced_x86::OpKind::Immediate32to64 => {
-                        BlockEnd::KnownAddress(xi.immediate32to64() as u64)
+                        BlockEnd::Single(Value::SignedBits64(xi.immediate32to64()))
                     }
                     iced_x86::OpKind::MemorySegSI
                     | iced_x86::OpKind::MemorySegESI
@@ -325,7 +358,7 @@ impl Instruction {
                     | iced_x86::OpKind::MemoryESDI
                     | iced_x86::OpKind::MemoryESEDI
                     | iced_x86::OpKind::MemoryESRDI
-                    | iced_x86::OpKind::Memory => BlockEnd::UnknownAddress(Value::Unknown),
+                    | iced_x86::OpKind::Memory => BlockEnd::Single(Value::Unknown),
                 },
                 iced_x86::Mnemonic::Ret | iced_x86::Mnemonic::Retf => BlockEnd::None,
                 iced_x86::Mnemonic::Ja
@@ -411,7 +444,7 @@ impl Instruction {
                         BlockEnd::UnknownBranch(xi.next_ip(), Value::Unknown)
                     }
                 },
-                _ => BlockEnd::KnownAddress(xi.next_ip()),
+                _ => BlockEnd::Single(Value::Bits64(xi.next_ip())),
             },
         }
     }
@@ -730,8 +763,7 @@ impl BlockTrait for Vec<Instruction> {
 
     fn branch_value(&self) -> Option<Value> {
         match self.last().unwrap().calc_next() {
-            BlockEnd::KnownAddress(a) => Some(Value::Bits64(a)),
-            BlockEnd::UnknownAddress(_v) => todo!(),
+            BlockEnd::Single(a) => None,
             BlockEnd::KnownBranch(_, a) => Some(Value::Bits64(a)),
             BlockEnd::UnknownBranch(_a, _v) => todo!(),
             BlockEnd::None => None,
@@ -790,12 +822,13 @@ impl Graph<Block> {
             let start = b.address();
             let next = b.calc_next();
             let s = match next {
-                BlockEnd::KnownAddress(a) => {
-                    format!("addr_{:X} -> addr_{:X}\n", start, a)
-                }
-                BlockEnd::UnknownAddress(_v) => {
-                    unknown += 1;
-                    format!("addr_{:X} -> addr_unknown{:X}\n", start, unknown)
+                BlockEnd::Single(a) => {
+                    if a.is_known() {
+                        format!("addr_{:X} -> addr_{:X}\n", start, a)
+                    } else {
+                        unknown += 1;
+                        format!("addr_{:X} -> addr_unknown{:X}\n", start, unknown)
+                    }
                 }
                 BlockEnd::KnownBranch(a, b) => {
                     format!(
@@ -840,8 +873,7 @@ impl Graph<Block> {
                     let val2 = b.trace_register_all(r);
                     if val2.is_known() {
                         return val2;
-                    }
-                    else {
+                    } else {
                         todo!();
                     }
                 }
@@ -864,11 +896,14 @@ impl Graph<Block> {
                 return None;
             } else {
                 let n = b.calc_next();
-                if let BlockEnd::KnownAddress(a) = n {
-                    if a == i.address() {
-                        println!("Instruction at {:x} is {}", i.address(), i);
-                        b.add_instruction(i);
-                        return Some(b.calc_next());
+                if let BlockEnd::Single(a) = n {
+                    if a.is_known() {
+                        let a = a.to_u64().unwrap();
+                        if a == i.address() {
+                            println!("Instruction at {:x} is {}", i.address(), i);
+                            b.add_instruction(i);
+                            return Some(b.calc_next());
+                        }
                     }
                 }
             }
@@ -904,14 +939,12 @@ impl Graph<Block> {
 #[derive(Copy, Clone)]
 /// The end link for a node of a graph
 pub enum BlockEnd {
-    /// The address of the next instruction to be executed after this one is a known constant address
-    KnownAddress(u64),
-    /// The address of the next instruction to be executed after this block is not known.
-    UnknownAddress(Value),
     /// The instruction has a conditional branch where it leads to one of two destinations. Both destinations are known addresses.
     KnownBranch(u64, u64),
     /// The instruction has a conditional branch where it leads to one of two destinations. Only one address is a known address.
     UnknownBranch(u64, Value),
     /// The instruction does not have a next instruction (like a return instruction).
     None,
+    /// The block has a single block that executes next
+    Single(Value),
 }
