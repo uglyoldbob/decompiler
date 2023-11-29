@@ -385,52 +385,64 @@ impl Instruction {
                 | iced_x86::Mnemonic::Loop
                 | iced_x86::Mnemonic::Loope
                 | iced_x86::Mnemonic::Loopne => match xi.op0_kind() {
-                    iced_x86::OpKind::Register => BlockEnd::UnknownBranch(
-                        xi.next_ip(),
+                    iced_x86::OpKind::Register => BlockEnd::Branch(
+                        Value::Bits64(xi.next_ip()),
                         Value::Register(Register::X86(X86Register::RegularRegister(
                             xi.op0_register(),
                         ))),
                     ),
-                    iced_x86::OpKind::NearBranch16 => {
-                        BlockEnd::KnownBranch(xi.near_branch16() as u64, xi.next_ip())
-                    }
-                    iced_x86::OpKind::NearBranch32 => {
-                        BlockEnd::KnownBranch(xi.near_branch32() as u64, xi.next_ip())
-                    }
-                    iced_x86::OpKind::NearBranch64 => {
-                        BlockEnd::KnownBranch(xi.near_branch64(), xi.next_ip())
-                    }
-                    iced_x86::OpKind::FarBranch16 => {
-                        BlockEnd::KnownBranch(xi.far_branch16() as u64, xi.next_ip())
-                    }
-                    iced_x86::OpKind::FarBranch32 => {
-                        BlockEnd::KnownBranch(xi.far_branch32() as u64, xi.next_ip())
-                    }
+                    iced_x86::OpKind::NearBranch16 => BlockEnd::Branch(
+                        Value::Bits64(xi.next_ip()),
+                        Value::Bits16(xi.near_branch16()),
+                    ),
+                    iced_x86::OpKind::NearBranch32 => BlockEnd::Branch(
+                        Value::Bits64(xi.next_ip()),
+                        Value::Bits32(xi.near_branch32()),
+                    ),
+                    iced_x86::OpKind::NearBranch64 => BlockEnd::Branch(
+                        Value::Bits64(xi.next_ip()),
+                        Value::Bits64(xi.near_branch64()),
+                    ),
+                    iced_x86::OpKind::FarBranch16 => BlockEnd::Branch(
+                        Value::Bits64(xi.next_ip()),
+                        Value::Bits16(xi.far_branch16()),
+                    ),
+                    iced_x86::OpKind::FarBranch32 => BlockEnd::Branch(
+                        Value::Bits64(xi.next_ip()),
+                        Value::Bits32(xi.far_branch32()),
+                    ),
                     iced_x86::OpKind::Immediate8 => {
-                        BlockEnd::KnownBranch(xi.immediate8() as u64, xi.next_ip())
+                        BlockEnd::Branch(Value::Bits64(xi.next_ip()), Value::Bits8(xi.immediate8()))
                     }
                     iced_x86::OpKind::Immediate8_2nd => todo!(),
-                    iced_x86::OpKind::Immediate16 => {
-                        BlockEnd::KnownBranch(xi.immediate16() as u64, xi.next_ip())
-                    }
-                    iced_x86::OpKind::Immediate32 => {
-                        BlockEnd::KnownBranch(xi.immediate32() as u64, xi.next_ip())
-                    }
-                    iced_x86::OpKind::Immediate64 => {
-                        BlockEnd::KnownBranch(xi.immediate64(), xi.next_ip())
-                    }
-                    iced_x86::OpKind::Immediate8to16 => {
-                        BlockEnd::KnownBranch(xi.immediate8to16() as u64, xi.next_ip())
-                    }
-                    iced_x86::OpKind::Immediate8to32 => {
-                        BlockEnd::KnownBranch(xi.immediate8to32() as u64, xi.next_ip())
-                    }
-                    iced_x86::OpKind::Immediate8to64 => {
-                        BlockEnd::KnownBranch(xi.immediate8to64() as u64, xi.next_ip())
-                    }
-                    iced_x86::OpKind::Immediate32to64 => {
-                        BlockEnd::KnownBranch(xi.immediate32to64() as u64, xi.next_ip())
-                    }
+                    iced_x86::OpKind::Immediate16 => BlockEnd::Branch(
+                        Value::Bits64(xi.next_ip()),
+                        Value::Bits16(xi.immediate16()),
+                    ),
+                    iced_x86::OpKind::Immediate32 => BlockEnd::Branch(
+                        Value::Bits64(xi.next_ip()),
+                        Value::Bits32(xi.immediate32()),
+                    ),
+                    iced_x86::OpKind::Immediate64 => BlockEnd::Branch(
+                        Value::Bits64(xi.next_ip()),
+                        Value::Bits64(xi.immediate64()),
+                    ),
+                    iced_x86::OpKind::Immediate8to16 => BlockEnd::Branch(
+                        Value::Bits64(xi.next_ip()),
+                        Value::SignedBits16(xi.immediate8to16()),
+                    ),
+                    iced_x86::OpKind::Immediate8to32 => BlockEnd::Branch(
+                        Value::Bits64(xi.next_ip()),
+                        Value::SignedBits32(xi.immediate8to32()),
+                    ),
+                    iced_x86::OpKind::Immediate8to64 => BlockEnd::Branch(
+                        Value::Bits64(xi.next_ip()),
+                        Value::SignedBits64(xi.immediate8to64()),
+                    ),
+                    iced_x86::OpKind::Immediate32to64 => BlockEnd::Branch(
+                        Value::Bits64(xi.next_ip()),
+                        Value::SignedBits64(xi.immediate32to64()),
+                    ),
                     iced_x86::OpKind::MemorySegSI
                     | iced_x86::OpKind::MemorySegESI
                     | iced_x86::OpKind::MemorySegRSI
@@ -441,7 +453,7 @@ impl Instruction {
                     | iced_x86::OpKind::MemoryESEDI
                     | iced_x86::OpKind::MemoryESRDI
                     | iced_x86::OpKind::Memory => {
-                        BlockEnd::UnknownBranch(xi.next_ip(), Value::Unknown)
+                        BlockEnd::Branch(Value::Bits64(xi.next_ip()), Value::Unknown)
                     }
                 },
                 _ => BlockEnd::Single(Value::Bits64(xi.next_ip())),
@@ -764,8 +776,7 @@ impl BlockTrait for Vec<Instruction> {
     fn branch_value(&self) -> Option<Value> {
         match self.last().unwrap().calc_next() {
             BlockEnd::Single(a) => None,
-            BlockEnd::KnownBranch(_, a) => Some(Value::Bits64(a)),
-            BlockEnd::UnknownBranch(_a, _v) => todo!(),
+            BlockEnd::Branch(_a, b) => Some(b),
             BlockEnd::None => None,
         }
     }
@@ -821,32 +832,50 @@ impl Graph<Block> {
         for (_i, b) in self.elements.iter() {
             let start = b.address();
             let next = b.calc_next();
-            let s = match next {
-                BlockEnd::Single(a) => {
-                    if a.is_known() {
-                        format!("addr_{:X} -> addr_{:X}\n", start, a)
-                    } else {
-                        unknown += 1;
-                        format!("addr_{:X} -> addr_unknown{:X}\n", start, unknown)
+            let s =
+                match next {
+                    BlockEnd::Single(a) => {
+                        if a.is_known() {
+                            format!("addr_{:X} -> addr_{:X}\n", start, a)
+                        } else {
+                            unknown += 1;
+                            format!("addr_{:X} -> addr_unknown{:X}\n", start, unknown)
+                        }
                     }
-                }
-                BlockEnd::KnownBranch(a, b) => {
-                    format!(
-                        "addr_{:X} -> addr_{:X}\naddr_{0:X} -> addr_{2:X}\n",
-                        start, a, b
-                    )
-                }
-                BlockEnd::UnknownBranch(a, _b) => {
-                    unknown += 1;
-                    format!(
-                        "addr_{:X} -> addr_{:X}\naddr_{0:X} -> addr_unknown{2:X}\n",
-                        start, a, unknown
-                    )
-                }
-                BlockEnd::None => {
-                    format!("addr_{:X};\n", start)
-                }
-            };
+                    BlockEnd::Branch(a, b) => {
+                        if a.is_known() {
+                            if b.is_known() {
+                                format!(
+                                    "addr_{:X} -> addr_{:X}\naddr_{0:X} -> addr_{2:X}\n",
+                                    start, a, b
+                                )
+                            } else {
+                                unknown += 1;
+                                format!(
+                                    "addr_{:X} -> addr_{:X}\naddr_{0:X} -> addr_unknown{2:X}\n",
+                                    start, a, unknown
+                                )
+                            }
+                        } else {
+                            if b.is_known() {
+                                unknown += 1;
+                                format!(
+                                    "addr_{:X} -> addr_{:X}\naddr_{0:X} -> addr_unknown{2:X}\n",
+                                    start, b, unknown
+                                )
+                            } else {
+                                unknown += 2;
+                                format!(
+                                "addr_{:X} -> addr_{:X}\naddr_unknown{0:X} -> addr_unknown{2:X}\n",
+                                start, unknown-1, unknown
+                            )
+                            }
+                        }
+                    }
+                    BlockEnd::None => {
+                        format!("addr_{:X};\n", start)
+                    }
+                };
             f.write_all(s.as_bytes())?;
         }
         f.write_all(format!("}}\n").as_bytes())?;
@@ -939,12 +968,10 @@ impl Graph<Block> {
 #[derive(Copy, Clone)]
 /// The end link for a node of a graph
 pub enum BlockEnd {
-    /// The instruction has a conditional branch where it leads to one of two destinations. Both destinations are known addresses.
-    KnownBranch(u64, u64),
-    /// The instruction has a conditional branch where it leads to one of two destinations. Only one address is a known address.
-    UnknownBranch(u64, Value),
     /// The instruction does not have a next instruction (like a return instruction).
     None,
     /// The block has a single block that executes next
     Single(Value),
+    /// A regular branch with a non-matching block, and a matching block.
+    Branch(Value, Value),
 }

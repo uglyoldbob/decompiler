@@ -332,11 +332,14 @@ impl InternalDecompilerFileProcessor {
                             }
                         }
                         crate::block::BlockEnd::None => {}
-                        crate::block::BlockEnd::KnownBranch(a, b) => {
-                            addresses.push_back(a);
-                            addresses.push_back(b);
+                        crate::block::BlockEnd::Branch(a, b) => {
+                            if a.is_known() {
+                                addresses.push_back(a.to_u64().unwrap());
+                            }
+                            if b.is_known() {
+                                addresses.push_back(b.to_u64().unwrap());
+                            }
                         }
-                        crate::block::BlockEnd::UnknownBranch(a, v) => addresses.push_back(a),
                     }
                 }
             } else {
