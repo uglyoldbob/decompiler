@@ -328,12 +328,12 @@ impl InternalDecompilerFileProcessor {
                     match n {
                         crate::block::BlockEnd::None => {}
                         crate::block::BlockEnd::KnownAddress(a) => addresses.push_back(a),
-                        crate::block::BlockEnd::UnknownAddress => {}
+                        crate::block::BlockEnd::UnknownAddress(v) => {}
                         crate::block::BlockEnd::KnownBranch(a, b) => {
                             addresses.push_back(a);
                             addresses.push_back(b);
                         }
-                        crate::block::BlockEnd::UnknownBranch(a) => addresses.push_back(a),
+                        crate::block::BlockEnd::UnknownBranch(a, v) => addresses.push_back(a),
                     }
                 }
             } else {

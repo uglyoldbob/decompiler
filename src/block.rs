@@ -123,6 +123,7 @@ impl<'a> InstructionDecoder<'a> {
     }
 }
 
+#[derive(Copy, Clone)]
 /// The values that an item can have
 pub enum Value {
     /// The element contains the contents of another register.
@@ -278,7 +279,9 @@ impl Instruction {
         match self {
             Instruction::X86(xi) => match xi.mnemonic() {
                 iced_x86::Mnemonic::Jmp | iced_x86::Mnemonic::Jmpe => match xi.op0_kind() {
-                    iced_x86::OpKind::Register => BlockEnd::UnknownAddress,
+                    iced_x86::OpKind::Register => BlockEnd::UnknownAddress(Value::Register(
+                        Register::X86(X86Register::RegularRegister(xi.op0_register())),
+                    )),
                     iced_x86::OpKind::NearBranch16 => {
                         BlockEnd::KnownAddress(xi.near_branch16() as u64)
                     }
@@ -322,7 +325,7 @@ impl Instruction {
                     | iced_x86::OpKind::MemoryESDI
                     | iced_x86::OpKind::MemoryESEDI
                     | iced_x86::OpKind::MemoryESRDI
-                    | iced_x86::OpKind::Memory => BlockEnd::UnknownAddress,
+                    | iced_x86::OpKind::Memory => BlockEnd::UnknownAddress(Value::Unknown),
                 },
                 iced_x86::Mnemonic::Ret | iced_x86::Mnemonic::Retf => BlockEnd::None,
                 iced_x86::Mnemonic::Ja
@@ -349,7 +352,12 @@ impl Instruction {
                 | iced_x86::Mnemonic::Loop
                 | iced_x86::Mnemonic::Loope
                 | iced_x86::Mnemonic::Loopne => match xi.op0_kind() {
-                    iced_x86::OpKind::Register => BlockEnd::UnknownBranch(xi.next_ip()),
+                    iced_x86::OpKind::Register => BlockEnd::UnknownBranch(
+                        xi.next_ip(),
+                        Value::Register(Register::X86(X86Register::RegularRegister(
+                            xi.op0_register(),
+                        ))),
+                    ),
                     iced_x86::OpKind::NearBranch16 => {
                         BlockEnd::KnownBranch(xi.near_branch16() as u64, xi.next_ip())
                     }
@@ -399,7 +407,9 @@ impl Instruction {
                     | iced_x86::OpKind::MemoryESDI
                     | iced_x86::OpKind::MemoryESEDI
                     | iced_x86::OpKind::MemoryESRDI
-                    | iced_x86::OpKind::Memory => BlockEnd::UnknownBranch(xi.next_ip()),
+                    | iced_x86::OpKind::Memory => {
+                        BlockEnd::UnknownBranch(xi.next_ip(), Value::Unknown)
+                    }
                 },
                 _ => BlockEnd::KnownAddress(xi.next_ip()),
             },
@@ -477,6 +487,8 @@ pub trait BlockTrait {
     }
     /// Attempt to find the value of the given register, over all instructions of the block.
     fn trace_register_all(&self, reg: Register) -> Value;
+    /// Returns the conditional branch of the block, if one exists
+    fn branch_value(&self) -> Option<Value>;
 }
 
 /// A single unit of code. Each variety here can be assumed to run in sequence as a unit. Non-branching jumps may be present in a sequence, meaning the addresses of the instructions contained may be a bit jumbled.
@@ -543,6 +555,10 @@ impl BlockTrait for SimpleIfElseBlock {
     fn trace_register_all(&self, reg: Register) -> Value {
         todo!();
     }
+
+    fn branch_value(&self) -> Option<Value> {
+        None
+    }
 }
 
 impl BlockTrait for Vec<Statement> {
@@ -591,6 +607,10 @@ impl BlockTrait for Vec<Statement> {
     }
 
     fn trace_register_all(&self, reg: Register) -> Value {
+        todo!();
+    }
+
+    fn branch_value(&self) -> Option<Value> {
         todo!();
     }
 }
@@ -643,6 +663,10 @@ impl BlockTrait for Vec<Block> {
 
     fn trace_register_all(&self, reg: Register) -> Value {
         todo!();
+    }
+
+    fn branch_value(&self) -> Option<Value> {
+        self.last().unwrap().branch_value()
     }
 }
 
@@ -703,6 +727,16 @@ impl BlockTrait for Vec<Instruction> {
         }
         val
     }
+
+    fn branch_value(&self) -> Option<Value> {
+        match self.last().unwrap().calc_next() {
+            BlockEnd::KnownAddress(a) => Some(Value::Bits64(a)),
+            BlockEnd::UnknownAddress(_v) => todo!(),
+            BlockEnd::KnownBranch(_, a) => Some(Value::Bits64(a)),
+            BlockEnd::UnknownBranch(_a, _v) => todo!(),
+            BlockEnd::None => None,
+        }
+    }
 }
 
 impl Block {
@@ -759,7 +793,7 @@ impl Graph<Block> {
                 BlockEnd::KnownAddress(a) => {
                     format!("addr_{:X} -> addr_{:X}\n", start, a)
                 }
-                BlockEnd::UnknownAddress => {
+                BlockEnd::UnknownAddress(_v) => {
                     unknown += 1;
                     format!("addr_{:X} -> addr_unknown{:X}\n", start, unknown)
                 }
@@ -769,7 +803,7 @@ impl Graph<Block> {
                         start, a, b
                     )
                 }
-                BlockEnd::UnknownBranch(a) => {
+                BlockEnd::UnknownBranch(a, _b) => {
                     unknown += 1;
                     format!(
                         "addr_{:X} -> addr_{:X}\naddr_{0:X} -> addr_unknown{2:X}\n",
@@ -785,6 +819,42 @@ impl Graph<Block> {
         f.write_all(format!("}}\n").as_bytes())?;
         f.flush()?;
         Ok(())
+    }
+
+    /// Track the address of a branch instruction
+    pub fn trace_branch(&self, addr: u64) -> Value {
+        let mut index_found = None;
+        for (index, b) in self.elements.iter() {
+            if b.contains(addr) {
+                index_found = Some(*index);
+            }
+        }
+        let mut val = Value::Unknown;
+        if let Some(index) = index_found {
+            let b = self.elements.get(&index).unwrap();
+            if let Some(v) = b.branch_value() {
+                val = v;
+            }
+            match val {
+                Value::Register(r) => {
+                    let val2 = b.trace_register_all(r);
+                    if val2.is_known() {
+                        return val2;
+                    }
+                    else {
+                        todo!();
+                    }
+                }
+                Value::Unknown => {
+                    return Value::Unknown;
+                }
+                a => {
+                    return a;
+                }
+            }
+        } else {
+            Value::Unknown
+        }
     }
 
     /// Add the specified instruction to the graph
@@ -837,11 +907,11 @@ pub enum BlockEnd {
     /// The address of the next instruction to be executed after this one is a known constant address
     KnownAddress(u64),
     /// The address of the next instruction to be executed after this block is not known.
-    UnknownAddress,
+    UnknownAddress(Value),
     /// The instruction has a conditional branch where it leads to one of two destinations. Both destinations are known addresses.
     KnownBranch(u64, u64),
     /// The instruction has a conditional branch where it leads to one of two destinations. Only one address is a known address.
-    UnknownBranch(u64),
+    UnknownBranch(u64, Value),
     /// The instruction does not have a next instruction (like a return instruction).
     None,
 }
