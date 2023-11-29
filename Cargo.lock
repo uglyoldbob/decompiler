@@ -469,6 +469,7 @@ dependencies = [
  "object",
  "ouroboros",
  "rfd",
+ "zune-png",
 ]
 
 [[package]]
@@ -2640,4 +2641,29 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.39",
+]
+
+[[package]]
+name = "zune-core"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "167b40ad31b6e3d4be67db10ecab6534f3e78ef9b32348d4efe3187700208944"
+
+[[package]]
+name = "zune-inflate"
+version = "0.2.54"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73ab332fe2f6680068f3582b16a24f90ad7096d5d39b974d1c0aff0125116f02"
+dependencies = [
+ "simd-adler32",
+]
+
+[[package]]
+name = "zune-png"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b5ccace4aec6125c925fdc43551c653a96aaf5f114a4e9964ae201c2d7a1c850"
+dependencies = [
+ "zune-core",
+ "zune-inflate",
 ]

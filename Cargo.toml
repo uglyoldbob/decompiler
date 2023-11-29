@@ -18,6 +18,7 @@ iced-x86 = "1.20.0"
 object = "0.32.1"
 ouroboros = "0.18"
 rfd = "0.12.1"
+zune-png = "0.4.0"
 
 [[bin]]
 name = "decompiler-gui"
