@@ -27,13 +27,72 @@ pub struct AppCommon {
 
 pub struct GraphIterator {
     gg: GraphGenerator,
-    u: u32,
+    links: Vec<(Option<u32>, Option<u32>)>,
+}
+
+impl GraphIterator {
+    pub fn advance(&mut self) {
+        for (elem, elem2) in self.links.iter_mut() {
+            *elem = match *elem {
+                None => Some(0),
+                Some(a) => {
+                    if (a + 1) < self.gg.num_blocks {
+                        Some(a + 1)
+                    } else {
+                        None
+                    }
+                }
+            };
+            if elem.is_none() {
+                *elem2 = match *elem2 {
+                    None => Some(0),
+                    Some(a) => {
+                        if (a + 1) < self.gg.num_blocks {
+                            Some(a + 1)
+                        } else {
+                            None
+                        }
+                    }
+                };
+                if elem.is_some() {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
+    pub fn check(&self) -> bool {
+        let mut valid = true;
+        for (a, b) in self.links.iter() {
+            if a == b && a.is_some() {
+                valid = false;
+            }
+        }
+        let (a, b) = self.links[self.gg.num_blocks as usize - 1];
+        if a.is_some() || b.is_some() {
+            valid = false;
+        }
+        valid
+    }
+
+    pub fn checked_advance(&mut self) {
+        loop {
+            self.advance();
+            if self.check() {
+                break;
+            }
+        }
+    }
 }
 
 impl Iterator for GraphIterator {
     type Item = Graph;
 
     fn next(&mut self) -> Option<Self::Item> {
+        self.checked_advance();
+
         let mut g = graph!(di id!("generated"));
         for i in 0..self.gg.num_blocks {
             let s = format!("{}", i);
@@ -44,6 +103,44 @@ impl Iterator for GraphIterator {
                 attributes: vec![],
             };
             g.add_stmt(graphviz_rust::dot_structures::Stmt::Node(e));
+        }
+        for (i, (la, lb)) in self.links.iter().enumerate() {
+            if let Some(link) = la {
+                let s = format!("{}", i);
+                let id = graphviz_rust::dot_structures::Id::Plain(s);
+                let id1 = graphviz_rust::dot_structures::NodeId(id, None);
+
+                let s = format!("{}", link);
+                let id = graphviz_rust::dot_structures::Id::Plain(s);
+                let id2 = graphviz_rust::dot_structures::NodeId(id, None);
+
+                let va = graphviz_rust::dot_structures::Vertex::N(id1);
+                let vb = graphviz_rust::dot_structures::Vertex::N(id2);
+                let t = graphviz_rust::dot_structures::EdgeTy::Pair(va, vb);
+                let e = graphviz_rust::dot_structures::Edge {
+                    ty: t,
+                    attributes: Vec::new(),
+                };
+                g.add_stmt(graphviz_rust::dot_structures::Stmt::Edge(e));
+            }
+            if let Some(link) = lb {
+                let s = format!("{}", i);
+                let id = graphviz_rust::dot_structures::Id::Plain(s);
+                let id1 = graphviz_rust::dot_structures::NodeId(id, None);
+
+                let s = format!("{}", link);
+                let id = graphviz_rust::dot_structures::Id::Plain(s);
+                let id2 = graphviz_rust::dot_structures::NodeId(id, None);
+
+                let va = graphviz_rust::dot_structures::Vertex::N(id1);
+                let vb = graphviz_rust::dot_structures::Vertex::N(id2);
+                let t = graphviz_rust::dot_structures::EdgeTy::Pair(va, vb);
+                let e = graphviz_rust::dot_structures::Edge {
+                    ty: t,
+                    attributes: Vec::new(),
+                };
+                g.add_stmt(graphviz_rust::dot_structures::Stmt::Edge(e));
+            }
         }
         Some(g)
     }
@@ -60,7 +157,10 @@ impl GraphGenerator {
     }
 
     pub fn create_iter(&self) -> GraphIterator {
-        GraphIterator { gg: *self, u: 42 }
+        GraphIterator {
+            gg: *self,
+            links: vec![(None, None); self.num_blocks as usize],
+        }
     }
 }
 
@@ -107,10 +207,10 @@ impl RootWindow {
                 texture: None,
             }),
             builder: egui_multiwin::winit::window::WindowBuilder::new()
-                .with_resizable(false)
+                .with_resizable(true)
                 .with_inner_size(egui_multiwin::winit::dpi::LogicalSize {
-                    width: 400.0,
-                    height: 200.0,
+                    width: 640.0,
+                    height: 480.0,
                 })
                 .with_title("A window"),
             options: egui_multiwin::tracked_window::TrackedWindowOptions {
@@ -159,25 +259,20 @@ impl TrackedWindow for RootWindow {
         }
 
         if self.redraw {
-            println!("Image buf size is {}", self.png.len());
-            std::fs::write("./generated.png", &self.png).unwrap();
             let options =
                 zune_png::zune_core::options::DecoderOptions::default().png_set_strip_to_8bit(true);
             let mut decoder = zune_png::PngDecoder::new_with_options(&self.png, options);
             decoder.decode_headers().unwrap();
             let (w, h) = decoder.get_dimensions().unwrap();
-            println!("Dimensions are {}x{}", w, h);
 
             let mut pixels: Vec<u8> = vec![0; w * h * 4];
 
-            println!("Decode into buffer: {:?}", decoder.decode_into(pixels.as_mut()));
+            decoder.decode_into(pixels.as_mut());
 
             let pixels: Vec<egui_multiwin::egui::Color32> = pixels
                 .chunks_exact(4)
                 .map(|raw| egui_multiwin::egui::Color32::from_rgb(raw[0], raw[1], raw[2]))
                 .collect();
-
-            println!("There are {} pixels", pixels.len());
 
             let image = egui_multiwin::egui::ColorImage {
                 size: [w, h],
@@ -206,6 +301,17 @@ impl TrackedWindow for RootWindow {
 
         egui_multiwin::egui::CentralPanel::default().show(&egui.egui_ctx, |ui| {
             ui.heading(format!("number {}", c.clicks));
+            if ui.button("Next graph").clicked() {
+                self.generated = false;
+            }
+            if ui
+                .button(format!("Move to {} nodes", self.gg.num_blocks + 1))
+                .clicked()
+            {
+                self.gg = GraphGenerator::new(self.gg.num_blocks + 1);
+                self.gi = self.gg.create_iter();
+                self.generated = false;
+            }
             if let Some(t) = &self.texture {
                 ui.add(egui_multiwin::egui::Image::from_texture(
                     egui_multiwin::egui::load::SizedTexture {
