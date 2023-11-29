@@ -872,6 +872,7 @@ dependencies = [
 [[package]]
 name = "graphviz-rust"
 version = "0.6.6"
+source = "git+https://github.com/uglyoldbob/graphviz-rust#97ba9707751d59611aca5801e6ee0ca40d02e1be"
 dependencies = [
  "dot-generator",
  "dot-structures",
