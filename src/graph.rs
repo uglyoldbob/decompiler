@@ -152,10 +152,7 @@ impl TrackedWindow for RootWindow {
                 &mut PrinterContext::default(),
                 vec![graphviz_rust::cmd::Format::Png.into()],
             )
-            .unwrap()
-            
-            .as_bytes()
-            .to_vec();
+            .unwrap();
             self.png = graph_png;
             self.redraw = true;
             self.image_is_recent = true;
@@ -164,39 +161,23 @@ impl TrackedWindow for RootWindow {
         if self.redraw {
             println!("Image buf size is {}", self.png.len());
             std::fs::write("./generated.png", &self.png).unwrap();
-            let mut decoder = zune_png::PngDecoder::new(&self.png);
+            let options =
+                zune_png::zune_core::options::DecoderOptions::default().png_set_strip_to_8bit(true);
+            let mut decoder = zune_png::PngDecoder::new_with_options(&self.png, options);
+            decoder.decode_headers().unwrap();
             let (w, h) = decoder.get_dimensions().unwrap();
-            let p = decoder.decode().unwrap();
+            println!("Dimensions are {}x{}", w, h);
 
-            let pixels: Vec<egui_multiwin::egui::Color32> = match p {
-                zune_png::zune_core::result::DecodingResult::U8(img) => img
-                    .chunks_exact(3)
-                    .map(|raw| egui_multiwin::egui::Color32::from_rgb(raw[0], raw[1], raw[2]))
-                    .collect(),
-                zune_png::zune_core::result::DecodingResult::U16(img) => img
-                    .chunks_exact(3)
-                    .map(|raw| {
-                        egui_multiwin::egui::Color32::from_rgb(
-                            (raw[0] >> 8) as u8,
-                            (raw[1] >> 8) as u8,
-                            (raw[2] >> 8) as u8,
-                        )
-                    })
-                    .collect(),
-                zune_png::zune_core::result::DecodingResult::F32(img) => img
-                    .chunks_exact(3)
-                    .map(|raw| {
-                        egui_multiwin::egui::Color32::from_rgb(
-                            (raw[0] * 255.0) as u8,
-                            (raw[1] * 255.0) as u8,
-                            (raw[2] * 255.0) as u8,
-                        )
-                    })
-                    .collect(),
-                _ => {
-                    todo!();
-                }
-            };
+            let mut pixels: Vec<u8> = vec![0; w * h * 4];
+
+            println!("Decode into buffer: {:?}", decoder.decode_into(pixels.as_mut()));
+
+            let pixels: Vec<egui_multiwin::egui::Color32> = pixels
+                .chunks_exact(4)
+                .map(|raw| egui_multiwin::egui::Color32::from_rgb(raw[0], raw[1], raw[2]))
+                .collect();
+
+            println!("There are {} pixels", pixels.len());
 
             let image = egui_multiwin::egui::ColorImage {
                 size: [w, h],
@@ -220,6 +201,7 @@ impl TrackedWindow for RootWindow {
                     t.set_partial([0, 0], image, egui_multiwin::egui::TextureOptions::NEAREST);
                 }
             }
+            self.redraw = false;
         }
 
         egui_multiwin::egui::CentralPanel::default().show(&egui.egui_ctx, |ui| {
