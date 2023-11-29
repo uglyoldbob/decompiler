@@ -78,7 +78,7 @@ impl GraphIterator {
         if a.is_some() || b.is_some() {
             valid = false;
         }
-        
+
         let mut inputs = vec![0; self.gg.num_blocks as usize];
         for (index, (elem, elem2)) in self.links.iter().enumerate() {
             if let Some(a) = *elem {
