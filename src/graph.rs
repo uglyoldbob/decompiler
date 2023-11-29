@@ -28,10 +28,14 @@ pub struct AppCommon {
 pub struct GraphIterator {
     gg: GraphGenerator,
     links: Vec<(Option<u32>, Option<u32>)>,
+    done: bool,
 }
 
 impl GraphIterator {
     pub fn advance(&mut self) {
+        if self.done {
+            return;
+        }
         for (elem, elem2) in self.links.iter_mut() {
             *elem = match *elem {
                 None => Some(0),
@@ -72,6 +76,13 @@ impl GraphIterator {
             if a.is_none() && b.is_some() {
                 valid = false;
             }
+            if let Some(a) = a {
+                if let Some(b) = b {
+                    if a > b {
+                        valid = false;
+                    }
+                }
+            }
         }
 
         let (a, b) = self.links[self.gg.num_blocks as usize - 1];
@@ -104,10 +115,25 @@ impl GraphIterator {
     pub fn checked_advance(&mut self) {
         loop {
             self.advance();
+            if self.done() {
+                self.done = true;
+                break;
+            }
             if self.check() {
                 break;
             }
         }
+    }
+
+    pub fn done(&self) -> bool {
+        let mut done = true;
+        for (a, b) in self.links.iter() {
+            if a.is_some() || b.is_some() {
+                done = false;
+                break;
+            }
+        }
+        done
     }
 }
 
@@ -165,7 +191,12 @@ impl Iterator for GraphIterator {
                 g.add_stmt(graphviz_rust::dot_structures::Stmt::Edge(e));
             }
         }
-        Some(g)
+        if self.done() {
+            None
+        }
+        else {
+            Some(g)
+        }
     }
 }
 
@@ -183,6 +214,7 @@ impl GraphGenerator {
         GraphIterator {
             gg: *self,
             links: vec![(None, None); self.num_blocks as usize],
+            done: false,
         }
     }
 }
