@@ -54,7 +54,7 @@ impl GraphIterator {
                         }
                     }
                 };
-                if elem.is_some() {
+                if elem2.is_some() {
                     break;
                 }
             } else {
@@ -69,11 +69,35 @@ impl GraphIterator {
             if a == b && a.is_some() {
                 valid = false;
             }
+            if a.is_none() && b.is_some() {
+                valid = false;
+            }
         }
+
         let (a, b) = self.links[self.gg.num_blocks as usize - 1];
         if a.is_some() || b.is_some() {
             valid = false;
         }
+        
+        let mut inputs = vec![0; self.gg.num_blocks as usize];
+        for (index, (elem, elem2)) in self.links.iter().enumerate() {
+            if let Some(a) = *elem {
+                if index != a as usize {
+                    inputs[a as usize] += 1;
+                }
+            }
+            if let Some(a) = *elem2 {
+                if index != a as usize {
+                    inputs[a as usize] += 1;
+                }
+            }
+        }
+        for i in inputs.iter().skip(1) {
+            if *i == 0 {
+                valid = false;
+            }
+        }
+
         valid
     }
 
@@ -92,7 +116,6 @@ impl Iterator for GraphIterator {
 
     fn next(&mut self) -> Option<Self::Item> {
         self.checked_advance();
-
         let mut g = graph!(di id!("generated"));
         for i in 0..self.gg.num_blocks {
             let s = format!("{}", i);
