@@ -21,6 +21,16 @@ impl<T> AutoHashMap<T> {
         }
     }
 
+    /// Returns a mutable iterator over just the values
+    pub fn values_mut(&mut self) -> std::collections::hash_map::ValuesMut<'_, usize, T> {
+        self.d.values_mut()
+    }
+
+    /// Returns an iterator over just the values
+    pub fn values(&self) -> std::collections::hash_map::Values<'_, usize, T> {
+        self.d.values()
+    }
+
     /// Return an mutable iterator over the HashMap contained within
     pub fn iter_mut(&mut self) -> std::collections::hash_map::IterMut<'_, usize, T> {
         self.d.iter_mut()

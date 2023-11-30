@@ -16,6 +16,7 @@ pub mod egui_multiwin_dynamic {
 mod block;
 mod decompiler;
 mod event;
+mod generator;
 mod map;
 mod windows;
 

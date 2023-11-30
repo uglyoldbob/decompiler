@@ -534,6 +534,8 @@ pub trait BlockTrait {
     fn trace_register_all(&self, reg: Register) -> Value;
     /// Returns the conditional branch of the block, if one exists
     fn branch_value(&self) -> Option<Value>;
+    /// Attempt to set the blockend for the graph
+    fn set_block_end(&mut self, be: BlockEnd) -> Result<(), ()>;
 }
 
 /// A single unit of code. Each variety here can be assumed to run in sequence as a unit. Non-branching jumps may be present in a sequence, meaning the addresses of the instructions contained may be a bit jumbled.
@@ -549,6 +551,59 @@ pub enum Block {
     Statements(Vec<Statement>),
     /// A simple if else chain
     SimpleIfElse(SimpleIfElseBlock),
+    /// A generated block of code. For testing purposes only
+    Generated(GeneratedBlock),
+}
+
+#[derive(Clone)]
+/// Represents a generated dummy block of code
+pub struct GeneratedBlock {
+    address: u64,
+    end: BlockEnd,
+}
+
+impl BlockTrait for GeneratedBlock {
+    #[doc = " Return the address of the head of this block"]
+    fn address(&self) -> u64 {
+        self.address
+    }
+
+    #[doc = " Calculate the next address or addresses for this block"]
+    fn calc_next(&self) -> BlockEnd {
+        self.end
+    }
+
+    #[doc = " Does this block contain an instruction that starts at the specified address?"]
+    fn contains(&self, addr: u64) -> bool {
+        addr == self.address
+    }
+
+    #[doc = " Spawn another block from the specified address in this block"]
+    fn spawn(&mut self, _addr: u64) -> Result<Block, SpawnError> {
+        Err(SpawnError::CannotSpawn)
+    }
+
+    #[doc = " Print the source code for the block, with the specified level of indents"]
+    fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
+        self.indent(level, w)?;
+        w.write_all("//Dummy code".as_bytes())?;
+        Ok(())
+    }
+
+    #[doc = " Attempt to find the value of the given register, over all instructions of the block."]
+    fn trace_register_all(&self, reg: Register) -> Value {
+        Value::Register(reg)
+    }
+
+    #[doc = " Returns the conditional branch of the block, if one exists"]
+    fn branch_value(&self) -> Option<Value> {
+        self.end.branch_value()
+    }
+
+    fn set_block_end(&mut self, be: BlockEnd) -> Result<(), ()> {
+        self.end = be;
+        Ok(())
+    }
 }
 
 #[derive(Clone)]
@@ -604,6 +659,10 @@ impl BlockTrait for SimpleIfElseBlock {
     fn branch_value(&self) -> Option<Value> {
         None
     }
+
+    fn set_block_end(&mut self, be: BlockEnd) -> Result<(), ()> {
+        Err(())
+    }
 }
 
 impl BlockTrait for Vec<Statement> {
@@ -657,6 +716,10 @@ impl BlockTrait for Vec<Statement> {
 
     fn branch_value(&self) -> Option<Value> {
         todo!();
+    }
+
+    fn set_block_end(&mut self, be: BlockEnd) -> Result<(), ()> {
+        Err(())
     }
 }
 
@@ -712,6 +775,10 @@ impl BlockTrait for Vec<Block> {
 
     fn branch_value(&self) -> Option<Value> {
         self.last().unwrap().branch_value()
+    }
+
+    fn set_block_end(&mut self, be: BlockEnd) -> Result<(), ()> {
+        Err(())
     }
 }
 
@@ -780,6 +847,10 @@ impl BlockTrait for Vec<Instruction> {
             BlockEnd::None => None,
         }
     }
+
+    fn set_block_end(&mut self, be: BlockEnd) -> Result<(), ()> {
+        Err(())
+    }
 }
 
 impl Block {
@@ -821,6 +892,104 @@ impl<T> Graph<T> {
     /// Iterate over the elements in the graph
     pub fn iter(&self) -> std::collections::hash_map::Iter<'_, usize, T> {
         self.elements.iter()
+    }
+}
+
+impl From<graphviz_rust::dot_structures::Graph> for Graph<Block> {
+    fn from(value: graphviz_rust::dot_structures::Graph) -> Self {
+        let mut elements: AutoHashMap<Block> = AutoHashMap::new();
+        let check_add_node = |elements: &mut AutoHashMap<Block>, nid| {
+            if let graphviz_rust::dot_structures::Vertex::N(id) = nid {
+                let id = id.0;
+                if let graphviz_rust::dot_structures::Id::Plain(sid) = id {
+                    let addr: u64 = sid.parse().expect("Non numeric id found in graph");
+                    let mut found = false;
+                    for e in elements.values() {
+                        if e.address() == addr {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if !found {
+                        let new_ele = Block::Generated(GeneratedBlock {
+                            address: addr,
+                            end: BlockEnd::None,
+                        });
+                        elements.insert(new_ele);
+                    }
+                }
+            }
+        };
+        let add_link = |elements: &mut AutoHashMap<Block>, a, b| {
+            let mut addr_a = None;
+            if let graphviz_rust::dot_structures::Vertex::N(id) = a {
+                let id = id.0;
+                if let graphviz_rust::dot_structures::Id::Plain(sid) = id {
+                    let addr: u64 = sid.parse().expect("Non numeric id found in graph");
+                    addr_a = Some(addr);
+                }
+            }
+            let mut addr_b = None;
+            if let graphviz_rust::dot_structures::Vertex::N(id) = b {
+                let id = id.0;
+                if let graphviz_rust::dot_structures::Id::Plain(sid) = id {
+                    let addr: u64 = sid.parse().expect("Non numeric id found in graph");
+                    addr_b = Some(addr);
+                }
+            }
+            if let Some(a) = addr_a {
+                if let Some(b) = addr_b {
+                    let mut elem = None;
+                    for e in elements.values_mut() {
+                        if e.address() == a {
+                            elem = Some(e);
+                            break;
+                        }
+                    }
+                    if let Some(elem) = elem {
+                        let be = match elem.calc_next() {
+                            BlockEnd::None => BlockEnd::Single(Value::Bits64(b)),
+                            BlockEnd::Single(a) => BlockEnd::Branch(a, Value::Bits64(b)),
+                            BlockEnd::Branch(_a, b) => {
+                                panic!("Cannot have three links from one node")
+                            }
+                        };
+                        elem.set_block_end(be).unwrap();
+                    }
+                }
+            }
+        };
+        if let graphviz_rust::dot_structures::Graph::DiGraph {
+            id: _,
+            strict: _,
+            stmts,
+        } = value
+        {
+            for s in stmts {
+                match s {
+                    graphviz_rust::dot_structures::Stmt::Node(n) => {
+                        check_add_node(
+                            &mut elements,
+                            graphviz_rust::dot_structures::Vertex::N(n.id),
+                        );
+                    }
+                    graphviz_rust::dot_structures::Stmt::Subgraph(_) => {}
+                    graphviz_rust::dot_structures::Stmt::Attribute(_) => {}
+                    graphviz_rust::dot_structures::Stmt::GAttribute(_) => {}
+                    graphviz_rust::dot_structures::Stmt::Edge(e) => {
+                        let graphviz_rust::dot_structures::Edge { ty, attributes: _ } = e;
+                        if let graphviz_rust::dot_structures::EdgeTy::Pair(a, b) = ty {
+                            check_add_node(&mut elements, a.clone());
+                            check_add_node(&mut elements, b.clone());
+                            add_link(&mut elements, a, b);
+                        }
+                    }
+                }
+            }
+        } else {
+            panic!("Invalid graph type for conversion");
+        }
+        Self { elements }
     }
 }
 
@@ -974,4 +1143,15 @@ pub enum BlockEnd {
     Single(Value),
     /// A regular branch with a non-matching block, and a matching block.
     Branch(Value, Value),
+}
+
+impl BlockEnd {
+    /// Return the conditional branch, if it exists.
+    fn branch_value(&self) -> Option<Value> {
+        match self {
+            BlockEnd::None => None,
+            BlockEnd::Single(_) => None,
+            BlockEnd::Branch(_a, b) => Some(*b),
+        }
+    }
 }

@@ -5,6 +5,7 @@
 
 mod block;
 mod decompiler;
+mod generator;
 mod map;
 
 use std::{io::Read, sync::Arc};
