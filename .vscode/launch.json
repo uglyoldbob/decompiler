@@ -11,7 +11,7 @@
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=decompiler",
+                    "--bin=graph-generator",
                     "--package=decompiler"
                 ]
             },

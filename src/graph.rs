@@ -3,6 +3,8 @@ pub mod egui_multiwin_dynamic {
     egui_multiwin::multi_window!(crate::AppCommon, crate::CustomEvent, crate::MyWindows);
 }
 
+mod generator;
+
 #[enum_dispatch(TrackedWindow)]
 pub enum MyWindows {
     Root(RootWindow),
@@ -14,209 +16,12 @@ use egui_multiwin::enum_dispatch::enum_dispatch;
 use egui_multiwin_dynamic::multi_window::NewWindowRequest;
 use egui_multiwin_dynamic::tracked_window::RedrawResponse;
 use egui_multiwin_dynamic::tracked_window::TrackedWindow;
+use graphviz_rust::dot_structures::Graph;
 use graphviz_rust::printer::PrinterContext;
 use std::sync::Arc;
 
-use graphviz_rust::dot_generator::*;
-use graphviz_rust::dot_structures::Graph;
-use graphviz_rust::dot_structures::*;
-
 pub struct AppCommon {
     clicks: u32,
-}
-
-pub struct GraphIterator {
-    gg: GraphGenerator,
-    links: Vec<(Option<u32>, Option<u32>)>,
-    done: bool,
-}
-
-impl GraphIterator {
-    pub fn advance(&mut self) {
-        if self.done {
-            return;
-        }
-        for (elem, elem2) in self.links.iter_mut() {
-            *elem = match *elem {
-                None => Some(0),
-                Some(a) => {
-                    if (a + 1) < self.gg.num_blocks {
-                        Some(a + 1)
-                    } else {
-                        None
-                    }
-                }
-            };
-            if elem.is_none() {
-                *elem2 = match *elem2 {
-                    None => Some(0),
-                    Some(a) => {
-                        if (a + 1) < self.gg.num_blocks {
-                            Some(a + 1)
-                        } else {
-                            None
-                        }
-                    }
-                };
-                if elem2.is_some() {
-                    break;
-                }
-            } else {
-                break;
-            }
-        }
-    }
-
-    pub fn check(&self) -> bool {
-        let mut valid = true;
-        for (a, b) in self.links.iter() {
-            if a == b && a.is_some() {
-                valid = false;
-            }
-            if a.is_none() && b.is_some() {
-                valid = false;
-            }
-            if let Some(a) = a {
-                if let Some(b) = b {
-                    if a > b {
-                        valid = false;
-                    }
-                }
-            }
-        }
-
-        let (a, b) = self.links[self.gg.num_blocks as usize - 1];
-        if a.is_some() || b.is_some() {
-            valid = false;
-        }
-
-        let mut inputs = vec![0; self.gg.num_blocks as usize];
-        for (index, (elem, elem2)) in self.links.iter().enumerate() {
-            if let Some(a) = *elem {
-                if index != a as usize {
-                    inputs[a as usize] += 1;
-                }
-            }
-            if let Some(a) = *elem2 {
-                if index != a as usize {
-                    inputs[a as usize] += 1;
-                }
-            }
-        }
-        for i in inputs.iter().skip(1) {
-            if *i == 0 {
-                valid = false;
-            }
-        }
-
-        valid
-    }
-
-    pub fn checked_advance(&mut self) {
-        loop {
-            self.advance();
-            if self.done() {
-                self.done = true;
-                break;
-            }
-            if self.check() {
-                break;
-            }
-        }
-    }
-
-    pub fn done(&self) -> bool {
-        let mut done = true;
-        for (a, b) in self.links.iter() {
-            if a.is_some() || b.is_some() {
-                done = false;
-                break;
-            }
-        }
-        done
-    }
-}
-
-impl Iterator for GraphIterator {
-    type Item = Graph;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.checked_advance();
-        let mut g = graph!(di id!("generated"));
-        for i in 0..self.gg.num_blocks {
-            let s = format!("{}", i);
-            let id = graphviz_rust::dot_structures::Id::Plain(s);
-            let id = graphviz_rust::dot_structures::NodeId(id, None);
-            let e = graphviz_rust::dot_structures::Node {
-                id,
-                attributes: vec![],
-            };
-            g.add_stmt(graphviz_rust::dot_structures::Stmt::Node(e));
-        }
-        for (i, (la, lb)) in self.links.iter().enumerate() {
-            if let Some(link) = la {
-                let s = format!("{}", i);
-                let id = graphviz_rust::dot_structures::Id::Plain(s);
-                let id1 = graphviz_rust::dot_structures::NodeId(id, None);
-
-                let s = format!("{}", link);
-                let id = graphviz_rust::dot_structures::Id::Plain(s);
-                let id2 = graphviz_rust::dot_structures::NodeId(id, None);
-
-                let va = graphviz_rust::dot_structures::Vertex::N(id1);
-                let vb = graphviz_rust::dot_structures::Vertex::N(id2);
-                let t = graphviz_rust::dot_structures::EdgeTy::Pair(va, vb);
-                let e = graphviz_rust::dot_structures::Edge {
-                    ty: t,
-                    attributes: Vec::new(),
-                };
-                g.add_stmt(graphviz_rust::dot_structures::Stmt::Edge(e));
-            }
-            if let Some(link) = lb {
-                let s = format!("{}", i);
-                let id = graphviz_rust::dot_structures::Id::Plain(s);
-                let id1 = graphviz_rust::dot_structures::NodeId(id, None);
-
-                let s = format!("{}", link);
-                let id = graphviz_rust::dot_structures::Id::Plain(s);
-                let id2 = graphviz_rust::dot_structures::NodeId(id, None);
-
-                let va = graphviz_rust::dot_structures::Vertex::N(id1);
-                let vb = graphviz_rust::dot_structures::Vertex::N(id2);
-                let t = graphviz_rust::dot_structures::EdgeTy::Pair(va, vb);
-                let e = graphviz_rust::dot_structures::Edge {
-                    ty: t,
-                    attributes: Vec::new(),
-                };
-                g.add_stmt(graphviz_rust::dot_structures::Stmt::Edge(e));
-            }
-        }
-        if self.done() {
-            None
-        }
-        else {
-            Some(g)
-        }
-    }
-}
-
-#[derive(Copy, Clone)]
-pub struct GraphGenerator {
-    num_blocks: u32,
-}
-
-impl GraphGenerator {
-    pub fn new(num_blocks: u32) -> Self {
-        Self { num_blocks }
-    }
-
-    pub fn create_iter(&self) -> GraphIterator {
-        GraphIterator {
-            gg: *self,
-            links: vec![(None, None); self.num_blocks as usize],
-            done: false,
-        }
-    }
 }
 
 #[derive(Debug)]
@@ -236,8 +41,8 @@ pub struct RootWindow {
     generated: bool,
     redraw: bool,
     image_is_recent: bool,
-    gg: GraphGenerator,
-    gi: GraphIterator,
+    gg: generator::GraphGenerator,
+    gi: generator::GraphIterator,
     graph: Graph,
     png: Vec<u8>,
     texture: Option<egui_multiwin::egui::TextureHandle>,
@@ -245,7 +50,7 @@ pub struct RootWindow {
 
 impl RootWindow {
     pub fn request() -> NewWindowRequest {
-        let gg = GraphGenerator::new(3);
+        let gg = generator::GraphGenerator::new(3);
         let mut gi = gg.create_iter();
         let graph = gi.next().unwrap();
 
@@ -359,24 +164,38 @@ impl TrackedWindow for RootWindow {
             if ui.button("Next graph").clicked() {
                 self.generated = false;
             }
+            if self.gg.num_blocks() > 1 {
+                if ui
+                    .button(format!("Move to {} nodes", self.gg.num_blocks() - 1))
+                    .clicked()
+                {
+                    self.gg = generator::GraphGenerator::new(self.gg.num_blocks() - 1);
+                    self.gi = self.gg.create_iter();
+                    self.generated = false;
+                }
+            }
             if ui
-                .button(format!("Move to {} nodes", self.gg.num_blocks + 1))
+                .button(format!("Move to {} nodes", self.gg.num_blocks() + 1))
                 .clicked()
             {
-                self.gg = GraphGenerator::new(self.gg.num_blocks + 1);
+                self.gg = generator::GraphGenerator::new(self.gg.num_blocks() + 1);
                 self.gi = self.gg.create_iter();
                 self.generated = false;
             }
             if let Some(t) = &self.texture {
-                ui.add(egui_multiwin::egui::Image::from_texture(
-                    egui_multiwin::egui::load::SizedTexture {
-                        id: t.id(),
-                        size: egui_multiwin::egui::Vec2 {
-                            x: t.size()[0] as f32,
-                            y: t.size()[1] as f32,
-                        },
-                    },
-                ));
+                egui_multiwin::egui::ScrollArea::both()
+                    .auto_shrink([false; 2])
+                    .show(ui, |ui| {
+                        ui.add(egui_multiwin::egui::Image::from_texture(
+                            egui_multiwin::egui::load::SizedTexture {
+                                id: t.id(),
+                                size: egui_multiwin::egui::Vec2 {
+                                    x: t.size()[0] as f32,
+                                    y: t.size()[1] as f32,
+                                },
+                            },
+                        ));
+                    });
             }
         });
         RedrawResponse {
