@@ -586,7 +586,7 @@ impl BlockTrait for GeneratedBlock {
     #[doc = " Print the source code for the block, with the specified level of indents"]
     fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
         self.indent(level, w)?;
-        w.write_all("//Dummy code".as_bytes())?;
+        w.write_all("//Dummy code\n".as_bytes())?;
         Ok(())
     }
 

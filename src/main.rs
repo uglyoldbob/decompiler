@@ -4,6 +4,9 @@
 
 //! The decompiler. It attempts to decompile various types of programs into compilable source code.
 
+#[cfg(test)]
+mod tests;
+
 use egui_multiwin::egui;
 use egui_multiwin_dynamic::multi_window::NewWindowRequest;
 

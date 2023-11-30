@@ -1,6 +1,6 @@
 //! Defines code that defines the main functionality of the decompiler. This is where the majority of work happens.
 
-mod project;
+pub mod project;
 
 use std::{
     collections::{HashMap, VecDeque},
@@ -223,6 +223,23 @@ pub struct Function {
     dot: Vec<u8>,
 }
 
+impl Function {
+    /// Create a new fully specified function
+    pub fn new(
+        name: String,
+        arguments: Vec<(String, String)>,
+        code: crate::block::Graph<crate::block::Block>,
+        dot: Vec<u8>,
+    ) -> Self {
+        Self {
+            name,
+            arguments,
+            code,
+            dot,
+        }
+    }
+}
+
 /// A single source file for a binary object
 pub struct SourceFile {
     /// The name of the source file
@@ -232,6 +249,19 @@ pub struct SourceFile {
 }
 
 impl SourceFile {
+    /// Create a new source file
+    pub fn new(name: String) -> Self {
+        Self {
+            name,
+            functions: Vec::new(),
+        }
+    }
+
+    /// Add a function to the source file
+    pub fn add_function(&mut self, f: Function) {
+        self.functions.push(f);
+    }
+
     /// Write the source code to the specified writer.
     pub fn write_source(&self, mut o: impl std::io::Write) -> Result<(), std::io::Error> {
         o.write_all("//A simple source file\n".as_bytes())?;
@@ -249,6 +279,9 @@ impl SourceFile {
             }
             o.write_all(") {\n".as_bytes())?;
 
+            if f.code.num_blocks() > 1 {
+                o.write_all("\t#error not simplified\n".as_bytes())?;
+            }
             for (_index, b) in f.code.iter() {
                 b.write_source(1, &mut o)?;
             }
@@ -278,6 +311,21 @@ pub struct FileResults {
     name: String,
     /// All of the source files used to create the binary
     sources: Vec<SourceFile>,
+}
+
+impl FileResults {
+    /// Create a new FileResults for a single binary.
+    pub fn new(name: String) -> Self {
+        Self {
+            name,
+            sources: Vec::new(),
+        }
+    }
+
+    /// Add a source file
+    pub fn add_source(&mut self, s: SourceFile) {
+        self.sources.push(s);
+    }
 }
 
 /// This object belongs to a separate thread, one for each file being processed for decompilation.

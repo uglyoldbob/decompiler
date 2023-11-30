@@ -31,3 +31,4 @@ stupid.c
 build/*
 target/*
 projects/*
+blocktest/*
