@@ -234,6 +234,7 @@ impl Instruction {
         }
     }
 
+    /// Trace the value of a register, finding the value for that register at the end of this instruction.
     pub fn trace_register(&self, reg: Register) -> Value {
         let mut val = Value::Register(reg);
         match self {
@@ -558,7 +559,9 @@ pub enum Block {
 #[derive(Clone)]
 /// Represents a generated dummy block of code
 pub struct GeneratedBlock {
+    /// The start address of the generated block
     address: u64,
+    /// The end of the generated block
     end: BlockEnd,
 }
 
@@ -1131,6 +1134,19 @@ impl Graph<Block> {
             }
         }
         None
+    }
+
+    pub fn is_simplified(&self) -> Result<(), ()> {
+        if self.elements.len() > 1 {
+            Err(())
+        } else {
+            Ok(())
+        }
+    }
+
+    /// Simplify the graph as much as possible
+    pub fn simplify(&mut self) -> Result<(), ()> {
+        self.is_simplified()
     }
 }
 

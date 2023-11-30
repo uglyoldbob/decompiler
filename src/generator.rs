@@ -189,6 +189,7 @@ impl Iterator for GraphIterator {
 #[derive(Copy, Clone)]
 /// A graph generator that will generate the specified number of nodes for every graph in its iterator.
 pub struct GraphGenerator {
+    /// The number of blocks to create in each graph.
     num_blocks: u32,
 }
 
