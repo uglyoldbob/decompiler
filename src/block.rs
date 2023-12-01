@@ -1146,6 +1146,16 @@ impl Graph<Block> {
 
     /// Simplify the graph as much as possible
     pub fn simplify(&mut self) -> Result<(), ()> {
+        for i in 1..=self.elements.len() {
+            let combo = self.elements.combo_iter_num(i);
+            for c in combo {
+                print!("COMBO: ");
+                for d in c {
+                    print!("{} ", d);
+                }
+                println!("");
+            }
+        }
         self.is_simplified()
     }
 }
