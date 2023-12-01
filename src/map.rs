@@ -3,6 +3,8 @@
 use std::collections::HashMap;
 use std::ops::Index;
 
+use itertools::Itertools;
+
 #[derive(Clone)]
 /// A HashMap implementation that auto-indexes contents. Behaves somewhat like a `Vec<T>`.
 pub struct AutoHashMap<T> {
@@ -19,6 +21,23 @@ impl<T> AutoHashMap<T> {
             d: HashMap::new(),
             next: 0,
         }
+    }
+
+    /// Produce an iterator that iterates over combinations, with elements not repeating, of the specified number of the elements in the map
+    pub fn combo_iter_num(
+        &self,
+        i: usize,
+    ) -> itertools::structs::Combinations<std::vec::IntoIter<usize>> {
+        if i > self.d.len() {
+            panic!("Too many elements to create combinations of");
+        }
+        let keys: Vec<usize> = self.d.keys().map(|k| *k).collect();
+        keys.into_iter().combinations(i)
+    }
+
+    /// Takes an item from the map, if it exists
+    pub fn take(&mut self, k: usize) -> Option<T> {
+        self.d.remove(&k)
     }
 
     /// Returns a mutable iterator over just the values
