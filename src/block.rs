@@ -556,6 +556,13 @@ pub enum Block {
     Generated(GeneratedBlock),
 }
 
+impl Block {
+    /// Try to create a block with the given group of blocks by index
+    pub fn try_create(g: &Graph<Block>, indexes: Vec<usize>) -> Option<Block> {
+        None
+    }
+}
+
 #[derive(Clone)]
 /// Represents a generated dummy block of code
 pub struct GeneratedBlock {
@@ -1150,10 +1157,13 @@ impl Graph<Block> {
             let combo = self.elements.combo_iter_num(i);
             for c in combo {
                 print!("COMBO: ");
-                for d in c {
+                for d in &c {
                     print!("{} ", d);
                 }
                 println!("");
+                if let Some(b) = Block::try_create(&self, c) {
+                    todo!();
+                }
             }
         }
         self.is_simplified()
