@@ -539,6 +539,20 @@ pub trait BlockTrait {
     fn set_block_end(&mut self, be: BlockEnd) -> Result<(), ()>;
 }
 
+/// This represents a simplified block, used for simplifying a collection of blocks.
+struct SimplifiedBlock {
+    /// The start address of the simplified block
+    start: u64,
+    /// The end point of the simplified block
+    end: BlockEnd,
+    /// The nodes outside of the collection, that point to this block
+    remote_inputs: Vec<u64>,
+    /// The nodes inside the collection, that point to this block
+    local_inputs: Vec<u64>,
+    /// The index of the block in the graph that contains it
+    index: usize,
+}
+
 /// A single unit of code. Each variety here can be assumed to run in sequence as a unit. Non-branching jumps may be present in a sequence, meaning the addresses of the instructions contained may be a bit jumbled.
 /// A block could contain a bunch of non-conditional jumps but still be a single block of instructions.
 #[derive(Clone)]
@@ -558,8 +572,173 @@ pub enum Block {
 
 impl Block {
     /// Try to create a block with the given group of blocks by index
-    pub fn try_create(g: &Graph<Block>, indexes: Vec<usize>) -> Option<Block> {
-        None
+    pub fn try_create(g: &mut Graph<Block>, indexes: Vec<usize>) -> Option<Block> {
+        let mut simplified: Vec<SimplifiedBlock> = indexes
+            .iter()
+            .map(|i| {
+                let b = g.elements.get(i).unwrap();
+                SimplifiedBlock {
+                    start: b.address(),
+                    end: b.calc_next(),
+                    remote_inputs: Vec::new(),
+                    local_inputs: Vec::new(),
+                    index: *i,
+                }
+            })
+            .collect();
+        for (i, block) in g.elements.iter() {
+            let local = indexes.contains(i);
+            if local {
+                match block.calc_next() {
+                    BlockEnd::None => {}
+                    BlockEnd::Single(a) => {
+                        if a.is_known() {
+                            let a = a.to_u64().unwrap();
+                            for le in &mut simplified {
+                                if le.start == a {
+                                    le.local_inputs.push(block.address());
+                                }
+                            }
+                        }
+                    }
+                    BlockEnd::Branch(a, b) => {
+                        if a.is_known() {
+                            let a = a.to_u64().unwrap();
+                            for le in &mut simplified {
+                                if le.start == a {
+                                    le.local_inputs.push(block.address());
+                                }
+                            }
+                        }
+                        if b.is_known() {
+                            let a = b.to_u64().unwrap();
+                            for le in &mut simplified {
+                                if le.start == a {
+                                    le.local_inputs.push(block.address());
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                match block.calc_next() {
+                    BlockEnd::None => {}
+                    BlockEnd::Single(a) => {
+                        if a.is_known() {
+                            let a = a.to_u64().unwrap();
+                            for le in &mut simplified {
+                                if le.start == a {
+                                    le.remote_inputs.push(block.address());
+                                }
+                            }
+                        }
+                    }
+                    BlockEnd::Branch(a, b) => {
+                        if a.is_known() {
+                            let a = a.to_u64().unwrap();
+                            for le in &mut simplified {
+                                if le.start == a {
+                                    le.remote_inputs.push(block.address());
+                                }
+                            }
+                        }
+                        if b.is_known() {
+                            let a = b.to_u64().unwrap();
+                            for le in &mut simplified {
+                                if le.start == a {
+                                    le.remote_inputs.push(block.address());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        let mut head = None;
+        let mut function_head = None;
+        // Cannot reasonably simplify a collection if not all blocks are used.
+        for el in &simplified {
+            if (el.local_inputs.len() + el.remote_inputs.len()) == 0 {
+                if function_head.is_none() {
+                    // One block is allowed to be unused, and it would be considered the head of a function
+                    function_head = Some(el);
+                } else {
+                    // More than one unused block is not allowed.
+                    return None;
+                }
+            }
+            // Do not simplify if more than one block has remote inputs
+            if el.remote_inputs.len() > 0 {
+                if head.is_some() {
+                    return None;
+                } else {
+                    head = Some(el);
+                }
+            }
+        }
+        // Cannot have a function head and a block with external references
+        if head.is_some() && function_head.is_some() {
+            return None;
+        }
+        let head = head.or(function_head);
+
+        let try_sequence = |g: &mut Graph<Block>, i: Vec<usize>| {
+            let mut no_branch = true;
+            let mut halt_count = 0;
+            if simplified.len() == 1 {
+                return None;
+            }
+            for n in &simplified {
+                match n.end {
+                    BlockEnd::None => halt_count += 1,
+                    BlockEnd::Single(a) => {
+                        if a.is_known() {
+                            let a = a.to_u64().unwrap();
+                            if a == n.start {
+                                return None;
+                            }
+                        }
+                    }
+                    BlockEnd::Branch(_, _) => no_branch = false,
+                }
+            }
+            if no_branch && halt_count <= 1 {
+                let mut nsi = Vec::new();
+
+                let mut element = head;
+                loop {
+                    if let Some(n) = element.take() {
+                        nsi.push(n.index);
+
+                        let addr_find = match n.end {
+                            BlockEnd::None => None,
+                            BlockEnd::Single(a) => {
+                                if a.is_known() {
+                                    Some(a.to_u64().unwrap())
+                                } else {
+                                    None
+                                }
+                            }
+                            BlockEnd::Branch(_, _) => None,
+                        };
+                        if let Some(a) = addr_find {
+                            for e in &simplified {
+                                if e.start == a {
+                                    element = Some(e);
+                                }
+                            }
+                        }
+                    } else {
+                        break;
+                    }
+                }
+
+                let ns: Vec<Block> = nsi.iter().map(|i| g.elements.take(*i).unwrap()).collect();
+                return Some(Block::Sequence(ns));
+            }
+            None
+        };
+        try_sequence(g, indexes).or_else(|| None)
     }
 }
 
@@ -1153,17 +1332,30 @@ impl Graph<Block> {
 
     /// Simplify the graph as much as possible
     pub fn simplify(&mut self) -> Result<(), ()> {
-        for i in 1..=self.elements.len() {
-            let combo = self.elements.combo_iter_num(i);
-            for c in combo {
-                print!("COMBO: ");
-                for d in &c {
-                    print!("{} ", d);
+        loop {
+            let mut work = false;
+            for i in 1..=self.elements.len() {
+                println!("Simplifying {} of {} elements", i, self.elements.len());
+                let combo = self.elements.combo_iter_num(i);
+                for c in combo {
+                    print!("COMBO ({}): ", self.elements.len());
+                    for d in &c {
+                        print!("{} ", d);
+                    }
+                    println!("");
+                    if let Some(b) = Block::try_create(self, c) {
+                        println!("\tSimplified");
+                        self.elements.insert(b);
+                        work = true;
+                        break;
+                    }
                 }
-                println!("");
-                if let Some(b) = Block::try_create(&self, c) {
-                    todo!();
+                if work {
+                    break;
                 }
+            }
+            if !work {
+                break;
             }
         }
         self.is_simplified()
