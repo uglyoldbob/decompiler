@@ -33,3 +33,8 @@ path = "src/cli.rs"
 name = "graph-generator"
 path = "src/graph.rs"
 required-features = ["graphviz"]
+
+[[bin]]
+name = "graph-reducer-testing"
+path = "src/reduce.rs"
+required-features = ["graphviz"]
