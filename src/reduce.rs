@@ -12,6 +12,7 @@ mod map;
 use std::{io::Read, sync::Arc};
 
 use clap::Parser;
+use graphviz_rust::printer::PrinterContext;
 
 use crate::decompiler::ProjectInputFile;
 
@@ -41,12 +42,26 @@ fn main() {
             let mut gb = crate::block::Graph::<crate::block::Block>::from(g);
             let s = gb.simplify();
             let mut dot = Vec::new();
+
             gb.write_to_dot("asdf", &mut dot).unwrap();
             if s.is_err() {
                 failures += 1;
+                let dots = String::from_utf8(dot.clone()).unwrap();
+                let dotgraph = graphviz_rust::parse(&dots).unwrap();
+                let graph_png = graphviz_rust::exec(
+                    dotgraph,
+                    &mut PrinterContext::default(),
+                    vec![graphviz_rust::cmd::Format::Png.into()],
+                )
+                .unwrap();
                 let mut path = pb.clone();
                 path.push(format!("{}.dot", failures));
                 std::fs::write(path, dot).unwrap();
+
+                let mut path = pb.clone();
+                path.push(format!("{}.png", failures));
+                std::fs::write(path, graph_png).unwrap();
+
                 if failures >= args.max_graphs {
                     break;
                 }
