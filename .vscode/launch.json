@@ -11,11 +11,14 @@
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=graph-generator",
-                    "--package=decompiler"
+                    "--bin=graph-reducer-testing",
+                    "--package=decompiler",
                 ]
             },
-            "args": [],
+            "args": [
+                "--output",
+                "./reduce_failure"
+            ],
             "cwd": "${workspaceFolder}"
         },
         {

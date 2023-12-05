@@ -40,12 +40,13 @@ fn main() {
         let gi = gg.create_iter();
         for (i, g) in gi.enumerate() {
             let mut gb = crate::block::Graph::<crate::block::Block>::from(g);
-            let s = gb.simplify();
             let mut dot = Vec::new();
-
             gb.write_to_dot("asdf", &mut dot).unwrap();
+            let s = gb.simplify();
+
             if s.is_err() {
                 failures += 1;
+                println!("Fail to reduce {}", failures);
                 let dots = String::from_utf8(dot.clone()).unwrap();
                 let dotgraph = graphviz_rust::parse(&dots).unwrap();
                 let graph_png = graphviz_rust::exec(

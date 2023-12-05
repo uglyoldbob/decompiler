@@ -123,7 +123,7 @@ impl<'a> InstructionDecoder<'a> {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 /// The values that an item can have
 pub enum Value {
     /// The element contains the contents of another register.
@@ -191,7 +191,7 @@ impl Value {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 /// An x86 register
 pub enum X86Register {
     /// An instruction addressable register
@@ -202,7 +202,7 @@ pub enum X86Register {
     Flags64(u64),
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 /// A register for the target architecture
 pub enum Register {
     /// An x86 register
@@ -566,6 +566,8 @@ pub enum Block {
     Statements(Vec<Statement>),
     /// A simple if else chain
     SimpleIfElse(SimpleIfElseBlock),
+    /// A do while loop with a simple condition
+    SimpleDoWhile(SimpleDoWhileBlock),
     /// A generated block of code. For testing purposes only
     Generated(GeneratedBlock),
 }
@@ -595,7 +597,7 @@ impl Block {
                         if a.is_known() {
                             let a = a.to_u64().unwrap();
                             for le in &mut simplified {
-                                if le.start == a {
+                                if le.start == a && block.address() != le.start {
                                     le.local_inputs.push(block.address());
                                 }
                             }
@@ -605,7 +607,7 @@ impl Block {
                         if a.is_known() {
                             let a = a.to_u64().unwrap();
                             for le in &mut simplified {
-                                if le.start == a {
+                                if le.start == a && block.address() != le.start {
                                     le.local_inputs.push(block.address());
                                 }
                             }
@@ -613,7 +615,7 @@ impl Block {
                         if b.is_known() {
                             let a = b.to_u64().unwrap();
                             for le in &mut simplified {
-                                if le.start == a {
+                                if le.start == a && block.address() != le.start {
                                     le.local_inputs.push(block.address());
                                 }
                             }
@@ -657,35 +659,46 @@ impl Block {
         let mut head = None;
         let mut function_head = None;
         // Cannot reasonably simplify a collection if not all blocks are used.
+
+        for (i, el) in simplified.iter().enumerate() {
+            println!(
+                "Block {} has {}+{}: {:?}",
+                i,
+                el.local_inputs.len(),
+                el.remote_inputs.len(),
+                el.end
+            );
+        }
+
         for el in &simplified {
             if (el.local_inputs.len() + el.remote_inputs.len()) == 0 {
                 if function_head.is_none() {
                     // One block is allowed to be unused, and it would be considered the head of a function
+                    println!("Function head detected");
                     function_head = Some(el);
                 } else {
                     // More than one unused block is not allowed.
+                    println!("More than one function head detected");
                     return None;
                 }
             }
             // Do not simplify if more than one block has remote inputs
             if el.remote_inputs.len() > 0 {
                 if head.is_some() {
+                    println!("More than one block with remote inputs detected");
                     return None;
                 } else {
+                    println!("Regular head detected");
                     head = Some(el);
                 }
             }
         }
-        // Cannot have a function head and a block with external references
-        if head.is_some() && function_head.is_some() {
-            return None;
-        }
-        let head = head.or(function_head);
+        let head = function_head.or(head);
 
-        let try_sequence = |g: &mut Graph<Block>, i: Vec<usize>| {
+        let try_sequence = |g: &mut Graph<Block>| {
             let mut no_branch = true;
             let mut halt_count = 0;
-            if simplified.len() == 1 {
+            if simplified.len() <= 1 {
                 return None;
             }
             for n in &simplified {
@@ -727,18 +740,135 @@ impl Block {
                                     element = Some(e);
                                 }
                             }
+                        } else {
+                            println!("Element not used in sequence?");
                         }
                     } else {
                         break;
                     }
                 }
 
-                let ns: Vec<Block> = nsi.iter().map(|i| g.elements.take(*i).unwrap()).collect();
-                return Some(Block::Sequence(ns));
+                if nsi.len() > 1 {
+                    let ns: Vec<Block> = nsi.iter().map(|i| g.elements.take(*i).unwrap()).collect();
+                    return Some(Block::Sequence(ns));
+                }
             }
             None
         };
-        try_sequence(g, indexes).or_else(|| None)
+        let try_do_while = |g: &mut Graph<Block>| {
+            if simplified.len() == 1 {
+                if let Some(h) = head {
+                    println!("Head end is {:?}", h.end);
+                    if let BlockEnd::Branch(a, b) = h.end {
+                        if a.is_known() {
+                            let a = a.to_u64().unwrap();
+                            if a == h.start {
+                                let block = Box::new(g.elements.take(h.index).unwrap());
+                                return Some(Block::SimpleDoWhile(SimpleDoWhileBlock {
+                                    block,
+                                    reversed: false,
+                                }));
+                            } else {
+                                println!("\t\t{:x} does not = {:x}", a, h.start);
+                            }
+                        } else {
+                            println!("\t\tBlock end is not known");
+                        }
+                        if b.is_known() {
+                            let a = b.to_u64().unwrap();
+                            if a == h.start {
+                                let block = Box::new(g.elements.take(h.index).unwrap());
+                                return Some(Block::SimpleDoWhile(SimpleDoWhileBlock {
+                                    block,
+                                    reversed: true,
+                                }));
+                            } else {
+                                println!("\t\t{:x} does not == {:x}", a, h.start);
+                            }
+                        } else {
+                            println!("\t\tBlock end is not known");
+                        }
+                    }
+                } else {
+                    println!("No head detected?");
+                }
+            }
+            None
+        };
+        if let Some(g) = try_sequence(g) {
+            return Some(g);
+        }
+        if let Some(g) = try_do_while(g) {
+            return Some(g);
+        }
+        None
+    }
+}
+
+#[derive(Clone)]
+/// A simple do while block with a single condition for repeating
+pub struct SimpleDoWhileBlock {
+    /// The single block for the loop, containing both the operational statements and the conditional
+    block: Box<Block>,
+    /// Indicates that the condition is reversed
+    reversed: bool,
+}
+
+impl BlockTrait for SimpleDoWhileBlock {
+    #[doc = " Return the address of the head of this block"]
+    fn address(&self) -> u64 {
+        self.block.address()
+    }
+
+    #[doc = " Calculate the next address or addresses for this block"]
+    fn calc_next(&self) -> BlockEnd {
+        match self.block.calc_next() {
+            BlockEnd::None => panic!("Invalid do while loop detected"),
+            BlockEnd::Single(_) => panic!("Invalid do while loop detected"),
+            BlockEnd::Branch(a, b) => {
+                if self.reversed {
+                    BlockEnd::Single(a)
+                } else {
+                    BlockEnd::Single(b)
+                }
+            }
+        }
+    }
+
+    #[doc = " Does this block contain an instruction that starts at the specified address?"]
+    fn contains(&self, addr: u64) -> bool {
+        self.block.contains(addr)
+    }
+
+    #[doc = " Spawn another block from the specified address in this block"]
+    fn spawn(&mut self, addr: u64) -> Result<Block, SpawnError> {
+        Err(SpawnError::CannotSpawn)
+    }
+
+    #[doc = " Print the source code for the block, with the specified level of indents"]
+    fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
+        self.indent(level, w)?;
+        w.write_all("do {\n".as_bytes())?;
+        self.block.write_source(level + 1, w)?;
+        self.indent(level, w)?;
+        w.write_all("} while (?);\n".as_bytes())?;
+        Ok(())
+    }
+
+    #[doc = " Attempt to find the value of the given register, over all instructions of the block."]
+    fn trace_register_all(&self, _reg: Register) -> Value {
+        //TODO: try to trace register values
+        Value::Unknown
+    }
+
+    #[doc = " Returns the conditional branch of the block, if one exists"]
+    fn branch_value(&self) -> Option<Value> {
+        None
+    }
+
+    #[doc = " Attempt to set the blockend for the graph"]
+    fn set_block_end(&mut self, _be: BlockEnd) -> Result<(), ()> {
+        Err(())
     }
 }
 
@@ -1332,6 +1462,10 @@ impl Graph<Block> {
 
     /// Simplify the graph as much as possible
     pub fn simplify(&mut self) -> Result<(), ()> {
+        println!("SIMPLIFY START WITH:");
+        let mut dot = Vec::new();
+        self.write_to_dot("SIMPLIFY_START", &mut dot);
+        println!("\tDOT IS {}", String::from_utf8_lossy(&dot));
         loop {
             let mut work = false;
             for i in 1..=self.elements.len() {
@@ -1346,6 +1480,9 @@ impl Graph<Block> {
                     if let Some(b) = Block::try_create(self, c) {
                         println!("\tSimplified");
                         self.elements.insert(b);
+                        let mut dot = Vec::new();
+                        self.write_to_dot("fdsa", &mut dot);
+                        println!("DOT IS {}", String::from_utf8_lossy(&dot));
                         work = true;
                         break;
                     }
@@ -1362,7 +1499,7 @@ impl Graph<Block> {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 /// The end link for a node of a graph
 pub enum BlockEnd {
     /// The instruction does not have a next instruction (like a return instruction).

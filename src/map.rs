@@ -29,7 +29,11 @@ impl<T> AutoHashMap<T> {
         i: usize,
     ) -> itertools::structs::Combinations<std::vec::IntoIter<usize>> {
         if i > self.d.len() {
-            panic!("Too many elements to create combinations of {}/{}", i, self.d.len());
+            panic!(
+                "Too many elements to create combinations of {}/{}",
+                i,
+                self.d.len()
+            );
         }
         let keys: Vec<usize> = self.d.keys().map(|k| *k).collect();
         keys.into_iter().combinations(i)
