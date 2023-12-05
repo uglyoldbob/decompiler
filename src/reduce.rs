@@ -9,10 +9,13 @@ mod decompiler;
 mod generator;
 mod map;
 
-use std::{io::Read, sync::Arc};
+use std::{
+    io::{Read, Write},
+    sync::Arc,
+};
 
 use clap::Parser;
-use graphviz_rust::printer::PrinterContext;
+use graphviz_rust::printer::{DotPrinter, PrinterContext};
 
 use crate::decompiler::ProjectInputFile;
 
@@ -48,41 +51,64 @@ fn main() {
         let gg = crate::generator::GraphGenerator::new(i);
         let gi = gg.create_iter();
         for (i, g) in gi.enumerate() {
+            let mut notes = Vec::new();
+            notes.push("Graph NOTES\n".to_string());
             let mut gb = crate::block::graph::Graph::<crate::block::Block>::from(g);
-            let mut dot = Vec::new();
-            gb.write_to_dot("asdf", &mut dot).unwrap();
-            let s = gb.simplify();
+            let dotgraph = gb.create_graph();
+            let s = gb.simplify(&mut notes);
 
             if s.is_err() {
                 failures += 1;
                 println!("Fail to reduce {}", failures);
-                let dots = String::from_utf8(dot.clone()).unwrap();
-                let dotgraph = graphviz_rust::parse(&dots).unwrap();
                 let graph_png = graphviz_rust::exec(
-                    dotgraph,
+                    dotgraph.clone(),
                     &mut PrinterContext::default(),
                     vec![graphviz_rust::cmd::Format::Png.into()],
                 )
                 .unwrap();
                 let mut path = pb.clone();
                 path.push("fail");
-                path.push(format!("{}.dot", failures));
-                std::fs::write(path, dot).unwrap();
+                path.push(format!("{}.png", failures));
+                std::fs::write(path, graph_png).unwrap();
 
                 let mut path = pb.clone();
                 path.push("fail");
-                path.push(format!("{}.png", failures));
+                path.push(format!("{}.dot", failures));
+                std::fs::write(path, dotgraph.print(&mut PrinterContext::default())).unwrap();
+
+                let mut path = pb.clone();
+                let dotgraph = gb.create_graph();
+                path.push("fail");
+                path.push(format!("{}-simplify-attempt.dot", failures));
+                std::fs::write(path, dotgraph.print(&mut PrinterContext::default())).unwrap();
+
+                let graph_png = graphviz_rust::exec(
+                    dotgraph.clone(),
+                    &mut PrinterContext::default(),
+                    vec![graphviz_rust::cmd::Format::Png.into()],
+                )
+                .unwrap();
+                let mut path = pb.clone();
+                path.push("fail");
+                path.push(format!("{}-simplify-attempt.png", failures));
                 std::fs::write(path, graph_png).unwrap();
+
+                let mut path = pb.clone();
+                path.push("fail");
+                path.push(format!("{}-notes.txt", failures));
+                let mut f = std::fs::File::create(path).unwrap();
+                for s in notes {
+                    f.write_all(s.as_bytes());
+                }
+                f.flush();
 
                 if failures >= args.max_graphs {
                     break;
                 }
             } else {
                 successes += 1;
-                let dots = String::from_utf8(dot.clone()).unwrap();
-                let dotgraph = graphviz_rust::parse(&dots).unwrap();
                 let graph_png = graphviz_rust::exec(
-                    dotgraph,
+                    dotgraph.clone(),
                     &mut PrinterContext::default(),
                     vec![graphviz_rust::cmd::Format::Png.into()],
                 )
@@ -90,7 +116,7 @@ fn main() {
                 let mut path = pb.clone();
                 path.push("success");
                 path.push(format!("{}.dot", successes));
-                std::fs::write(path, dot).unwrap();
+                std::fs::write(path, dotgraph.print(&mut PrinterContext::default())).unwrap();
 
                 let mut path = pb.clone();
                 path.push("success");

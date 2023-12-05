@@ -581,7 +581,11 @@ pub enum Block {
 
 impl Block {
     /// Try to create a block with the given group of blocks by index
-    pub fn try_create(g: &mut graph::Graph<Block>, indexes: Vec<usize>) -> Option<Block> {
+    pub fn try_create(
+        g: &mut graph::Graph<Block>,
+        indexes: Vec<usize>,
+        notes: &mut Vec<String>,
+    ) -> Option<Block> {
         let mut simplified: Vec<SimplifiedBlock> = indexes
             .iter()
             .map(|i| {
@@ -668,41 +672,41 @@ impl Block {
         // Cannot reasonably simplify a collection if not all blocks are used.
 
         for (i, el) in simplified.iter().enumerate() {
-            println!(
-                "Block {} has {}+{}: {:?}",
+            notes.push(format!(
+                "Block {} has {}+{}: {:?}\n",
                 i,
                 el.local_inputs.len(),
                 el.remote_inputs.len(),
                 el.end
-            );
+            ));
         }
 
         for el in &simplified {
             if (el.local_inputs.len() + el.remote_inputs.len()) == 0 {
                 if function_head.is_none() {
                     // One block is allowed to be unused, and it would be considered the head of a function
-                    println!("Function head detected");
+                    notes.push("Function head detected\n".to_string());
                     function_head = Some(el);
                 } else {
                     // More than one unused block is not allowed.
-                    println!("More than one function head detected");
+                    notes.push("More than one function head detected\n".to_string());
                     return None;
                 }
             }
             // Do not simplify if more than one block has remote inputs
             if el.remote_inputs.len() > 0 {
                 if head.is_some() {
-                    println!("More than one block with remote inputs detected");
+                    notes.push("More than one block with remote inputs detected\n".to_string());
                     return None;
                 } else {
-                    println!("Regular head detected");
+                    notes.push("Regular head detected\n".to_string());
                     head = Some(el);
                 }
             }
         }
         let head = function_head.or(head);
 
-        let try_sequence = |g: &mut graph::Graph<Block>| {
+        let try_sequence = |g: &mut graph::Graph<Block>, notes: &mut Vec<String>| {
             let mut no_branch = true;
             let mut halt_count = 0;
             if simplified.len() <= 1 {
@@ -748,7 +752,7 @@ impl Block {
                                 }
                             }
                         } else {
-                            println!("Element not used in sequence?");
+                            notes.push("Element not used in sequence?\n".to_string());
                         }
                     } else {
                         break;
@@ -762,50 +766,46 @@ impl Block {
             }
             None
         };
-        let try_do_while = |g: &mut graph::Graph<Block>| {
+        let try_do_while = |g: &mut graph::Graph<Block>, notes: &mut Vec<String>| {
             if simplified.len() == 1 {
                 if let Some(h) = head {
-                    println!("Head end is {:?}", h.end);
+                    notes.push(format!("Head end is {:?}\n", h.end));
                     if let BlockEnd::Branch(a, b) = h.end {
+                        notes.push("Branch detected for potential do while loop\n".to_string());
                         if a.is_known() {
                             let a = a.to_u64().unwrap();
                             if a == h.start {
+                                notes.push("Loop detected for do while loop\n".to_string());
                                 let block = Box::new(g.elements.take(h.index).unwrap());
                                 return Some(Block::SimpleDoWhile(SimpleDoWhileBlock {
                                     block,
                                     reversed: false,
                                 }));
-                            } else {
-                                println!("\t\t{:x} does not = {:x}", a, h.start);
                             }
-                        } else {
-                            println!("\t\tBlock end is not known");
                         }
                         if b.is_known() {
                             let a = b.to_u64().unwrap();
                             if a == h.start {
+                                notes
+                                    .push("Reversed Loop detected for do while loop\n".to_string());
                                 let block = Box::new(g.elements.take(h.index).unwrap());
                                 return Some(Block::SimpleDoWhile(SimpleDoWhileBlock {
                                     block,
                                     reversed: true,
                                 }));
-                            } else {
-                                println!("\t\t{:x} does not == {:x}", a, h.start);
                             }
-                        } else {
-                            println!("\t\tBlock end is not known");
                         }
                     }
                 } else {
-                    println!("No head detected?");
+                    notes.push("No head detected?\n".to_string());
                 }
             }
             None
         };
-        if let Some(g) = try_sequence(g) {
+        if let Some(g) = try_sequence(g, notes) {
             return Some(g);
         }
-        if let Some(g) = try_do_while(g) {
+        if let Some(g) = try_do_while(g, notes) {
             return Some(g);
         }
         None
@@ -974,7 +974,21 @@ impl BlockTrait for GeneratedBlock {
         Ok(())
     }
 
-    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph) {}
+    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph) {
+        let sa = self.address();
+        dot_add_node(g, sa);
+
+        match self.calc_next() {
+            BlockEnd::None => {}
+            BlockEnd::Single(a) => {
+                dot_add_link(g, Value::Bits64(sa), a);
+            }
+            BlockEnd::Branch(a, b) => {
+                dot_add_link(g, Value::Bits64(sa), a);
+                dot_add_link(g, Value::Bits64(sa), b);
+            }
+        }
+    }
 }
 
 #[derive(Clone)]

@@ -287,28 +287,29 @@ impl Graph<Block> {
     }
 
     /// Simplify the graph as much as possible
-    pub fn simplify(&mut self) -> Result<(), ()> {
-        println!("SIMPLIFY START WITH:");
-        let mut dot = Vec::new();
-        self.write_to_dot("SIMPLIFY_START", &mut dot);
-        println!("\tDOT IS {}", String::from_utf8_lossy(&dot));
+    pub fn simplify(&mut self, notes: &mut Vec<String>) -> Result<(), ()> {
+        notes.push("SIMPLIFY START WITH:\n".to_string());
         loop {
             let mut work = false;
             for i in 1..=self.elements.len() {
-                println!("Simplifying {} of {} elements", i, self.elements.len());
+                notes.push(format!(
+                    "\nSimplifying {} of {} elements\n",
+                    i,
+                    self.elements.len()
+                ));
                 let combo = self.elements.combo_iter_num(i);
                 for c in combo {
-                    print!("COMBO ({}): ", self.elements.len());
+                    notes.push(format!("COMBO ({}): ", self.elements.len()));
                     for d in &c {
-                        print!("{} ", d);
+                        notes.push(format!("{} ", d));
                     }
-                    println!("");
-                    if let Some(b) = Block::try_create(self, c) {
-                        println!("\tSimplified");
+                    notes.push("\n".to_string());
+                    if let Some(b) = Block::try_create(self, c, notes) {
+                        notes.push("\tSimplified".to_string());
                         self.elements.insert(b);
                         let mut dot = Vec::new();
                         self.write_to_dot("fdsa", &mut dot);
-                        println!("DOT IS {}", String::from_utf8_lossy(&dot));
+                        notes.push(format!("DOT IS {}\n", String::from_utf8_lossy(&dot)));
                         work = true;
                         break;
                     }
