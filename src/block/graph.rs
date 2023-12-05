@@ -2,6 +2,8 @@
 
 use std::io::Write;
 
+use graphviz_rust::printer::{DotPrinter, PrinterContext};
+
 use super::{Block, BlockEnd, BlockTrait, GeneratedBlock, Instruction, Value};
 use crate::map::AutoHashMap;
 
@@ -131,10 +133,10 @@ impl From<graphviz_rust::dot_structures::Graph> for Graph<Block> {
 
 impl Graph<Block> {
     /// Create a graphviz graph directly
-    pub fn create_graph(&self) -> graphviz_rust::dot_structures::Graph {
+    pub fn create_graph(&self, s: bool) -> graphviz_rust::dot_structures::Graph {
         let mut g = super::make_gv_graph("generated");
         for b in self.elements.values() {
-            b.dot_add(&mut g);
+            b.dot_add(&mut g, s);
         }
         g
     }
@@ -304,12 +306,19 @@ impl Graph<Block> {
                         notes.push(format!("{} ", d));
                     }
                     notes.push("\n".to_string());
+                    let pregraph = self.create_graph(true);
                     if let Some(b) = Block::try_create(self, c, notes) {
-                        notes.push("\tSimplified".to_string());
+                        notes.push("\tSimplified: ".to_string());
                         self.elements.insert(b);
-                        let mut dot = Vec::new();
-                        self.write_to_dot("fdsa", &mut dot);
-                        notes.push(format!("DOT IS {}\n", String::from_utf8_lossy(&dot)));
+                        let graph = self.create_graph(true);
+                        notes.push(format!(
+                            "PREDOT IS {}\n",
+                            pregraph.print(&mut PrinterContext::default())
+                        ));
+                        notes.push(format!(
+                            "DOT IS {}\n",
+                            graph.print(&mut PrinterContext::default())
+                        ));
                         work = true;
                         break;
                     }

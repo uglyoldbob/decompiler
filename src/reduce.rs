@@ -54,7 +54,7 @@ fn main() {
             let mut notes = Vec::new();
             notes.push("Graph NOTES\n".to_string());
             let mut gb = crate::block::graph::Graph::<crate::block::Block>::from(g);
-            let dotgraph = gb.create_graph();
+            let dotgraph = gb.create_graph(true);
             let s = gb.simplify(&mut notes);
 
             if s.is_err() {
@@ -77,7 +77,7 @@ fn main() {
                 std::fs::write(path, dotgraph.print(&mut PrinterContext::default())).unwrap();
 
                 let mut path = pb.clone();
-                let dotgraph = gb.create_graph();
+                let dotgraph = gb.create_graph(true);
                 path.push("fail");
                 path.push(format!("{}-simplify-attempt.dot", failures));
                 std::fs::write(path, dotgraph.print(&mut PrinterContext::default())).unwrap();

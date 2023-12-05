@@ -542,8 +542,8 @@ pub trait BlockTrait {
     fn branch_value(&self) -> Option<Value>;
     /// Attempt to set the blockend for the graph
     fn set_block_end(&mut self, be: BlockEnd) -> Result<(), ()>;
-    /// Add applicable statements to the dot graph for this block
-    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph);
+    /// Add applicable statements to the dot graph for this block, s refers if the simplified or expanded dot is created.
+    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph, s: bool);
 }
 
 /// This represents a simplified block, used for simplifying a collection of blocks.
@@ -922,8 +922,12 @@ impl BlockTrait for InfiniteLoopBlock {
     }
 
     #[doc = " Add applicable statements to the dot graph for this block"]
-    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph) {
-        self.block.dot_add(g);
+    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph, s: bool) {
+        if s {
+            dot_add_node(g, self.address());
+        } else {
+            self.block.dot_add(g, s);
+        }
     }
 }
 
@@ -993,8 +997,15 @@ impl BlockTrait for SimpleDoWhileBlock {
         Err(())
     }
 
-    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph) {
-        self.block.dot_add(g);
+    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph, s: bool) {
+        if s {
+            dot_add_node(g, self.address());
+            if let BlockEnd::Single(a) = self.calc_next() {
+                dot_add_link(g, Value::Bits64(self.address()), a);
+            }
+        } else {
+            self.block.dot_add(g, s);
+        }
     }
 }
 
@@ -1050,7 +1061,7 @@ impl BlockTrait for GeneratedBlock {
         Ok(())
     }
 
-    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph) {
+    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph, _s: bool) {
         let sa = self.address();
         dot_add_node(g, sa);
 
@@ -1125,7 +1136,7 @@ impl BlockTrait for SimpleIfElseBlock {
         Err(())
     }
 
-    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph) {}
+    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph, s: bool) {}
 }
 
 impl BlockTrait for Vec<Statement> {
@@ -1185,7 +1196,7 @@ impl BlockTrait for Vec<Statement> {
         Err(())
     }
 
-    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph) {}
+    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph, s: bool) {}
 }
 
 impl BlockTrait for Vec<Block> {
@@ -1246,7 +1257,11 @@ impl BlockTrait for Vec<Block> {
         Err(())
     }
 
-    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph) {}
+    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph, s: bool) {
+        for e in self {
+            e.dot_add(g, s);
+        }
+    }
 }
 
 impl BlockTrait for Vec<Instruction> {
@@ -1319,7 +1334,7 @@ impl BlockTrait for Vec<Instruction> {
         Err(())
     }
 
-    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph) {
+    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph, s: bool) {
         let sa = self.address();
         dot_add_node(g, sa);
 

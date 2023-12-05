@@ -9,7 +9,7 @@ fn test_blocks_3() {
     );
     let mut sf = crate::decompiler::SourceFile::new("blocks3.c".to_string());
     for (i, g) in gi.enumerate() {
-        let mut gb = crate::block::Graph::<crate::block::Block>::from(g);
+        let mut gb = crate::block::graph::Graph::<crate::block::Block>::from(g);
         let _ = gb.simplify().unwrap();
         let mut dot = Vec::new();
         gb.write_to_dot("asdf", &mut dot).unwrap();
