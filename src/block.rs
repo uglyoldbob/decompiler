@@ -575,6 +575,8 @@ pub enum Block {
     SimpleIfElse(SimpleIfElseBlock),
     /// A do while loop with a simple condition
     SimpleDoWhile(SimpleDoWhileBlock),
+    /// An infinite loop
+    InfiniteLoop(InfiniteLoopBlock),
     /// A generated block of code. For testing purposes only
     Generated(GeneratedBlock),
 }
@@ -802,10 +804,30 @@ impl Block {
             }
             None
         };
+        let try_infinite_loop = |g: &mut graph::Graph<Block>, notes: &mut Vec<String>| {
+            if simplified.len() == 1 {
+                if let Some(h) = head {
+                    if let BlockEnd::Single(a) = h.end {
+                        if a.is_known() {
+                            let a = a.to_u64().unwrap();
+                            if h.start == a {
+                                notes.push("Infinite loop detected\n".to_string());
+                                let block = Box::new(g.elements.take(h.index).unwrap());
+                                return Some(Block::InfiniteLoop(InfiniteLoopBlock { block }));
+                            }
+                        }
+                    }
+                }
+            }
+            None
+        };
         if let Some(g) = try_sequence(g, notes) {
             return Some(g);
         }
         if let Some(g) = try_do_while(g, notes) {
+            return Some(g);
+        }
+        if let Some(g) = try_infinite_loop(g, notes) {
             return Some(g);
         }
         None
@@ -848,6 +870,60 @@ pub fn dot_add_link(g: &mut graphviz_rust::dot_structures::Graph, a: Value, b: V
             };
             g.add_stmt(graphviz_rust::dot_structures::Stmt::Edge(e));
         }
+    }
+}
+
+#[derive(Clone)]
+/// An infinite loop with no escape
+pub struct InfiniteLoopBlock {
+    /// The single block for the loop
+    block: Box<Block>,
+}
+
+impl BlockTrait for InfiniteLoopBlock {
+    #[doc = " Return the address of the head of this block"]
+    fn address(&self) -> u64 {
+        self.block.address()
+    }
+
+    #[doc = " Calculate the next address or addresses for this block"]
+    fn calc_next(&self) -> BlockEnd {
+        BlockEnd::None
+    }
+
+    #[doc = " Does this block contain an instruction that starts at the specified address?"]
+    fn contains(&self, addr: u64) -> bool {
+        self.block.contains(addr)
+    }
+
+    #[doc = " Spawn another block from the specified address in this block"]
+    fn spawn(&mut self, addr: u64) -> Result<Block, SpawnError> {
+        Err(SpawnError::CannotSpawn)
+    }
+
+    #[doc = " Print the source code for the block, with the specified level of indents"]
+    fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
+        todo!();
+    }
+
+    #[doc = " Attempt to find the value of the given register, over all instructions of the block."]
+    fn trace_register_all(&self, reg: Register) -> Value {
+        todo!()
+    }
+
+    #[doc = " Returns the conditional branch of the block, if one exists"]
+    fn branch_value(&self) -> Option<Value> {
+        None
+    }
+
+    #[doc = " Attempt to set the blockend for the graph"]
+    fn set_block_end(&mut self, be: BlockEnd) -> Result<(), ()> {
+        Err(())
+    }
+
+    #[doc = " Add applicable statements to the dot graph for this block"]
+    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph) {
+        self.block.dot_add(g);
     }
 }
 
