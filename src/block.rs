@@ -734,6 +734,7 @@ impl Block {
                 let mut element = head;
                 loop {
                     if let Some(n) = element.take() {
+                        notes.push(format!("{:X}->", n.start));
                         nsi.push(n.index);
 
                         let addr_find = match n.end {
@@ -754,7 +755,7 @@ impl Block {
                                 }
                             }
                         } else {
-                            notes.push("Element not used in sequence?\n".to_string());
+                            break;
                         }
                     } else {
                         break;
@@ -762,6 +763,7 @@ impl Block {
                 }
 
                 if nsi.len() > 1 {
+                    notes.push("Creating sequence\n".to_string());
                     let ns: Vec<Block> = nsi.iter().map(|i| g.elements.take(*i).unwrap()).collect();
                     return Some(Block::Sequence(ns));
                 }
@@ -1258,8 +1260,23 @@ impl BlockTrait for Vec<Block> {
     }
 
     fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph, s: bool) {
-        for e in self {
-            e.dot_add(g, s);
+        if s {
+            let fa = self.first().unwrap().address();
+            dot_add_node(g, fa);
+            match self.last().unwrap().calc_next() {
+                BlockEnd::None => {}
+                BlockEnd::Single(a) => {
+                    dot_add_link(g, Value::Bits64(fa), a);
+                }
+                BlockEnd::Branch(a, b) => {
+                    dot_add_link(g, Value::Bits64(fa), a);
+                    dot_add_link(g, Value::Bits64(fa), b);
+                }
+            }
+        } else {
+            for e in self {
+                e.dot_add(g, s);
+            }
         }
     }
 }

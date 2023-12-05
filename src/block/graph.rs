@@ -299,11 +299,15 @@ impl Graph<Block> {
                     i,
                     self.elements.len()
                 ));
+                for e in self.elements.values() {
+                    notes.push(format!("{:X} ", e.address()));
+                }
+                notes.push("\n".to_string());
                 let combo = self.elements.combo_iter_num(i);
                 for c in combo {
                     notes.push(format!("COMBO ({}): ", self.elements.len()));
                     for d in &c {
-                        notes.push(format!("{} ", d));
+                        notes.push(format!("{:X} ", self.elements.get(d).unwrap().address()));
                     }
                     notes.push("\n".to_string());
                     let pregraph = self.create_graph(true);
