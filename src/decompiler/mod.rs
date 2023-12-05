@@ -218,7 +218,7 @@ pub struct Function {
     /// The name and type of each argument
     arguments: Vec<(String, String)>,
     /// The code for the function
-    code: crate::block::Graph<crate::block::Block>,
+    code: crate::block::graph::Graph<crate::block::Block>,
     /// The dot of the results
     dot: Vec<u8>,
 }
@@ -228,7 +228,7 @@ impl Function {
     pub fn new(
         name: String,
         arguments: Vec<(String, String)>,
-        code: crate::block::Graph<crate::block::Block>,
+        code: crate::block::graph::Graph<crate::block::Block>,
         dot: Vec<u8>,
     ) -> Self {
         Self {
@@ -337,7 +337,7 @@ struct InternalDecompilerFileProcessor {
     /// How messages are received from the rest of the decompiler
     receiver: std::sync::mpsc::Receiver<MessageToFileProcessor>,
     /// The graph of analyzed code
-    code: crate::block::Graph<crate::block::Block>,
+    code: crate::block::graph::Graph<crate::block::Block>,
 }
 
 impl InternalDecompilerFileProcessor {
@@ -451,7 +451,7 @@ impl DecompilerFileProcessor {
             file: self.file.clone(),
             sender,
             receiver,
-            code: crate::block::Graph::new(),
+            code: crate::block::graph::Graph::new(),
         };
         std::thread::spawn(move || {
             let mut a = fp;

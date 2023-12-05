@@ -31,7 +31,7 @@ path = "src/cli.rs"
 
 [[bin]]
 name = "graph-generator"
-path = "src/graph.rs"
+path = "src/graph-generator.rs"
 required-features = ["graphviz"]
 
 [[bin]]

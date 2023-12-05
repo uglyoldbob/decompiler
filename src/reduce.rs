@@ -34,12 +34,21 @@ fn main() {
     std::fs::remove_dir_all(&pb);
     std::fs::create_dir_all(&pb);
 
+    let mut pb2 = pb.clone();
+    pb2.push("fail");
+    std::fs::create_dir_all(&pb2);
+
+    let mut pb2 = pb.clone();
+    pb2.push("success");
+    std::fs::create_dir_all(&pb2);
+
     let mut failures = 0;
+    let mut successes = 0;
     for i in 2.. {
         let gg = crate::generator::GraphGenerator::new(i);
         let gi = gg.create_iter();
         for (i, g) in gi.enumerate() {
-            let mut gb = crate::block::Graph::<crate::block::Block>::from(g);
+            let mut gb = crate::block::graph::Graph::<crate::block::Block>::from(g);
             let mut dot = Vec::new();
             gb.write_to_dot("asdf", &mut dot).unwrap();
             let s = gb.simplify();
@@ -56,16 +65,37 @@ fn main() {
                 )
                 .unwrap();
                 let mut path = pb.clone();
+                path.push("fail");
                 path.push(format!("{}.dot", failures));
                 std::fs::write(path, dot).unwrap();
 
                 let mut path = pb.clone();
+                path.push("fail");
                 path.push(format!("{}.png", failures));
                 std::fs::write(path, graph_png).unwrap();
 
                 if failures >= args.max_graphs {
                     break;
                 }
+            } else {
+                successes += 1;
+                let dots = String::from_utf8(dot.clone()).unwrap();
+                let dotgraph = graphviz_rust::parse(&dots).unwrap();
+                let graph_png = graphviz_rust::exec(
+                    dotgraph,
+                    &mut PrinterContext::default(),
+                    vec![graphviz_rust::cmd::Format::Png.into()],
+                )
+                .unwrap();
+                let mut path = pb.clone();
+                path.push("success");
+                path.push(format!("{}.dot", successes));
+                std::fs::write(path, dot).unwrap();
+
+                let mut path = pb.clone();
+                path.push("success");
+                path.push(format!("{}.png", successes));
+                std::fs::write(path, graph_png).unwrap();
             }
         }
         if failures >= args.max_graphs {
