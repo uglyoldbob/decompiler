@@ -52,7 +52,7 @@ impl From<graphviz_rust::dot_structures::Graph> for Graph<Block> {
                         let new_ele = Block::Generated(GeneratedBlock {
                             address: addr,
                             end: BlockEnd::None,
-                            head: false,
+                            head: addr == 0,
                         });
                         elements.insert(new_ele);
                     }

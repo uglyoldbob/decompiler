@@ -560,6 +560,8 @@ pub struct SimplifiedBlock {
     local_inputs: Vec<u64>,
     /// The index of the block in the graph that contains it
     index: usize,
+    /// True when the block is a function head
+    head: bool,
 }
 
 /// A single unit of code. Each variety here can be assumed to run in sequence as a unit. Non-branching jumps may be present in a sequence, meaning the addresses of the instructions contained may be a bit jumbled.
@@ -604,6 +606,7 @@ impl Block {
                     remote_inputs: Vec::new(),
                     local_inputs: Vec::new(),
                     index: *i,
+                    head: b.is_function_head(),
                 }
             })
             .collect();
@@ -690,7 +693,7 @@ impl Block {
         }
 
         for el in &simplified {
-            if (el.local_inputs.len() + el.remote_inputs.len()) == 0 {
+            if el.head {
                 if function_head.is_none() {
                     // One block is allowed to be unused, and it would be considered the head of a function
                     notes.push("Function head detected\n".to_string());
