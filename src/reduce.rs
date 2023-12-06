@@ -122,6 +122,15 @@ fn main() {
                 path.push("success");
                 path.push(format!("{}.png", successes));
                 std::fs::write(path, graph_png).unwrap();
+
+                let mut path = pb.clone();
+                path.push("success");
+                path.push(format!("{}-notes.txt", successes));
+                let mut f = std::fs::File::create(path).unwrap();
+                for s in notes {
+                    f.write_all(s.as_bytes());
+                }
+                f.flush();
             }
         }
         if failures >= args.max_graphs {
