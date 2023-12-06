@@ -696,7 +696,7 @@ impl Block {
             if el.head {
                 if function_head.is_none() {
                     // One block is allowed to be unused, and it would be considered the head of a function
-                    notes.push("Function head detected\n".to_string());
+                    notes.push(format!("Function head detected {:x}\n", el.start));
                     function_head = Some(el);
                 } else {
                     // More than one unused block is not allowed.
@@ -710,75 +710,13 @@ impl Block {
                     notes.push("More than one block with remote inputs detected\n".to_string());
                     return None;
                 } else {
-                    notes.push("Regular head detected\n".to_string());
+                    notes.push(format!("Regular head detected {:x}\n", el.start));
                     head = Some(el);
                 }
             }
         }
         let head = function_head.or(head);
 
-        let try_sequence = |g: &mut graph::Graph<Block>, notes: &mut Vec<String>| {
-            let mut no_branch = true;
-            let mut halt_count = 0;
-            if simplified.len() <= 1 {
-                return None;
-            }
-            for n in &simplified {
-                match n.end {
-                    BlockEnd::None => halt_count += 1,
-                    BlockEnd::Single(a) => {
-                        if a.is_known() {
-                            let a = a.to_u64().unwrap();
-                            if a == n.start {
-                                return None;
-                            }
-                        }
-                    }
-                    BlockEnd::Branch(_, _) => no_branch = false,
-                }
-            }
-            if no_branch && halt_count <= 1 {
-                let mut nsi = Vec::new();
-
-                let mut element = head;
-                loop {
-                    if let Some(n) = element.take() {
-                        notes.push(format!("{:X}->", n.start));
-                        nsi.push(n.index);
-
-                        let addr_find = match n.end {
-                            BlockEnd::None => None,
-                            BlockEnd::Single(a) => {
-                                if a.is_known() {
-                                    Some(a.to_u64().unwrap())
-                                } else {
-                                    None
-                                }
-                            }
-                            BlockEnd::Branch(_, _) => None,
-                        };
-                        if let Some(a) = addr_find {
-                            for e in &simplified {
-                                if e.start == a {
-                                    element = Some(e);
-                                }
-                            }
-                        } else {
-                            break;
-                        }
-                    } else {
-                        break;
-                    }
-                }
-
-                if nsi.len() > 1 {
-                    notes.push("Creating sequence\n".to_string());
-                    let ns: Vec<Block> = nsi.iter().map(|i| g.elements.take(*i).unwrap()).collect();
-                    return Some(Block::Sequence(SequenceBlock { blocks: ns }));
-                }
-            }
-            None
-        };
         let try_do_while = |g: &mut graph::Graph<Block>, notes: &mut Vec<String>| {
             if simplified.len() == 1 {
                 if let Some(h) = head {
@@ -832,7 +770,7 @@ impl Block {
             }
             None
         };
-        if let Some(g) = try_sequence(g, notes) {
+        if let Some(g) = SequenceBlock::try_create(&simplified, head, g, notes) {
             return Some(g);
         }
         if let Some(g) = try_do_while(g, notes) {
@@ -1582,6 +1520,56 @@ impl BlockTrait for StatementBlock {
 pub struct SequenceBlock {
     /// The blocks in the sequence
     blocks: Vec<Block>,
+}
+
+impl SequenceBlock {
+    fn try_create(
+        simplified: &Vec<SimplifiedBlock>,
+        head: Option<&SimplifiedBlock>,
+        g: &mut graph::Graph<Block>,
+        notes: &mut Vec<String>,
+    ) -> Option<Block> {
+        if simplified.len() > 1 {
+            let mut nsi = Vec::new();
+
+            let mut element = head;
+            loop {
+                if let Some(n) = element.take() {
+                    match n.end {
+                        BlockEnd::None => {
+                            notes.push(format!("{:X}", n.start));
+                            nsi.push(n.index);
+                            break;
+                        }
+                        BlockEnd::Single(a) => {
+                            if let Some(a) = a.to_u64() {
+                                notes.push(format!("{:X}->", n.start));
+                                nsi.push(n.index);
+                                for e in simplified {
+                                    if e.start == a {
+                                        element = Some(e);
+                                    }
+                                }
+                            }
+                        }
+                        BlockEnd::Branch(_a, _b) => {
+                            notes.push("Branch\n".to_string());
+                            break;
+                        }
+                    }
+                } else {
+                    break;
+                }
+            }
+
+            if nsi.len() > 1 {
+                notes.push("Creating sequence\n".to_string());
+                let ns: Vec<Block> = nsi.iter().map(|i| g.elements.take(*i).unwrap()).collect();
+                return Some(Block::Sequence(SequenceBlock { blocks: ns }));
+            }
+        }
+        None
+    }
 }
 
 impl BlockTrait for SequenceBlock {
