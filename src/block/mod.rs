@@ -575,6 +575,8 @@ pub enum Block {
     SimpleIfElse(SimpleIfElseBlock),
     /// A do while loop with a simple condition
     SimpleDoWhile(SimpleDoWhileBlock),
+    /// A simple while loop with a single condition
+    SimpleWhileLoop(SimpleWhileBlock),
     /// An infinite loop
     InfiniteLoop(InfiniteLoopBlock),
     /// An if else block where both cases have no next block
@@ -675,10 +677,10 @@ impl Block {
         let mut function_head = None;
         // Cannot reasonably simplify a collection if not all blocks are used.
 
-        for (i, el) in simplified.iter().enumerate() {
+        for el in &simplified {
             notes.push(format!(
-                "Block {} has {}+{}: {:?}\n",
-                i,
+                "Block {:x} has {}+{}: {:?}\n",
+                el.start,
                 el.local_inputs.len(),
                 el.remote_inputs.len(),
                 el.end
@@ -840,6 +842,9 @@ impl Block {
         if let Some(g) = SimpleIfElseBlock::try_create_if(&simplified, head, g, notes) {
             return Some(g);
         }
+        if let Some(g) = SimpleWhileBlock::try_create(&simplified, head, g, notes) {
+            return Some(g);
+        }
         None
     }
 }
@@ -879,6 +884,139 @@ pub fn dot_add_link(g: &mut graphviz_rust::dot_structures::Graph, a: Value, b: V
                 attributes: Vec::new(),
             };
             g.add_stmt(graphviz_rust::dot_structures::Stmt::Edge(e));
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct SimpleWhileBlock {
+    /// The conditional for the loop
+    block: Box<Block>,
+    /// The meat of the while loop
+    meat: Box<Block>,
+    /// Indicates the condition of the block is reverse logic
+    reverse: bool,
+}
+
+impl SimpleWhileBlock {
+    /// Try to create a simple while block from the given group of blocks
+    fn try_create(
+        simplified: &Vec<SimplifiedBlock>,
+        head: Option<&SimplifiedBlock>,
+        g: &mut graph::Graph<Block>,
+        notes: &mut Vec<String>,
+    ) -> Option<Block> {
+        if simplified.len() == 2 {
+            notes.push("Checking while loop\n".to_string());
+            if let Some(h) = head {
+                let mut ablock = None;
+                let mut bblock = None;
+                if let BlockEnd::Branch(a, b) = h.end {
+                    if let Some(a) = a.to_u64() {
+                        for e in simplified {
+                            if e.start == a {
+                                ablock = Some(e);
+                            }
+                        }
+                    }
+                    if let Some(b) = b.to_u64() {
+                        for e in simplified {
+                            if e.start == b {
+                                bblock = Some(e);
+                            }
+                        }
+                    }
+                }
+                if let Some(ablock) = ablock {
+                    notes.push("Checking block a for while loop\n".to_string());
+                    if let BlockEnd::Single(a) = ablock.end {
+                        notes.push("While loop maybe1\n".to_string());
+                        if let Some(a) = a.to_u64() {
+                            if a == h.start {
+                                notes.push("Found while loop\n".to_string());
+                            }
+                        }
+                    }
+                }
+                if let Some(bblock) = bblock {
+                    notes.push("Checking block b for while loop\n".to_string());
+                    if let BlockEnd::Single(a) = bblock.end {
+                        notes.push("While loop maybe2\n".to_string());
+                        if let Some(a) = a.to_u64() {
+                            if a == h.start {
+                                notes.push("Found while loop\n".to_string());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        None
+    }
+}
+
+impl BlockTrait for SimpleWhileBlock {
+    #[doc = " Return the address of the head of this block"]
+    fn address(&self) -> u64 {
+        self.block.address()
+    }
+
+    #[doc = " Calculate the next address or addresses for this block"]
+    fn calc_next(&self) -> BlockEnd {
+        if self.reverse {
+            if let BlockEnd::Branch(a, b) = self.block.calc_next() {
+                BlockEnd::Single(a)
+            } else {
+                panic!("Invalid while loop detected");
+            }
+        } else {
+            if let BlockEnd::Branch(a, b) = self.block.calc_next() {
+                BlockEnd::Single(b)
+            } else {
+                panic!("Invalid while loop detected");
+            }
+        }
+    }
+
+    #[doc = " Does this block contain an instruction that starts at the specified address?"]
+    fn contains(&self, addr: u64) -> bool {
+        self.block.contains(addr) || self.meat.contains(addr)
+    }
+
+    #[doc = " Spawn another block from the specified address in this block"]
+    fn spawn(&mut self, addr: u64) -> Result<Block, SpawnError> {
+        Err(SpawnError::CannotSpawn)
+    }
+
+    #[doc = " Print the source code for the block, with the specified level of indents"]
+    fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
+        todo!()
+    }
+
+    #[doc = " Attempt to find the value of the given register, over all instructions of the block."]
+    fn trace_register_all(&self, reg: Register) -> Value {
+        todo!()
+    }
+
+    #[doc = " Returns the conditional branch of the block, if one exists"]
+    fn branch_value(&self) -> Option<Value> {
+        None
+    }
+
+    #[doc = " Attempt to set the blockend for the graph"]
+    fn set_block_end(&mut self, be: BlockEnd) -> Result<(), ()> {
+        Err(())
+    }
+
+    #[doc = " Add applicable statements to the dot graph for this block, s refers if the simplified or expanded dot is created."]
+    fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph, s: bool) {
+        if s {
+            dot_add_node(g, self.address());
+            if let BlockEnd::Single(a) = self.calc_next() {
+                dot_add_link(g, Value::Bits64(self.address()), a);
+            }
+        } else {
+            self.block.dot_add(g, s);
         }
     }
 }
