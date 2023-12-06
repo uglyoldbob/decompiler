@@ -547,7 +547,7 @@ pub trait BlockTrait {
 }
 
 /// This represents a simplified block, used for simplifying a collection of blocks.
-struct SimplifiedBlock {
+pub struct SimplifiedBlock {
     /// The start address of the simplified block
     start: u64,
     /// The end point of the simplified block
@@ -835,6 +835,9 @@ impl Block {
             return Some(g);
         }
         if let Some(g) = IfElse1Block::try_create(&simplified, head, g, notes) {
+            return Some(g);
+        }
+        if let Some(g) = SimpleIfElseBlock::try_create_if(&simplified, head, g, notes) {
             return Some(g);
         }
         None
@@ -1202,10 +1205,72 @@ impl BlockTrait for GeneratedBlock {
 /// Represents a simple if else chain. Each if statement in the chain has a single condition. All blocks "executed" point to the next block.
 /// Executed in this instance refers to the code executed in an if or else block of code.
 pub struct SimpleIfElseBlock {
-    /// The if blocks of the block. Each successive entry is an else block of the previous one
-    blocks: Vec<(Block, Block)>,
+    /// The if blocks of the block. Each successive entry is an else block of the previous one. The bool indicates reverse logic of the if conditional.
+    blocks: Vec<(Block, Block, bool)>,
     /// The optional else block at the end of the if else chain
     els: Option<Box<Block>>,
+}
+
+impl SimpleIfElseBlock {
+    /// this function checks for a simple if block
+    pub fn try_create_if(
+        simplified: &Vec<SimplifiedBlock>,
+        head: Option<&SimplifiedBlock>,
+        g: &mut graph::Graph<Block>,
+        notes: &mut Vec<String>,
+    ) -> Option<Block> {
+        if let Some(h) = head {
+            let mut ablock = None;
+            let mut bblock = None;
+            if let BlockEnd::Branch(a, b) = h.end {
+                if let Some(a) = a.to_u64() {
+                    for e in simplified {
+                        if e.start == a {
+                            ablock = Some(e);
+                        }
+                    }
+                }
+                if let Some(a) = b.to_u64() {
+                    for e in simplified {
+                        if e.start == a {
+                            bblock = Some(e);
+                        }
+                    }
+                }
+            }
+            if let Some(a) = ablock {
+                if let Some(b) = bblock {
+                    if let BlockEnd::Single(aend) = a.end {
+                        if let Some(aend) = aend.to_u64() {
+                            if aend == b.start {
+                                notes.push("Found an if block\n".to_string());
+                                let mut blocks = Vec::new();
+                                let b1 = g.elements.take(h.index).unwrap();
+                                let b2 = g.elements.take(a.index).unwrap();
+                                blocks.push((b1, b2, false));
+                                let nb = SimpleIfElseBlock { blocks, els: None };
+                                return Some(Block::SimpleIfElse(nb));
+                            }
+                        }
+                    }
+                    if let BlockEnd::Single(bend) = b.end {
+                        if let Some(bend) = bend.to_u64() {
+                            if bend == a.start {
+                                notes.push("Found a reversed logic if block\n".to_string());
+                                let mut blocks = Vec::new();
+                                let b1 = g.elements.take(h.index).unwrap();
+                                let b2 = g.elements.take(b.index).unwrap();
+                                blocks.push((b1, b2, true));
+                                let nb = SimpleIfElseBlock { blocks, els: None };
+                                return Some(Block::SimpleIfElse(nb));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        None
+    }
 }
 
 impl BlockTrait for SimpleIfElseBlock {
@@ -1224,7 +1289,7 @@ impl BlockTrait for SimpleIfElseBlock {
     }
 
     fn contains(&self, addr: u64) -> bool {
-        for (el1, el2) in &self.blocks {
+        for (el1, el2, _reverse) in &self.blocks {
             if el1.contains(addr) {
                 return true;
             }
