@@ -1553,6 +1553,7 @@ impl SequenceBlock {
                             }
                         }
                         BlockEnd::Branch(_a, _b) => {
+                            nsi.push(n.index);
                             notes.push("Branch\n".to_string());
                             break;
                         }

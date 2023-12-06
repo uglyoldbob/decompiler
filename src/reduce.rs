@@ -46,7 +46,7 @@ fn main() {
     std::fs::create_dir_all(&pb2);
 
     let mut failures = 0;
-    let mut successes = 0;
+    let mut item = 0;
     for i in 2.. {
         let gg = crate::generator::GraphGenerator::new(i);
         let gi = gg.create_iter();
@@ -57,9 +57,10 @@ fn main() {
             let dotgraph = gb.create_graph(true);
             let s = gb.simplify(&mut notes);
 
+            item += 1;
             if s.is_err() {
                 failures += 1;
-                println!("Fail to reduce {}", failures);
+                println!("Fail to reduce {}", item);
                 let graph_png = graphviz_rust::exec(
                     dotgraph.clone(),
                     &mut PrinterContext::default(),
@@ -68,18 +69,18 @@ fn main() {
                 .unwrap();
                 let mut path = pb.clone();
                 path.push("fail");
-                path.push(format!("{}.png", failures));
+                path.push(format!("{}.png", item));
                 std::fs::write(path, graph_png).unwrap();
 
                 let mut path = pb.clone();
                 path.push("fail");
-                path.push(format!("{}.dot", failures));
+                path.push(format!("{}.dot", item));
                 std::fs::write(path, dotgraph.print(&mut PrinterContext::default())).unwrap();
 
                 let mut path = pb.clone();
                 let dotgraph = gb.create_graph(true);
                 path.push("fail");
-                path.push(format!("{}-simplify-attempt.dot", failures));
+                path.push(format!("{}-simplify-attempt.dot", item));
                 std::fs::write(path, dotgraph.print(&mut PrinterContext::default())).unwrap();
 
                 let graph_png = graphviz_rust::exec(
@@ -90,12 +91,12 @@ fn main() {
                 .unwrap();
                 let mut path = pb.clone();
                 path.push("fail");
-                path.push(format!("{}-simplify-attempt.png", failures));
+                path.push(format!("{}-simplify-attempt.png", item));
                 std::fs::write(path, graph_png).unwrap();
 
                 let mut path = pb.clone();
                 path.push("fail");
-                path.push(format!("{}-notes.txt", failures));
+                path.push(format!("{}-notes.txt", item));
                 let mut f = std::fs::File::create(path).unwrap();
                 for s in notes {
                     f.write_all(s.as_bytes());
@@ -106,7 +107,6 @@ fn main() {
                     break;
                 }
             } else {
-                successes += 1;
                 let graph_png = graphviz_rust::exec(
                     dotgraph.clone(),
                     &mut PrinterContext::default(),
@@ -115,17 +115,17 @@ fn main() {
                 .unwrap();
                 let mut path = pb.clone();
                 path.push("success");
-                path.push(format!("{}.dot", successes));
+                path.push(format!("{}.dot", item));
                 std::fs::write(path, dotgraph.print(&mut PrinterContext::default())).unwrap();
 
                 let mut path = pb.clone();
                 path.push("success");
-                path.push(format!("{}.png", successes));
+                path.push(format!("{}.png", item));
                 std::fs::write(path, graph_png).unwrap();
 
                 let mut path = pb.clone();
                 path.push("success");
-                path.push(format!("{}-notes.txt", successes));
+                path.push(format!("{}-notes.txt", item));
                 let mut f = std::fs::File::create(path).unwrap();
                 for s in notes {
                     f.write_all(s.as_bytes());
