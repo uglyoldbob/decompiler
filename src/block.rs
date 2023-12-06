@@ -825,50 +825,6 @@ impl Block {
             }
             None
         };
-        //Detect an if else block, where both branches terminate
-        let try_if_else_1 = |g: &mut graph::Graph<Block>, notes: &mut Vec<String>| {
-            if let Some(h) = head {
-                let mut ablock = None;
-                let mut bblock = None;
-                if let BlockEnd::Branch(a, b) = h.end {
-                    if a.is_known() {
-                        let a = a.to_u64().unwrap();
-                        for e in &simplified {
-                            if e.start == a {
-                                ablock = Some(e);
-                            }
-                        }
-                    }
-                    if b.is_known() {
-                        let a = b.to_u64().unwrap();
-                        for e in &simplified {
-                            if e.start == a {
-                                bblock = Some(e);
-                            }
-                        }
-                    }
-                }
-                if let Some(a) = ablock {
-                    if let Some(b) = bblock {
-                        if let BlockEnd::None = a.end {
-                            if let BlockEnd::None = b.end {
-                                let block_if = g.elements.take(h.index).unwrap();
-                                let if_true = g.elements.take(b.index).unwrap();
-                                let if_false = g.elements.take(a.index).unwrap();
-                                notes.push("if else 1 block detected\n".to_string());
-                                let nb = IfElse1Block {
-                                    block: Box::new(block_if),
-                                    met: Box::new(if_true),
-                                    unmet: Box::new(if_false),
-                                };
-                                return Some(Block::IfElseEnding(nb));
-                            }
-                        }
-                    }
-                }
-            }
-            None
-        };
         if let Some(g) = try_sequence(g, notes) {
             return Some(g);
         }
@@ -878,7 +834,7 @@ impl Block {
         if let Some(g) = try_infinite_loop(g, notes) {
             return Some(g);
         }
-        if let Some(g) = try_if_else_1(g, notes) {
+        if let Some(g) = IfElse1Block::try_create(&simplified, head, g, notes) {
             return Some(g);
         }
         None
@@ -933,6 +889,57 @@ pub struct IfElse1Block {
     met: Box<Block>,
     /// The portion executed if the condition is not met
     unmet: Box<Block>,
+}
+
+impl IfElse1Block {
+    fn try_create(
+        simplified: &Vec<SimplifiedBlock>,
+        head: Option<&SimplifiedBlock>,
+        g: &mut graph::Graph<Block>,
+        notes: &mut Vec<String>,
+    ) -> Option<Block> {
+        if let Some(h) = head {
+            let mut ablock = None;
+            let mut bblock = None;
+            if let BlockEnd::Branch(a, b) = h.end {
+                if a.is_known() {
+                    let a = a.to_u64().unwrap();
+                    for e in simplified {
+                        if e.start == a {
+                            ablock = Some(e);
+                        }
+                    }
+                }
+                if b.is_known() {
+                    let a = b.to_u64().unwrap();
+                    for e in simplified {
+                        if e.start == a {
+                            bblock = Some(e);
+                        }
+                    }
+                }
+            }
+            if let Some(a) = ablock {
+                if let Some(b) = bblock {
+                    if let BlockEnd::None = a.end {
+                        if let BlockEnd::None = b.end {
+                            let block_if = g.elements.take(h.index).unwrap();
+                            let if_true = g.elements.take(b.index).unwrap();
+                            let if_false = g.elements.take(a.index).unwrap();
+                            notes.push("if else 1 block detected\n".to_string());
+                            let nb = IfElse1Block {
+                                block: Box::new(block_if),
+                                met: Box::new(if_true),
+                                unmet: Box::new(if_false),
+                            };
+                            return Some(Block::IfElseEnding(nb));
+                        }
+                    }
+                }
+            }
+        }
+        None
+    }
 }
 
 impl BlockTrait for IfElse1Block {
