@@ -907,12 +907,12 @@ impl SimpleWhileBlock {
     /// Try to create a simple while block from the given group of blocks
     fn try_create(
         simplified: &Vec<SimplifiedBlock>,
-        _head: Option<&SimplifiedBlock>,
+        head: Option<&SimplifiedBlock>,
         g: &mut graph::Graph<Block>,
         notes: &mut Vec<String>,
     ) -> Option<Block> {
         if simplified.len() == 2 {
-            for h in simplified {
+            if let Some(h) = head {
                 let mut ablock = None;
                 let mut bblock = None;
                 if let BlockEnd::Branch(a, b) = h.end {
