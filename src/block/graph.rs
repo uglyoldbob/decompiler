@@ -52,6 +52,7 @@ impl From<graphviz_rust::dot_structures::Graph> for Graph<Block> {
                         let new_ele = Block::Generated(GeneratedBlock {
                             address: addr,
                             end: BlockEnd::None,
+                            head: false,
                         });
                         elements.insert(new_ele);
                     }
@@ -254,7 +255,7 @@ impl Graph<Block> {
             }
         }
 
-        let mut nb = Block::new_instructions();
+        let mut nb = Block::new_instructions(false);
         println!("Instruction at {:x} is {}", i.address(), i);
         nb.add_instruction(i);
         let n = nb.calc_next();

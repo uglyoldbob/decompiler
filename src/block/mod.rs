@@ -544,6 +544,8 @@ pub trait BlockTrait {
     fn set_block_end(&mut self, be: BlockEnd) -> Result<(), ()>;
     /// Add applicable statements to the dot graph for this block, s refers if the simplified or expanded dot is created.
     fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph, s: bool);
+    /// Returns true when this block is the head of a function
+    fn is_function_head(&self) -> bool;
 }
 
 /// This represents a simplified block, used for simplifying a collection of blocks.
@@ -566,11 +568,11 @@ pub struct SimplifiedBlock {
 #[enum_dispatch::enum_dispatch]
 pub enum Block {
     /// A basic sequence of `Instruction`.
-    Instruction(Vec<Instruction>),
+    Instruction(InstructionBlock),
     /// A linear sequence of one or more blocks.
-    Sequence(Vec<Block>),
+    Sequence(SequenceBlock),
     /// A basic sequence of statements.
-    Statements(Vec<Statement>),
+    Statements(StatementBlock),
     /// A simple if else chain
     SimpleIfElse(SimpleIfElseBlock),
     /// A do while loop with a simple condition
@@ -769,7 +771,7 @@ impl Block {
                 if nsi.len() > 1 {
                     notes.push("Creating sequence\n".to_string());
                     let ns: Vec<Block> = nsi.iter().map(|i| g.elements.take(*i).unwrap()).collect();
-                    return Some(Block::Sequence(ns));
+                    return Some(Block::Sequence(SequenceBlock { blocks: ns }));
                 }
             }
             None
@@ -902,13 +904,12 @@ impl SimpleWhileBlock {
     /// Try to create a simple while block from the given group of blocks
     fn try_create(
         simplified: &Vec<SimplifiedBlock>,
-        head: Option<&SimplifiedBlock>,
+        _head: Option<&SimplifiedBlock>,
         g: &mut graph::Graph<Block>,
         notes: &mut Vec<String>,
     ) -> Option<Block> {
         if simplified.len() == 2 {
-            notes.push("Checking while loop\n".to_string());
-            if let Some(h) = head {
+            for h in simplified {
                 let mut ablock = None;
                 let mut bblock = None;
                 if let BlockEnd::Branch(a, b) = h.end {
@@ -934,6 +935,12 @@ impl SimpleWhileBlock {
                         if let Some(a) = a.to_u64() {
                             if a == h.start {
                                 notes.push("Found while loop\n".to_string());
+                                let nb = SimpleWhileBlock {
+                                    block: Box::new(g.elements.take(h.index).unwrap()),
+                                    meat: Box::new(g.elements.take(ablock.index).unwrap()),
+                                    reverse: false,
+                                };
+                                return Some(Block::SimpleWhileLoop(nb));
                             }
                         }
                     }
@@ -944,7 +951,13 @@ impl SimpleWhileBlock {
                         notes.push("While loop maybe2\n".to_string());
                         if let Some(a) = a.to_u64() {
                             if a == h.start {
-                                notes.push("Found while loop\n".to_string());
+                                notes.push("Found reverse logic while loop\n".to_string());
+                                let nb = SimpleWhileBlock {
+                                    block: Box::new(g.elements.take(h.index).unwrap()),
+                                    meat: Box::new(g.elements.take(bblock.index).unwrap()),
+                                    reverse: true,
+                                };
+                                return Some(Block::SimpleWhileLoop(nb));
                             }
                         }
                     }
@@ -1018,6 +1031,10 @@ impl BlockTrait for SimpleWhileBlock {
         } else {
             self.block.dot_add(g, s);
         }
+    }
+
+    fn is_function_head(&self) -> bool {
+        self.block.is_function_head()
     }
 }
 
@@ -1132,6 +1149,10 @@ impl BlockTrait for IfElse1Block {
             todo!();
         }
     }
+
+    fn is_function_head(&self) -> bool {
+        self.block.is_function_head()
+    }
 }
 
 #[derive(Clone)]
@@ -1189,6 +1210,10 @@ impl BlockTrait for InfiniteLoopBlock {
         } else {
             self.block.dot_add(g, s);
         }
+    }
+
+    fn is_function_head(&self) -> bool {
+        self.block.is_function_head()
     }
 }
 
@@ -1268,6 +1293,10 @@ impl BlockTrait for SimpleDoWhileBlock {
             self.block.dot_add(g, s);
         }
     }
+
+    fn is_function_head(&self) -> bool {
+        self.block.is_function_head()
+    }
 }
 
 #[derive(Clone)]
@@ -1277,6 +1306,8 @@ pub struct GeneratedBlock {
     address: u64,
     /// The end of the generated block
     end: BlockEnd,
+    /// Is the block a function head
+    head: bool,
 }
 
 impl BlockTrait for GeneratedBlock {
@@ -1336,6 +1367,10 @@ impl BlockTrait for GeneratedBlock {
                 dot_add_link(g, Value::Bits64(sa), b);
             }
         }
+    }
+
+    fn is_function_head(&self) -> bool {
+        self.head
     }
 }
 
@@ -1460,9 +1495,19 @@ impl BlockTrait for SimpleIfElseBlock {
     }
 
     fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph, s: bool) {}
+
+    fn is_function_head(&self) -> bool {
+        self.blocks.first().unwrap().0.is_function_head()
+    }
 }
 
-impl BlockTrait for Vec<Statement> {
+#[derive(Clone)]
+pub struct StatementBlock {
+    statements: Vec<Statement>,
+    head: bool,
+}
+
+impl BlockTrait for StatementBlock {
     fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
         self.indent(level, w)?;
         w.write_all("#error series of statements\n".as_bytes())?;
@@ -1470,15 +1515,15 @@ impl BlockTrait for Vec<Statement> {
     }
 
     fn address(&self) -> u64 {
-        self.first().unwrap().address()
+        self.statements.first().unwrap().address()
     }
 
     fn calc_next(&self) -> BlockEnd {
-        self.last().unwrap().calc_next()
+        self.statements.last().unwrap().calc_next()
     }
 
     fn contains(&self, addr: u64) -> bool {
-        for el in self {
+        for el in &self.statements {
             if el.contains(addr) {
                 return true;
             }
@@ -1489,19 +1534,22 @@ impl BlockTrait for Vec<Statement> {
     fn spawn(&mut self, addr: u64) -> Result<Block, SpawnError> {
         if self.contains(addr) {
             let mut index = 0;
-            for (i, el) in self.iter().enumerate() {
+            for (i, el) in self.statements.iter().enumerate() {
                 if el.address() == addr {
                     index = i;
                     break;
                 }
             }
-            let mut spawn = VecDeque::from(self.split_off(index));
+            let mut spawn = VecDeque::from(self.statements.split_off(index));
             let mut splitme = spawn.pop_front().unwrap();
             let newblock = splitme.spawn(addr)?;
             spawn.push_front(newblock);
-            self.push(splitme);
+            self.statements.push(splitme);
             let s: Vec<Statement> = spawn.into_iter().collect();
-            Ok(Block::Statements(s))
+            Ok(Block::Statements(Self {
+                statements: s,
+                head: false,
+            }))
         } else {
             Err(SpawnError::InvalidAddress)
         }
@@ -1520,26 +1568,37 @@ impl BlockTrait for Vec<Statement> {
     }
 
     fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph, s: bool) {}
+
+    fn is_function_head(&self) -> bool {
+        self.head
+    }
 }
 
-impl BlockTrait for Vec<Block> {
+#[derive(Clone)]
+/// A sequence of blocks
+pub struct SequenceBlock {
+    /// The blocks in the sequence
+    blocks: Vec<Block>,
+}
+
+impl BlockTrait for SequenceBlock {
     fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
-        for b in self {
+        for b in &self.blocks {
             b.write_source(level, w)?;
         }
         Ok(())
     }
 
     fn address(&self) -> u64 {
-        self.first().unwrap().address()
+        self.blocks.first().unwrap().address()
     }
 
     fn calc_next(&self) -> BlockEnd {
-        self.last().unwrap().calc_next()
+        self.blocks.last().unwrap().calc_next()
     }
 
     fn contains(&self, addr: u64) -> bool {
-        for el in self {
+        for el in &self.blocks {
             if el.contains(addr) {
                 return true;
             }
@@ -1550,19 +1609,19 @@ impl BlockTrait for Vec<Block> {
     fn spawn(&mut self, addr: u64) -> Result<Block, SpawnError> {
         if self.contains(addr) {
             let mut index = 0;
-            for (i, el) in self.iter().enumerate() {
+            for (i, el) in self.blocks.iter().enumerate() {
                 if el.address() == addr {
                     index = i;
                     break;
                 }
             }
-            let mut spawn = VecDeque::from(self.split_off(index));
+            let mut spawn = VecDeque::from(self.blocks.split_off(index));
             let mut splitme = spawn.pop_front().unwrap();
             let newblock = splitme.spawn(addr)?;
             spawn.push_front(newblock);
-            self.push(splitme);
+            self.blocks.push(splitme);
             let s: Vec<Block> = spawn.into_iter().collect();
-            Ok(Block::Sequence(s))
+            Ok(Block::Sequence(Self { blocks: s }))
         } else {
             Err(SpawnError::InvalidAddress)
         }
@@ -1573,7 +1632,7 @@ impl BlockTrait for Vec<Block> {
     }
 
     fn branch_value(&self) -> Option<Value> {
-        self.last().unwrap().branch_value()
+        self.blocks.last().unwrap().branch_value()
     }
 
     fn set_block_end(&mut self, be: BlockEnd) -> Result<(), ()> {
@@ -1582,9 +1641,9 @@ impl BlockTrait for Vec<Block> {
 
     fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph, s: bool) {
         if s {
-            let fa = self.first().unwrap().address();
+            let fa = self.blocks.first().unwrap().address();
             dot_add_node(g, fa);
-            match self.last().unwrap().calc_next() {
+            match self.blocks.last().unwrap().calc_next() {
                 BlockEnd::None => {}
                 BlockEnd::Single(a) => {
                     dot_add_link(g, Value::Bits64(fa), a);
@@ -1595,19 +1654,32 @@ impl BlockTrait for Vec<Block> {
                 }
             }
         } else {
-            for e in self {
+            for e in &self.blocks {
                 e.dot_add(g, s);
             }
         }
     }
+
+    fn is_function_head(&self) -> bool {
+        self.blocks.first().unwrap().is_function_head()
+    }
 }
 
-impl BlockTrait for Vec<Instruction> {
+#[derive(Clone)]
+/// The block created dynamically by the disassembly process
+pub struct InstructionBlock {
+    /// The instructions of the block
+    instructions: Vec<Instruction>,
+    /// The state of the block being a head block
+    head: bool,
+}
+
+impl BlockTrait for InstructionBlock {
     fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
         self.indent(level, w)?;
         w.write_all("#error instruction block ".as_bytes())?;
         w.write_all(format!("{:X}\n", self.address()).as_bytes())?;
-        for i in self {
+        for i in &self.instructions {
             self.indent(level, w)?;
             w.write_all(format!("{}\n", i).as_bytes())?;
         }
@@ -1615,16 +1687,16 @@ impl BlockTrait for Vec<Instruction> {
     }
 
     fn address(&self) -> u64 {
-        self.first().unwrap().address()
+        self.instructions.first().unwrap().address()
     }
 
     fn calc_next(&self) -> BlockEnd {
-        self.last().unwrap().calc_next()
+        self.instructions.last().unwrap().calc_next()
     }
 
     /// Does this block contain an instruction that starts at the specified address?
     fn contains(&self, addr: u64) -> bool {
-        for i in self {
+        for i in &self.instructions {
             if i.address() == addr {
                 return true;
             }
@@ -1635,13 +1707,16 @@ impl BlockTrait for Vec<Instruction> {
     fn spawn(&mut self, addr: u64) -> Result<Block, SpawnError> {
         if self.contains(addr) {
             let mut index = 0;
-            for (i, el) in self.iter().enumerate() {
+            for (i, el) in self.instructions.iter().enumerate() {
                 if el.address() == addr {
                     index = i;
                     break;
                 }
             }
-            let spawn = self.split_off(index);
+            let spawn = Self {
+                instructions: self.instructions.split_off(index),
+                head: false,
+            };
             Ok(Block::Instruction(spawn))
         } else {
             Err(SpawnError::InvalidAddress)
@@ -1651,7 +1726,7 @@ impl BlockTrait for Vec<Instruction> {
     /// Trace the value of a register until a known value is found, or to the beginning of the block.
     fn trace_register_all(&self, reg: Register) -> Value {
         let mut val = Value::Unknown;
-        for instr in self.iter().rev() {
+        for instr in self.instructions.iter().rev() {
             val = instr.trace_register(reg);
             if val.is_known() {
                 break;
@@ -1661,7 +1736,7 @@ impl BlockTrait for Vec<Instruction> {
     }
 
     fn branch_value(&self) -> Option<Value> {
-        match self.last().unwrap().calc_next() {
+        match self.instructions.last().unwrap().calc_next() {
             BlockEnd::Single(_a) => None,
             BlockEnd::Branch(_a, b) => Some(b),
             BlockEnd::None => None,
@@ -1687,18 +1762,25 @@ impl BlockTrait for Vec<Instruction> {
             }
         }
     }
+
+    fn is_function_head(&self) -> bool {
+        self.head
+    }
 }
 
 impl Block {
     /// Construct an empty block of instructions.
-    pub fn new_instructions() -> Self {
-        Block::Instruction(Vec::new())
+    pub fn new_instructions(head: bool) -> Self {
+        Block::Instruction(InstructionBlock {
+            instructions: Vec::new(),
+            head,
+        })
     }
 
     /// Add the specified instruction to the end of this block.
     pub fn add_instruction(&mut self, i: Instruction) {
         if let Block::Instruction(b) = self {
-            b.push(i);
+            b.instructions.push(i);
         } else {
             panic!("Attempt to add instructions to Block that does not accept instructions");
         }
