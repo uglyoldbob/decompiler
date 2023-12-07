@@ -94,6 +94,27 @@ impl GraphIterator {
             }
         }
 
+        let mut check = Vec::new();
+        let mut traced = vec![false; self.gg.num_blocks as usize];
+        check.push(0);
+        while let Some(index) = check.pop() {
+            traced[index] = true;
+            let node = self.links[index];
+            if let Some(a) = node.0 {
+                if !traced[a as usize] {
+                    check.push(a as usize);
+                }
+            }
+            if let Some(b) = node.1 {
+                if !traced[b as usize] {
+                    check.push(b as usize);
+                }
+            }
+        }
+        if !traced.iter().fold(true, |a, b| a & b) {
+            valid = false;
+        }
+
         valid
     }
 

@@ -1541,6 +1541,27 @@ pub struct SequenceBlock {
 }
 
 impl SequenceBlock {
+    /// This is used to simplify a sequence that contains a sequence
+    fn simplify(&mut self) {
+        let mut found_sequence = false;
+        for b in &self.blocks {
+            if let Block::Sequence(_s) = b {
+                found_sequence = true;
+            }
+        }
+        if found_sequence {
+            let mut blocks = Vec::new();
+            for b in self.blocks.clone().into_iter() {
+                if let Block::Sequence(mut s) = b {
+                    blocks.append(&mut s.blocks);
+                } else {
+                    blocks.push(b);
+                }
+            }
+            self.blocks = blocks;
+        }
+    }
+
     fn try_create(
         simplified: &Vec<SimplifiedBlock>,
         head: Option<&SimplifiedBlock>,
@@ -1551,8 +1572,13 @@ impl SequenceBlock {
             let mut nsi = Vec::new();
 
             let mut element = head;
+            let mut nodes_visited = 0;
             loop {
                 if let Some(n) = element.take() {
+                    nodes_visited += 1;
+                    if nodes_visited > simplified.len() {
+                        return false;
+                    }
                     match n.end {
                         BlockEnd::None => {
                             notes.push(format!("{:X}", n.start));
@@ -1584,7 +1610,9 @@ impl SequenceBlock {
             if nsi.len() > 1 {
                 notes.push("Creating sequence\n".to_string());
                 let ns: Vec<Block> = nsi.iter().map(|i| g.elements.take(*i).unwrap()).collect();
-                let nb = Block::Sequence(SequenceBlock { blocks: ns });
+                let mut sb = SequenceBlock { blocks: ns };
+                sb.simplify();
+                let nb = Block::Sequence(sb);
                 g.elements.insert(nb);
                 return true;
             }
