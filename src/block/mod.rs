@@ -741,14 +741,24 @@ impl Block {
                     return false;
                 }
             }
-            // Do not simplify if more than one block has remote inputs
-            if el.remote_inputs.len() > 0 {
-                if head.is_some() {
-                    notes.push("More than one block with remote inputs detected\n".to_string());
+        }
+        for el in &simplified {
+            if let Some(_h) = function_head {
+                //No remote inputs are allowed if a function head is found
+                if el.remote_inputs.len() > 0 {
+                    notes.push("Remote inputs found with function head\n".to_string());
                     return false;
-                } else {
-                    notes.push(format!("Regular head detected {:x}\n", el.start));
-                    head = Some(el);
+                }
+            } else {
+                // Do not simplify if more than one block has remote inputs
+                if el.remote_inputs.len() > 0 {
+                    if head.is_some() {
+                        notes.push("More than one block with remote inputs detected\n".to_string());
+                        return false;
+                    } else {
+                        notes.push(format!("Regular head detected {:x}\n", el.start));
+                        head = Some(el);
+                    }
                 }
             }
         }
@@ -846,7 +856,7 @@ impl BlockTrait for GeneratedBlock {
     #[doc = " Print the source code for the block, with the specified level of indents"]
     fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
         self.indent(level, w)?;
-        w.write_all("//Dummy code\n".as_bytes())?;
+        w.write_all(format!("//Dummy code {:X}\n", self.address()).as_bytes())?;
         Ok(())
     }
 

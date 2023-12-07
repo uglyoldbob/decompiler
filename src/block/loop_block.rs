@@ -120,9 +120,10 @@ impl BlockTrait for SimpleWhileBlock {
 
     #[doc = " Print the source code for the block, with the specified level of indents"]
     fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
+        self.block.write_source(level, w)?;
         self.indent(level, w)?;
         w.write_all("while (?) {\n".as_bytes())?;
-        self.block.write_source(level + 1, w)?;
+        self.meat.write_source(level + 1, w)?;
         self.indent(level, w)?;
         w.write_all("}\n".as_bytes())?;
         Ok(())

@@ -154,54 +154,64 @@ impl SimpleIfElseBlock {
         g: &mut super::graph::Graph<Block>,
         notes: &mut Vec<String>,
     ) -> bool {
-        if let Some(h) = head {
-            let mut ablock = None;
-            let mut bblock = None;
-            if let BlockEnd::Branch(a, b) = h.end {
-                if let Some(a) = a.to_u64() {
-                    for e in simplified {
-                        if e.start == a {
-                            ablock = Some(e);
-                        }
-                    }
-                }
-                if let Some(a) = b.to_u64() {
-                    for e in simplified {
-                        if e.start == a {
-                            bblock = Some(e);
-                        }
-                    }
-                }
-            }
-            if let Some(a) = ablock {
-                if let Some(b) = bblock {
-                    if let BlockEnd::Single(aend) = a.end {
-                        if let Some(aend) = aend.to_u64() {
-                            if aend == b.start {
-                                notes.push("Found an if block\n".to_string());
-                                let mut blocks = Vec::new();
-                                let b1 = g.elements.take(h.index).unwrap();
-                                let b2 = g.elements.take(a.index).unwrap();
-                                blocks.push((b1, b2, false));
-                                let nb = SimpleIfElseBlock { blocks, els: None };
-                                let nb = Block::SimpleIfElse(nb);
-                                g.elements.insert(nb);
-                                return true;
+        if simplified.len() == 2 {
+            if let Some(h) = head {
+                let mut ablock = None;
+                let mut bblock = None;
+                let mut aval = None;
+                let mut bval = None;
+                if let BlockEnd::Branch(a, b) = h.end {
+                    if let Some(a) = a.to_u64() {
+                        aval = Some(a);
+                        for e in simplified {
+                            if e.start == a {
+                                ablock = Some(e);
                             }
                         }
                     }
-                    if let BlockEnd::Single(bend) = b.end {
-                        if let Some(bend) = bend.to_u64() {
-                            if bend == a.start {
-                                notes.push("Found a reversed logic if block\n".to_string());
-                                let mut blocks = Vec::new();
-                                let b1 = g.elements.take(h.index).unwrap();
-                                let b2 = g.elements.take(b.index).unwrap();
-                                blocks.push((b1, b2, true));
-                                let nb = SimpleIfElseBlock { blocks, els: None };
-                                let nb = Block::SimpleIfElse(nb);
-                                g.elements.insert(nb);
-                                return true;
+                    if let Some(a) = b.to_u64() {
+                        bval = Some(a);
+                        for e in simplified {
+                            if e.start == a {
+                                bblock = Some(e);
+                            }
+                        }
+                    }
+                }
+                if let Some(a) = ablock {
+                    if let Some(bval) = bval {
+                        if let BlockEnd::Single(aend) = a.end {
+                            if let Some(aend) = aend.to_u64() {
+                                if aend == bval {
+                                    notes.push("Found an if block\n".to_string());
+                                    let mut blocks = Vec::new();
+                                    let b1 = g.elements.take(h.index).unwrap();
+                                    let b2 = g.elements.take(a.index).unwrap();
+                                    blocks.push((b1, b2, false));
+                                    let nb = SimpleIfElseBlock { blocks, els: None };
+                                    let nb = Block::SimpleIfElse(nb);
+                                    g.elements.insert(nb);
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+                if let Some(b) = bblock {
+                    if let Some(aval) = aval {
+                        if let BlockEnd::Single(bend) = b.end {
+                            if let Some(bend) = bend.to_u64() {
+                                if bend == aval {
+                                    notes.push("Found a reversed logic if block\n".to_string());
+                                    let mut blocks = Vec::new();
+                                    let b1 = g.elements.take(h.index).unwrap();
+                                    let b2 = g.elements.take(b.index).unwrap();
+                                    blocks.push((b1, b2, true));
+                                    let nb = SimpleIfElseBlock { blocks, els: None };
+                                    let nb = Block::SimpleIfElse(nb);
+                                    g.elements.insert(nb);
+                                    return true;
+                                }
                             }
                         }
                     }
