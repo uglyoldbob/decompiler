@@ -7,7 +7,7 @@ void function_1(void) {
 void function_2(void) {
 	do {
 		//Dummy code 0
-	} while (?);
+	} while (dummy);
 	//Dummy code 1
 }
 
@@ -22,7 +22,7 @@ void function_4(void) {
 	do {
 		do {
 			//Dummy code 0
-		} while (?);
+		} while (dummy);
 		//Dummy code 1
 	} while (1);
 }
@@ -37,7 +37,7 @@ void function_5(void) {
 void function_6(void) {
 	do {
 		//Dummy code 0
-	} while (?);
+	} while (dummy);
 	do {
 		//Dummy code 1
 	} while (1);
@@ -45,7 +45,7 @@ void function_6(void) {
 
 void function_7(void) {
 	//Dummy code 0
-	if (?) {
+	if (dummy) {
 		//Dummy code 2
 	}
 	else {
@@ -55,7 +55,7 @@ void function_7(void) {
 
 void function_8(void) {
 	//Dummy code 0
-	while (?) {
+	while (dummy) {
 		//Dummy code 1
 	}
 	//Dummy code 2
@@ -63,7 +63,7 @@ void function_8(void) {
 
 void function_9(void) {
 	//Dummy code 0
-	if (?) {
+	if (dummy) {
 		//Dummy code 2
 	}
 	else {
@@ -82,14 +82,14 @@ void function_10(void) {
 void function_11(void) {
 	do {
 		//Dummy code 0
-	} while (?);
+	} while (dummy);
 	//Dummy code 1
 	//Dummy code 2
 }
 
 void function_12(void) {
 	//Dummy code 0
-	if (?) {
+	if (dummy) {
 		//Dummy code 1
 	}
 	//Dummy code 2
@@ -97,10 +97,10 @@ void function_12(void) {
 
 void function_13(void) {
 	//Dummy code 0
-	while (?) {
+	while (dummy) {
 		do {
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 	}
 	//Dummy code 2
 }
@@ -109,7 +109,7 @@ void function_14(void) {
 	do {
 		//Dummy code 0
 		//Dummy code 1
-	} while (?);
+	} while (dummy);
 	//Dummy code 2
 }
 
@@ -117,50 +117,50 @@ void function_15(void) {
 	do {
 		do {
 			//Dummy code 0
-		} while (?);
+		} while (dummy);
 		//Dummy code 1
-	} while (?);
+	} while (dummy);
 	//Dummy code 2
 }
 
 void function_16(void) {
 	#error not simplified
+	//Dummy code 2
 	//Dummy code 0
 	//Dummy code 1
-	//Dummy code 2
 }
 
 void function_17(void) {
 	//Dummy code 0
 	do {
 		//Dummy code 1
-	} while (?);
+	} while (dummy);
 	//Dummy code 2
 }
 
 void function_18(void) {
 	do {
 		//Dummy code 0
-	} while (?);
+	} while (dummy);
 	do {
 		//Dummy code 1
-	} while (?);
+	} while (dummy);
 	//Dummy code 2
 }
 
 void function_19(void) {
 	//Dummy code 0
-	if (?) {
+	if (dummy) {
 		do {
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 	}
 	//Dummy code 2
 }
 
 void function_20(void) {
 	//Dummy code 0
-	while (?) {
+	while (dummy) {
 		//Dummy code 2
 	}
 	//Dummy code 1
@@ -169,16 +169,16 @@ void function_20(void) {
 void function_21(void) {
 	do {
 		//Dummy code 0
-		while (?) {
-			//Dummy code 2
+		while (dummy) {
+			//Dummy code 1
 		}
-		//Dummy code 1
+		//Dummy code 2
 	} while (1);
 }
 
 void function_22(void) {
 	//Dummy code 0
-	while (?) {
+	while (dummy) {
 		//Dummy code 2
 	}
 	do {
@@ -198,7 +198,7 @@ void function_24(void) {
 	do {
 		do {
 			//Dummy code 0
-		} while (?);
+		} while (dummy);
 		//Dummy code 1
 		//Dummy code 2
 	} while (1);
@@ -207,7 +207,7 @@ void function_24(void) {
 void function_25(void) {
 	do {
 		//Dummy code 0
-		if (?) {
+		if (dummy) {
 			//Dummy code 1
 		}
 		//Dummy code 2
@@ -217,10 +217,10 @@ void function_25(void) {
 void function_26(void) {
 	do {
 		//Dummy code 0
-		while (?) {
+		while (dummy) {
 			do {
 				//Dummy code 1
-			} while (?);
+			} while (dummy);
 		}
 		//Dummy code 2
 	} while (1);
@@ -228,11 +228,11 @@ void function_26(void) {
 
 void function_27(void) {
 	do {
-		do {
-			//Dummy code 0
-			//Dummy code 1
-		} while (?);
-		//Dummy code 2
+		//Dummy code 0
+		//Dummy code 1
+		if (dummy) {
+			//Dummy code 2
+		}
 	} while (1);
 }
 
@@ -240,9 +240,9 @@ void function_28(void) {
 	do {
 		do {
 			//Dummy code 0
-		} while (?);
+		} while (dummy);
 		//Dummy code 1
-		if (?) {
+		if (dummy) {
 			//Dummy code 2
 		}
 	} while (1);
@@ -260,7 +260,7 @@ void function_30(void) {
 		//Dummy code 0
 		do {
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 		//Dummy code 2
 	} while (1);
 }
@@ -269,10 +269,10 @@ void function_31(void) {
 	do {
 		do {
 			//Dummy code 0
-		} while (?);
+		} while (dummy);
 		do {
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 		//Dummy code 2
 	} while (1);
 }
@@ -280,10 +280,10 @@ void function_31(void) {
 void function_32(void) {
 	do {
 		//Dummy code 0
-		if (?) {
+		if (dummy) {
 			do {
 				//Dummy code 1
-			} while (?);
+			} while (dummy);
 		}
 		//Dummy code 2
 	} while (1);
@@ -298,14 +298,14 @@ void function_33(void) {
 void function_34(void) {
 	do {
 		//Dummy code 0
-	} while (?);
+	} while (dummy);
 	//Dummy code 2
 	//Dummy code 1
 }
 
 void function_35(void) {
 	//Dummy code 0
-	if (?) {
+	if (dummy) {
 		//Dummy code 2
 	}
 	//Dummy code 1
@@ -323,7 +323,7 @@ void function_37(void) {
 	do {
 		do {
 			//Dummy code 0
-		} while (?);
+		} while (dummy);
 		//Dummy code 2
 		//Dummy code 1
 	} while (1);
@@ -332,7 +332,7 @@ void function_37(void) {
 void function_38(void) {
 	do {
 		//Dummy code 0
-		if (?) {
+		if (dummy) {
 			//Dummy code 2
 		}
 		//Dummy code 1
@@ -350,7 +350,7 @@ void function_39(void) {
 void function_40(void) {
 	do {
 		//Dummy code 0
-	} while (?);
+	} while (dummy);
 	//Dummy code 2
 	do {
 		//Dummy code 1
@@ -359,7 +359,7 @@ void function_40(void) {
 
 void function_41(void) {
 	//Dummy code 0
-	if (?) {
+	if (dummy) {
 		//Dummy code 2
 	}
 	do {
@@ -386,7 +386,7 @@ void function_43(void) {
 void function_44(void) {
 	do {
 		//Dummy code 0
-	} while (?);
+	} while (dummy);
 	do {
 		//Dummy code 1
 		//Dummy code 2
@@ -396,7 +396,7 @@ void function_44(void) {
 void function_45(void) {
 	do {
 		//Dummy code 0
-	} while (?);
+	} while (dummy);
 	do {
 		//Dummy code 2
 		//Dummy code 1
@@ -406,8 +406,8 @@ void function_45(void) {
 void function_46(void) {
 	#error not simplified
 	//Dummy code 1
-	//Dummy code 2
 	//Dummy code 0
+	//Dummy code 2
 }
 
 void function_47(void) {
@@ -416,7 +416,7 @@ void function_47(void) {
 		//Dummy code 2
 		do {
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 	} while (1);
 }
 
@@ -424,23 +424,23 @@ void function_48(void) {
 	do {
 		do {
 			//Dummy code 0
-		} while (?);
+		} while (dummy);
 		//Dummy code 2
 		do {
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 	} while (1);
 }
 
 void function_49(void) {
 	do {
 		//Dummy code 0
-		if (?) {
+		if (dummy) {
 			//Dummy code 2
 		}
 		do {
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 	} while (1);
 }
 
@@ -448,7 +448,7 @@ void function_50(void) {
 	do {
 		//Dummy code 0
 		//Dummy code 1
-		while (?) {
+		while (dummy) {
 			//Dummy code 2
 		}
 	} while (1);
@@ -460,7 +460,7 @@ void function_51(void) {
 		do {
 			//Dummy code 2
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 	} while (1);
 }
 
@@ -468,9 +468,9 @@ void function_52(void) {
 	do {
 		do {
 			//Dummy code 0
-		} while (?);
+		} while (dummy);
 		//Dummy code 1
-		while (?) {
+		while (dummy) {
 			//Dummy code 2
 		}
 	} while (1);
@@ -480,19 +480,19 @@ void function_53(void) {
 	do {
 		do {
 			//Dummy code 0
-		} while (?);
+		} while (dummy);
 		do {
 			//Dummy code 2
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 	} while (1);
 }
 
 void function_54(void) {
 	#error not simplified
+	//Dummy code 1
 	//Dummy code 0
 	//Dummy code 2
-	//Dummy code 1
 }
 
 void function_55(void) {
@@ -500,7 +500,7 @@ void function_55(void) {
 	do {
 		do {
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 		//Dummy code 2
 	} while (1);
 }
@@ -511,18 +511,18 @@ void function_56(void) {
 		//Dummy code 2
 		do {
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 	} while (1);
 }
 
 void function_57(void) {
 	do {
 		//Dummy code 0
-	} while (?);
+	} while (dummy);
 	do {
 		do {
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 		//Dummy code 2
 	} while (1);
 }
@@ -530,27 +530,27 @@ void function_57(void) {
 void function_58(void) {
 	do {
 		//Dummy code 0
-	} while (?);
+	} while (dummy);
 	do {
 		//Dummy code 2
 		do {
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 	} while (1);
 }
 
 void function_59(void) {
 	#error not simplified
 	//Dummy code 2
+	//Dummy code 0
 	do {
 		//Dummy code 1
-	} while (?);
-	//Dummy code 0
+	} while (dummy);
 }
 
 void function_60(void) {
 	//Dummy code 0
-	if (?) {
+	if (dummy) {
 		do {
 			//Dummy code 2
 		} while (1);
@@ -562,7 +562,7 @@ void function_60(void) {
 
 void function_61(void) {
 	//Dummy code 0
-	while (?) {
+	while (dummy) {
 		//Dummy code 1
 	}
 	do {
@@ -572,7 +572,7 @@ void function_61(void) {
 
 void function_62(void) {
 	//Dummy code 0
-	if (?) {
+	if (dummy) {
 		do {
 			//Dummy code 2
 		} while (1);
@@ -595,7 +595,7 @@ void function_63(void) {
 void function_64(void) {
 	do {
 		//Dummy code 0
-	} while (?);
+	} while (dummy);
 	//Dummy code 1
 	do {
 		//Dummy code 2
@@ -604,7 +604,7 @@ void function_64(void) {
 
 void function_65(void) {
 	//Dummy code 0
-	if (?) {
+	if (dummy) {
 		//Dummy code 1
 	}
 	do {
@@ -614,10 +614,10 @@ void function_65(void) {
 
 void function_66(void) {
 	//Dummy code 0
-	while (?) {
+	while (dummy) {
 		do {
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 	}
 	do {
 		//Dummy code 2
@@ -628,7 +628,7 @@ void function_67(void) {
 	do {
 		//Dummy code 0
 		//Dummy code 1
-	} while (?);
+	} while (dummy);
 	do {
 		//Dummy code 2
 	} while (1);
@@ -638,9 +638,9 @@ void function_68(void) {
 	do {
 		do {
 			//Dummy code 0
-		} while (?);
+		} while (dummy);
 		//Dummy code 1
-	} while (?);
+	} while (dummy);
 	do {
 		//Dummy code 2
 	} while (1);
@@ -648,18 +648,18 @@ void function_68(void) {
 
 void function_69(void) {
 	#error not simplified
-	//Dummy code 1
+	//Dummy code 0
 	do {
 		//Dummy code 2
 	} while (1);
-	//Dummy code 0
+	//Dummy code 1
 }
 
 void function_70(void) {
 	//Dummy code 0
 	do {
 		//Dummy code 1
-	} while (?);
+	} while (dummy);
 	do {
 		//Dummy code 2
 	} while (1);
@@ -668,10 +668,10 @@ void function_70(void) {
 void function_71(void) {
 	do {
 		//Dummy code 0
-	} while (?);
+	} while (dummy);
 	do {
 		//Dummy code 1
-	} while (?);
+	} while (dummy);
 	do {
 		//Dummy code 2
 	} while (1);
@@ -679,10 +679,10 @@ void function_71(void) {
 
 void function_72(void) {
 	//Dummy code 0
-	if (?) {
+	if (dummy) {
 		do {
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 	}
 	do {
 		//Dummy code 2
@@ -691,7 +691,7 @@ void function_72(void) {
 
 void function_73(void) {
 	//Dummy code 0
-	if (?) {
+	if (dummy) {
 		//Dummy code 3
 	}
 	else {
@@ -702,7 +702,7 @@ void function_73(void) {
 
 void function_74(void) {
 	//Dummy code 0
-	if (?) {
+	if (dummy) {
 		//Dummy code 2
 	}
 	else {
@@ -713,21 +713,21 @@ void function_74(void) {
 
 void function_75(void) {
 	#error not simplified
-	//Dummy code 1
 	//Dummy code 3
-	//Dummy code 2
+	//Dummy code 1
 	//Dummy code 0
+	//Dummy code 2
 }
 
 void function_76(void) {
 	//Dummy code 0
-	if (?) {
+	if (dummy) {
 		//Dummy code 3
 	}
 	else {
 		do {
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 		//Dummy code 2
 	}
 }
@@ -735,20 +735,20 @@ void function_76(void) {
 void function_77(void) {
 	#error not simplified
 	//Dummy code 2
+	//Dummy code 1
 	//Dummy code 0
 	//Dummy code 3
-	//Dummy code 1
 }
 
 void function_78(void) {
 	//Dummy code 0
-	if (?) {
+	if (dummy) {
 		//Dummy code 2
 	}
 	else {
 		do {
 			//Dummy code 1
-		} while (?);
+		} while (dummy);
 		//Dummy code 3
 	}
 }
@@ -756,7 +756,7 @@ void function_78(void) {
 void function_79(void) {
 	//Dummy code 0
 	//Dummy code 1
-	if (?) {
+	if (dummy) {
 		//Dummy code 3
 	}
 	else {
@@ -767,9 +767,9 @@ void function_79(void) {
 void function_80(void) {
 	do {
 		//Dummy code 0
-	} while (?);
+	} while (dummy);
 	//Dummy code 1
-	if (?) {
+	if (dummy) {
 		//Dummy code 3
 	}
 	else {
@@ -780,16 +780,16 @@ void function_80(void) {
 void function_81(void) {
 	#error not simplified
 	//Dummy code 1
-	//Dummy code 3
 	//Dummy code 2
 	//Dummy code 0
+	//Dummy code 3
 }
 
 void function_82(void) {
 	#error not simplified
-	//Dummy code 1
-	//Dummy code 2
-	//Dummy code 0
 	//Dummy code 3
+	//Dummy code 0
+	//Dummy code 2
+	//Dummy code 1
 }
 

@@ -526,6 +526,17 @@ pub enum Conditional {
     Dummy,
 }
 
+impl Conditional {
+    fn write(&self) -> String {
+        match self {
+            Conditional::Equality(a, b) => todo!(),
+            Conditional::Dummy => {
+                "dummy".to_string()
+            }
+        }
+    }
+}
+
 /// The trait that all blocks of code must implement
 #[enum_dispatch::enum_dispatch(Block)]
 pub trait BlockTrait {

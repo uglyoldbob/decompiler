@@ -92,7 +92,7 @@ impl BlockTrait for IfElse1Block {
     fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
         self.block.write_source(level, w)?;
         self.indent(level, w)?;
-        w.write_all("if (?) {\n".as_bytes())?;
+        w.write_all(format!("if ({}) {{\n", self.block.conditional().unwrap().write()).as_bytes())?;
         self.met.write_source(level + 1, w)?;
         self.indent(level, w)?;
         w.write_all("}\n".as_bytes())?;
@@ -231,7 +231,7 @@ impl BlockTrait for SimpleIfElseBlock {
             if i > 0 {
                 w.write_all("else ".as_bytes())?;
             }
-            w.write_all("if (?) {\n".as_bytes())?;
+            w.write_all(format!("if ({}) {{\n", b1.conditional().unwrap().write()).as_bytes())?;
             b2.write_source(level + 1, w)?;
             self.indent(level, w)?;
             w.write_all("}\n".as_bytes())?;

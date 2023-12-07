@@ -122,7 +122,7 @@ impl BlockTrait for SimpleWhileBlock {
     fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
         self.block.write_source(level, w)?;
         self.indent(level, w)?;
-        w.write_all("while (?) {\n".as_bytes())?;
+        w.write_all(format!("while ({}) {{\n", self.block.conditional().unwrap().write()).as_bytes())?;
         self.meat.write_source(level + 1, w)?;
         self.indent(level, w)?;
         w.write_all("}\n".as_bytes())?;
@@ -358,7 +358,7 @@ impl BlockTrait for SimpleDoWhileBlock {
         w.write_all("do {\n".as_bytes())?;
         self.block.write_source(level + 1, w)?;
         self.indent(level, w)?;
-        w.write_all("} while (?);\n".as_bytes())?;
+        w.write_all(format!("}} while ({});\n", self.block.conditional().unwrap().write()).as_bytes())?;
         Ok(())
     }
 
