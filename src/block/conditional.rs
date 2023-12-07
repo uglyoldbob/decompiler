@@ -90,6 +90,7 @@ impl BlockTrait for IfElse1Block {
 
     #[doc = " Print the source code for the block, with the specified level of indents"]
     fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
+        self.block.write_source(level, w)?;
         self.indent(level, w)?;
         w.write_all("if (?) {\n".as_bytes())?;
         self.met.write_source(level + 1, w)?;
