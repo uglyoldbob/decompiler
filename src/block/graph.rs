@@ -312,9 +312,8 @@ impl Graph<Block> {
                     }
                     notes.push("\n".to_string());
                     let pregraph = self.create_graph(true);
-                    if let Some(b) = Block::try_create(self, c, notes) {
+                    if Block::try_create(self, c, notes) {
                         notes.push("\tSimplified: ".to_string());
-                        self.elements.insert(b);
                         let graph = self.create_graph(true);
                         notes.push(format!(
                             "PREDOT IS {}\n",

@@ -595,7 +595,7 @@ impl Block {
         g: &mut graph::Graph<Block>,
         indexes: Vec<usize>,
         notes: &mut Vec<String>,
-    ) -> Option<Block> {
+    ) -> bool {
         let mut simplified: Vec<SimplifiedBlock> = indexes
             .iter()
             .map(|i| {
@@ -701,14 +701,14 @@ impl Block {
                 } else {
                     // More than one unused block is not allowed.
                     notes.push("More than one function head detected\n".to_string());
-                    return None;
+                    return false;
                 }
             }
             // Do not simplify if more than one block has remote inputs
             if el.remote_inputs.len() > 0 {
                 if head.is_some() {
                     notes.push("More than one block with remote inputs detected\n".to_string());
-                    return None;
+                    return false;
                 } else {
                     notes.push(format!("Regular head detected {:x}\n", el.start));
                     head = Some(el);
@@ -717,25 +717,12 @@ impl Block {
         }
         let head = function_head.or(head);
 
-        if let Some(g) = SequenceBlock::try_create(&simplified, head, g, notes) {
-            return Some(g);
-        }
-        if let Some(g) = SimpleDoWhileBlock::try_create(&simplified, head, g, notes) {
-            return Some(g);
-        }
-        if let Some(g) = InfiniteLoopBlock::try_create(&simplified, head, g, notes) {
-            return Some(g);
-        }
-        if let Some(g) = IfElse1Block::try_create(&simplified, head, g, notes) {
-            return Some(g);
-        }
-        if let Some(g) = SimpleIfElseBlock::try_create_if(&simplified, head, g, notes) {
-            return Some(g);
-        }
-        if let Some(g) = SimpleWhileBlock::try_create(&simplified, head, g, notes) {
-            return Some(g);
-        }
-        None
+        SequenceBlock::try_create(&simplified, head, g, notes)
+            || SimpleDoWhileBlock::try_create(&simplified, head, g, notes)
+            || InfiniteLoopBlock::try_create(&simplified, head, g, notes)
+            || IfElse1Block::try_create(&simplified, head, g, notes)
+            || SimpleIfElseBlock::try_create_if(&simplified, head, g, notes)
+            || SimpleWhileBlock::try_create(&simplified, head, g, notes)
     }
 }
 
@@ -795,7 +782,7 @@ impl SimpleWhileBlock {
         head: Option<&SimplifiedBlock>,
         g: &mut graph::Graph<Block>,
         notes: &mut Vec<String>,
-    ) -> Option<Block> {
+    ) -> bool {
         if simplified.len() == 2 {
             if let Some(h) = head {
                 let mut ablock = None;
@@ -828,7 +815,9 @@ impl SimpleWhileBlock {
                                     meat: Box::new(g.elements.take(ablock.index).unwrap()),
                                     reverse: false,
                                 };
-                                return Some(Block::SimpleWhileLoop(nb));
+                                let nb = Block::SimpleWhileLoop(nb);
+                                g.elements.insert(nb);
+                                return true;
                             }
                         }
                     }
@@ -845,14 +834,16 @@ impl SimpleWhileBlock {
                                     meat: Box::new(g.elements.take(bblock.index).unwrap()),
                                     reverse: true,
                                 };
-                                return Some(Block::SimpleWhileLoop(nb));
+                                let nb = Block::SimpleWhileLoop(nb);
+                                g.elements.insert(nb);
+                                return true;
                             }
                         }
                     }
                 }
             }
         }
-        None
+        false
     }
 }
 
@@ -943,7 +934,7 @@ impl IfElse1Block {
         head: Option<&SimplifiedBlock>,
         g: &mut graph::Graph<Block>,
         notes: &mut Vec<String>,
-    ) -> Option<Block> {
+    ) -> bool {
         if let Some(h) = head {
             let mut ablock = None;
             let mut bblock = None;
@@ -978,13 +969,15 @@ impl IfElse1Block {
                                 met: Box::new(if_true),
                                 unmet: Box::new(if_false),
                             };
-                            return Some(Block::IfElseEnding(nb));
+                            let nb = Block::IfElseEnding(nb);
+                            g.elements.insert(nb);
+                            return true;
                         }
                     }
                 }
             }
         }
-        None
+        false
     }
 }
 
@@ -1056,7 +1049,7 @@ impl InfiniteLoopBlock {
         head: Option<&SimplifiedBlock>,
         g: &mut graph::Graph<Block>,
         notes: &mut Vec<String>,
-    ) -> Option<Block> {
+    ) -> bool {
         if simplified.len() == 1 {
             if let Some(h) = head {
                 if let BlockEnd::Single(a) = h.end {
@@ -1065,13 +1058,15 @@ impl InfiniteLoopBlock {
                         if h.start == a {
                             notes.push("Infinite loop detected\n".to_string());
                             let block = Box::new(g.elements.take(h.index).unwrap());
-                            return Some(Block::InfiniteLoop(InfiniteLoopBlock { block }));
+                            let nb = Block::InfiniteLoop(InfiniteLoopBlock { block });
+                            g.elements.insert(nb);
+                            return true;
                         }
                     }
                 }
             }
         }
-        None
+        false
     }
 }
 
@@ -1145,7 +1140,7 @@ impl SimpleDoWhileBlock {
         head: Option<&SimplifiedBlock>,
         g: &mut graph::Graph<Block>,
         notes: &mut Vec<String>,
-    ) -> Option<Block> {
+    ) -> bool {
         if simplified.len() == 1 {
             if let Some(h) = head {
                 notes.push(format!("Head end is {:?}\n", h.end));
@@ -1156,10 +1151,12 @@ impl SimpleDoWhileBlock {
                         if a == h.start {
                             notes.push("Loop detected for do while loop\n".to_string());
                             let block = Box::new(g.elements.take(h.index).unwrap());
-                            return Some(Block::SimpleDoWhile(SimpleDoWhileBlock {
+                            let nb = Block::SimpleDoWhile(SimpleDoWhileBlock {
                                 block,
                                 reversed: false,
-                            }));
+                            });
+                            g.elements.insert(nb);
+                            return true;
                         }
                     }
                     if b.is_known() {
@@ -1167,10 +1164,12 @@ impl SimpleDoWhileBlock {
                         if a == h.start {
                             notes.push("Reversed Loop detected for do while loop\n".to_string());
                             let block = Box::new(g.elements.take(h.index).unwrap());
-                            return Some(Block::SimpleDoWhile(SimpleDoWhileBlock {
+                            let nb = Block::SimpleDoWhile(SimpleDoWhileBlock {
                                 block,
                                 reversed: true,
-                            }));
+                            });
+                            g.elements.insert(nb);
+                            return true;
                         }
                     }
                 }
@@ -1178,7 +1177,7 @@ impl SimpleDoWhileBlock {
                 notes.push("No head detected?\n".to_string());
             }
         }
-        None
+        false
     }
 }
 
@@ -1347,7 +1346,7 @@ impl SimpleIfElseBlock {
         head: Option<&SimplifiedBlock>,
         g: &mut graph::Graph<Block>,
         notes: &mut Vec<String>,
-    ) -> Option<Block> {
+    ) -> bool {
         if let Some(h) = head {
             let mut ablock = None;
             let mut bblock = None;
@@ -1378,7 +1377,9 @@ impl SimpleIfElseBlock {
                                 let b2 = g.elements.take(a.index).unwrap();
                                 blocks.push((b1, b2, false));
                                 let nb = SimpleIfElseBlock { blocks, els: None };
-                                return Some(Block::SimpleIfElse(nb));
+                                let nb = Block::SimpleIfElse(nb);
+                                g.elements.insert(nb);
+                                return true;
                             }
                         }
                     }
@@ -1391,14 +1392,16 @@ impl SimpleIfElseBlock {
                                 let b2 = g.elements.take(b.index).unwrap();
                                 blocks.push((b1, b2, true));
                                 let nb = SimpleIfElseBlock { blocks, els: None };
-                                return Some(Block::SimpleIfElse(nb));
+                                let nb = Block::SimpleIfElse(nb);
+                                g.elements.insert(nb);
+                                return true;
                             }
                         }
                     }
                 }
             }
         }
-        None
+        false
     }
 }
 
@@ -1543,7 +1546,7 @@ impl SequenceBlock {
         head: Option<&SimplifiedBlock>,
         g: &mut graph::Graph<Block>,
         notes: &mut Vec<String>,
-    ) -> Option<Block> {
+    ) -> bool {
         if simplified.len() > 1 {
             let mut nsi = Vec::new();
 
@@ -1581,10 +1584,12 @@ impl SequenceBlock {
             if nsi.len() > 1 {
                 notes.push("Creating sequence\n".to_string());
                 let ns: Vec<Block> = nsi.iter().map(|i| g.elements.take(*i).unwrap()).collect();
-                return Some(Block::Sequence(SequenceBlock { blocks: ns }));
+                let nb = Block::Sequence(SequenceBlock { blocks: ns });
+                g.elements.insert(nb);
+                return true;
             }
         }
-        None
+        false
     }
 }
 
