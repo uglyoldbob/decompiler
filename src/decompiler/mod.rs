@@ -257,6 +257,11 @@ impl SourceFile {
         }
     }
 
+    /// Get the name of the source file
+    pub fn name(&self) -> &String {
+        &self.name
+    }
+
     /// Add a function to the source file
     pub fn add_function(&mut self, f: Function) {
         self.functions.push(f);

@@ -47,6 +47,9 @@ fn main() {
 
     let mut failures = 0;
     let mut item = 0;
+
+    let mut source_file = crate::decompiler::SourceFile::new("reduced.c".to_string());
+
     for i in 2.. {
         let gg = crate::generator::GraphGenerator::new(i);
         let gi = gg.create_iter();
@@ -60,6 +63,15 @@ fn main() {
             let json = serde_json::to_string_pretty(&gb.elements).unwrap();
 
             item += 1;
+
+            let function = crate::decompiler::Function::new(
+                format!("function_{}", item),
+                Vec::new(),
+                gb.clone(),
+                Vec::new(),
+            );
+            source_file.add_function(function);
+
             if s.is_err() {
                 failures += 1;
                 println!("Fail to reduce {}", item);
@@ -149,6 +161,12 @@ fn main() {
             break;
         }
     }
+
+    let mut path = pb.clone();
+    path.push(source_file.name());
+    let mut f = std::fs::File::create(path).unwrap();
+    source_file.write_source(&mut f);
+    f.flush();
 
     println!("Exiting graph simplify reducer now");
 }

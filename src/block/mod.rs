@@ -518,6 +518,14 @@ impl Statement {
     }
 }
 
+/// A condition for executing code
+pub enum Conditional {
+    /// Are the two values equal?
+    Equality(Value, Value),
+    /// A dummy value used by generated code blocks
+    Dummy,
+}
+
 /// The trait that all blocks of code must implement
 #[enum_dispatch::enum_dispatch(Block)]
 pub trait BlockTrait {
@@ -546,6 +554,8 @@ pub trait BlockTrait {
     fn dot_add(&self, g: &mut graphviz_rust::dot_structures::Graph, s: bool);
     /// Returns true when this block is the head of a function
     fn is_function_head(&self) -> bool;
+    /// Return the condition for the block to branch, if applicable
+    fn conditional(&self) -> Option<Conditional>;
 }
 
 /// This represents a simplified block, used for simplifying a collection of blocks.
@@ -874,6 +884,14 @@ impl BlockTrait for GeneratedBlock {
     fn is_function_head(&self) -> bool {
         self.head
     }
+
+    fn conditional(&self) -> Option<Conditional> {
+        if self.branch_value().is_some() {
+            Some(Conditional::Dummy)
+        } else {
+            None
+        }
+    }
 }
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
@@ -949,6 +967,10 @@ impl BlockTrait for StatementBlock {
 
     fn is_function_head(&self) -> bool {
         self.head
+    }
+
+    fn conditional(&self) -> Option<Conditional> {
+        todo!();
     }
 }
 
@@ -1123,6 +1145,10 @@ impl BlockTrait for SequenceBlock {
     fn is_function_head(&self) -> bool {
         self.blocks.first().unwrap().is_function_head()
     }
+
+    fn conditional(&self) -> Option<Conditional> {
+        self.blocks.last().unwrap().conditional()
+    }
 }
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
@@ -1225,6 +1251,10 @@ impl BlockTrait for InstructionBlock {
 
     fn is_function_head(&self) -> bool {
         self.head
+    }
+
+    fn conditional(&self) -> Option<Conditional> {
+        todo!();
     }
 }
 

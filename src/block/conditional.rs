@@ -90,7 +90,17 @@ impl BlockTrait for IfElse1Block {
 
     #[doc = " Print the source code for the block, with the specified level of indents"]
     fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
-        todo!()
+        self.indent(level, w)?;
+        w.write_all("if (?) {\n".as_bytes())?;
+        self.met.write_source(level + 1, w)?;
+        self.indent(level, w)?;
+        w.write_all("}\n".as_bytes())?;
+        self.indent(level, w)?;
+        w.write_all("else {\n".as_bytes())?;
+        self.unmet.write_source(level + 1, w)?;
+        self.indent(level, w)?;
+        w.write_all("}\n".as_bytes())?;
+        Ok(())
     }
 
     #[doc = " Attempt to find the value of the given register, over all instructions of the block."]
@@ -119,6 +129,10 @@ impl BlockTrait for IfElse1Block {
 
     fn is_function_head(&self) -> bool {
         self.block.is_function_head()
+    }
+
+    fn conditional(&self) -> Option<super::Conditional> {
+        None
     }
 }
 
@@ -200,8 +214,23 @@ impl SimpleIfElseBlock {
 
 impl BlockTrait for SimpleIfElseBlock {
     fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
-        self.indent(level, w)?;
-        w.write_all("#error if else block\n".as_bytes())?;
+        for (i, (b1, b2, reverse)) in self.blocks.iter().enumerate() {
+            b1.write_source(level, w)?;
+            self.indent(level, w)?;
+            if i > 0 {
+                w.write_all("else ".as_bytes())?;
+            }
+            w.write_all("if (?) {\n".as_bytes())?;
+            b2.write_source(level + 1, w)?;
+            self.indent(level, w)?;
+            w.write_all("}\n".as_bytes())?;
+        }
+        if let Some(e) = &self.els {
+            w.write_all("else {\n".as_bytes())?;
+            e.write_source(level + 1, w)?;
+            self.indent(level, w)?;
+            w.write_all("}\n".as_bytes())?;
+        }
         Ok(())
     }
 
@@ -250,5 +279,9 @@ impl BlockTrait for SimpleIfElseBlock {
 
     fn is_function_head(&self) -> bool {
         self.blocks.first().unwrap().0.is_function_head()
+    }
+
+    fn conditional(&self) -> Option<super::Conditional> {
+        None
     }
 }

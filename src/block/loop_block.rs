@@ -120,7 +120,12 @@ impl BlockTrait for SimpleWhileBlock {
 
     #[doc = " Print the source code for the block, with the specified level of indents"]
     fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
-        todo!()
+        self.indent(level, w)?;
+        w.write_all("while (?) {\n".as_bytes())?;
+        self.block.write_source(level + 1, w)?;
+        self.indent(level, w)?;
+        w.write_all("}\n".as_bytes())?;
+        Ok(())
     }
 
     #[doc = " Attempt to find the value of the given register, over all instructions of the block."]
@@ -152,6 +157,10 @@ impl BlockTrait for SimpleWhileBlock {
 
     fn is_function_head(&self) -> bool {
         self.block.is_function_head()
+    }
+
+    fn conditional(&self) -> Option<super::Conditional> {
+        None
     }
 }
 
@@ -213,7 +222,12 @@ impl BlockTrait for InfiniteLoopBlock {
 
     #[doc = " Print the source code for the block, with the specified level of indents"]
     fn write_source(&self, level: u8, w: &mut impl std::io::Write) -> Result<(), std::io::Error> {
-        todo!();
+        self.indent(level, w)?;
+        w.write_all("do {\n".as_bytes())?;
+        self.block.write_source(level + 1, w)?;
+        self.indent(level, w)?;
+        w.write_all("} while (1);\n".as_bytes())?;
+        Ok(())
     }
 
     #[doc = " Attempt to find the value of the given register, over all instructions of the block."]
@@ -242,6 +256,10 @@ impl BlockTrait for InfiniteLoopBlock {
 
     fn is_function_head(&self) -> bool {
         self.block.is_function_head()
+    }
+
+    fn conditional(&self) -> Option<super::Conditional> {
+        None
     }
 }
 
@@ -372,5 +390,9 @@ impl BlockTrait for SimpleDoWhileBlock {
 
     fn is_function_head(&self) -> bool {
         self.block.is_function_head()
+    }
+
+    fn conditional(&self) -> Option<super::Conditional> {
+        None
     }
 }
