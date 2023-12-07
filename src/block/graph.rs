@@ -7,14 +7,25 @@ use graphviz_rust::printer::{DotPrinter, PrinterContext};
 use super::{Block, BlockEnd, BlockTrait, GeneratedBlock, Instruction, Value};
 use crate::map::AutoHashMap;
 
+/// This trait is for graph elements to identify themselves and what they link to.
+pub trait GraphIdTrait {
+    /// Return the id associated with the node
+    fn id(&self) -> u64;
+    /// Return the next ids associated with the node
+    fn linked_to(&self) -> Vec<u64>;
+}
+
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 /// An arbitrary graph of some type of object, where each object points to zero or more other objects in the graph.
-pub struct Graph<T> {
+pub struct Graph<T: GraphIdTrait> {
     /// The elements in the graph
     pub elements: AutoHashMap<T>,
 }
 
-impl<T> Graph<T> {
+impl<T> Graph<T>
+where
+    T: GraphIdTrait,
+{
     /// Construct a blank graph
     pub fn new() -> Self {
         Self {
@@ -281,6 +292,7 @@ impl Graph<Block> {
         None
     }
 
+    /// Returns Ok when the graph is simplifed, otherwise it returns error. Simplified means only one block is present.
     pub fn is_simplified(&self) -> Result<(), ()> {
         if self.elements.len() > 1 {
             Err(())

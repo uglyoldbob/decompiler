@@ -589,6 +589,33 @@ pub enum Block {
     Generated(GeneratedBlock),
 }
 
+impl graph::GraphIdTrait for Block {
+    fn id(&self) -> u64 {
+        self.address()
+    }
+
+    fn linked_to(&self) -> Vec<u64> {
+        let mut v = Vec::new();
+        match self.calc_next() {
+            BlockEnd::None => {}
+            BlockEnd::Single(a) => {
+                if let Some(a) = a.to_u64() {
+                    v.push(a);
+                }
+            }
+            BlockEnd::Branch(a, b) => {
+                if let Some(a) = a.to_u64() {
+                    v.push(a);
+                }
+                if let Some(b) = b.to_u64() {
+                    v.push(b);
+                }
+            }
+        }
+        v
+    }
+}
+
 impl Block {
     /// Try to create a block with the given group of blocks by index
     pub fn try_create(
@@ -850,8 +877,11 @@ impl BlockTrait for GeneratedBlock {
 }
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
+/// A block of sequential statements
 pub struct StatementBlock {
+    /// The statements in the block
     statements: Vec<Statement>,
+    /// True when this is a function head block
     head: bool,
 }
 
@@ -951,6 +981,7 @@ impl SequenceBlock {
         }
     }
 
+    /// Try to create a Self block from the elements specified in simplified
     fn try_create(
         simplified: &Vec<SimplifiedBlock>,
         head: Option<&SimplifiedBlock>,

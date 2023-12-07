@@ -3,6 +3,7 @@
 use super::{Block, BlockEnd, BlockTrait, Register, SimplifiedBlock, SpawnError, Value};
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
+/// A simple while block with an executing body.
 pub struct SimpleWhileBlock {
     /// The conditional for the loop
     block: Box<Block>,
@@ -162,6 +163,7 @@ pub struct InfiniteLoopBlock {
 }
 
 impl InfiniteLoopBlock {
+    /// Try to create a Self block from the elements specified in simplified
     pub fn try_create(
         simplified: &Vec<SimplifiedBlock>,
         head: Option<&SimplifiedBlock>,
@@ -253,6 +255,7 @@ pub struct SimpleDoWhileBlock {
 }
 
 impl SimpleDoWhileBlock {
+    /// Try to create a Self block from the elements specified in simplified
     pub fn try_create(
         simplified: &Vec<SimplifiedBlock>,
         head: Option<&SimplifiedBlock>,

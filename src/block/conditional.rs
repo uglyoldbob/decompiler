@@ -14,6 +14,7 @@ pub struct IfElse1Block {
 }
 
 impl IfElse1Block {
+    /// Try to create a Self block from the elements specified in simplified
     pub fn try_create(
         simplified: &Vec<SimplifiedBlock>,
         head: Option<&SimplifiedBlock>,
