@@ -50,12 +50,14 @@ fn main() {
     for i in 2.. {
         let gg = crate::generator::GraphGenerator::new(i);
         let gi = gg.create_iter();
-        for (i, g) in gi.enumerate() {
+        for g in gi {
             let mut notes = Vec::new();
             notes.push("Graph NOTES\n".to_string());
             let mut gb = crate::block::graph::Graph::<crate::block::Block>::from(g);
             let dotgraph = gb.create_graph(true);
             let s = gb.simplify(&mut notes);
+
+            let json = serde_json::to_string_pretty(&gb.elements).unwrap();
 
             item += 1;
             if s.is_err() {
@@ -103,6 +105,11 @@ fn main() {
                 }
                 f.flush();
 
+                let mut path = pb.clone();
+                path.push("fail");
+                path.push(format!("{}.json", item));
+                std::fs::write(path, json).unwrap();
+
                 if failures >= args.max_graphs {
                     break;
                 }
@@ -131,6 +138,11 @@ fn main() {
                     f.write_all(s.as_bytes());
                 }
                 f.flush();
+
+                let mut path = pb.clone();
+                path.push("success");
+                path.push(format!("{}.json", item));
+                std::fs::write(path, json).unwrap();
             }
         }
         if failures >= args.max_graphs {

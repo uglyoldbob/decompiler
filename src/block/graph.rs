@@ -7,7 +7,7 @@ use graphviz_rust::printer::{DotPrinter, PrinterContext};
 use super::{Block, BlockEnd, BlockTrait, GeneratedBlock, Instruction, Value};
 use crate::map::AutoHashMap;
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 /// An arbitrary graph of some type of object, where each object points to zero or more other objects in the graph.
 pub struct Graph<T> {
     /// The elements in the graph

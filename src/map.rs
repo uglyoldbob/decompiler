@@ -5,7 +5,7 @@ use std::ops::Index;
 
 use itertools::Itertools;
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 /// A HashMap implementation that auto-indexes contents. Behaves somewhat like a `Vec<T>`.
 pub struct AutoHashMap<T> {
     /// The data contained in the map

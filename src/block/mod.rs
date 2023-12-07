@@ -128,7 +128,7 @@ impl<'a> InstructionDecoder<'a> {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 /// The values that an item can have
 pub enum Value {
     /// The element contains the contents of another register.
@@ -196,7 +196,7 @@ impl Value {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 /// An x86 register
 pub enum X86Register {
     /// An instruction addressable register
@@ -207,7 +207,7 @@ pub enum X86Register {
     Flags64(u64),
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 /// A register for the target architecture
 pub enum Register {
     /// An x86 register
@@ -217,7 +217,7 @@ pub enum Register {
 }
 
 /// A basic instruction from disasssembly of the code being decompiled.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub enum Instruction {
     /// An x86 instruction, 16, 32, or 64 bits.
     X86(iced_x86::Instruction),
@@ -476,11 +476,11 @@ pub enum SpawnError {
     CannotSpawn,
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 /// An operation is a way to describe a portion of source code. `a = 5;` is an equality operation
 pub enum Operation {}
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 /// The basic instruction that has been translated from assembly
 pub struct Statement {
     /// The operation and address pairs for the statement
@@ -566,7 +566,7 @@ pub struct SimplifiedBlock {
 
 /// A single unit of code. Each variety here can be assumed to run in sequence as a unit. Non-branching jumps may be present in a sequence, meaning the addresses of the instructions contained may be a bit jumbled.
 /// A block could contain a bunch of non-conditional jumps but still be a single block of instructions.
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 #[enum_dispatch::enum_dispatch]
 pub enum Block {
     /// A basic sequence of `Instruction`.
@@ -717,66 +717,13 @@ impl Block {
         }
         let head = function_head.or(head);
 
-        let try_do_while = |g: &mut graph::Graph<Block>, notes: &mut Vec<String>| {
-            if simplified.len() == 1 {
-                if let Some(h) = head {
-                    notes.push(format!("Head end is {:?}\n", h.end));
-                    if let BlockEnd::Branch(a, b) = h.end {
-                        notes.push("Branch detected for potential do while loop\n".to_string());
-                        if a.is_known() {
-                            let a = a.to_u64().unwrap();
-                            if a == h.start {
-                                notes.push("Loop detected for do while loop\n".to_string());
-                                let block = Box::new(g.elements.take(h.index).unwrap());
-                                return Some(Block::SimpleDoWhile(SimpleDoWhileBlock {
-                                    block,
-                                    reversed: false,
-                                }));
-                            }
-                        }
-                        if b.is_known() {
-                            let a = b.to_u64().unwrap();
-                            if a == h.start {
-                                notes
-                                    .push("Reversed Loop detected for do while loop\n".to_string());
-                                let block = Box::new(g.elements.take(h.index).unwrap());
-                                return Some(Block::SimpleDoWhile(SimpleDoWhileBlock {
-                                    block,
-                                    reversed: true,
-                                }));
-                            }
-                        }
-                    }
-                } else {
-                    notes.push("No head detected?\n".to_string());
-                }
-            }
-            None
-        };
-        let try_infinite_loop = |g: &mut graph::Graph<Block>, notes: &mut Vec<String>| {
-            if simplified.len() == 1 {
-                if let Some(h) = head {
-                    if let BlockEnd::Single(a) = h.end {
-                        if a.is_known() {
-                            let a = a.to_u64().unwrap();
-                            if h.start == a {
-                                notes.push("Infinite loop detected\n".to_string());
-                                let block = Box::new(g.elements.take(h.index).unwrap());
-                                return Some(Block::InfiniteLoop(InfiniteLoopBlock { block }));
-                            }
-                        }
-                    }
-                }
-            }
-            None
-        };
         if let Some(g) = SequenceBlock::try_create(&simplified, head, g, notes) {
             return Some(g);
         }
-        if let Some(g) = try_do_while(g, notes) {
+        if let Some(g) = SimpleDoWhileBlock::try_create(&simplified, head, g, notes) {
             return Some(g);
         }
-        if let Some(g) = try_infinite_loop(g, notes) {
+        if let Some(g) = InfiniteLoopBlock::try_create(&simplified, head, g, notes) {
             return Some(g);
         }
         if let Some(g) = IfElse1Block::try_create(&simplified, head, g, notes) {
@@ -831,7 +778,7 @@ pub fn dot_add_link(g: &mut graphviz_rust::dot_structures::Graph, a: Value, b: V
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct SimpleWhileBlock {
     /// The conditional for the loop
     block: Box<Block>,
@@ -979,7 +926,7 @@ impl BlockTrait for SimpleWhileBlock {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 /// An infinite loop with no escape
 pub struct IfElse1Block {
     /// The if conditional for the loop
@@ -1096,11 +1043,36 @@ impl BlockTrait for IfElse1Block {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 /// An infinite loop with no escape
 pub struct InfiniteLoopBlock {
     /// The single block for the loop
     block: Box<Block>,
+}
+
+impl InfiniteLoopBlock {
+    fn try_create(
+        simplified: &Vec<SimplifiedBlock>,
+        head: Option<&SimplifiedBlock>,
+        g: &mut graph::Graph<Block>,
+        notes: &mut Vec<String>,
+    ) -> Option<Block> {
+        if simplified.len() == 1 {
+            if let Some(h) = head {
+                if let BlockEnd::Single(a) = h.end {
+                    if a.is_known() {
+                        let a = a.to_u64().unwrap();
+                        if h.start == a {
+                            notes.push("Infinite loop detected\n".to_string());
+                            let block = Box::new(g.elements.take(h.index).unwrap());
+                            return Some(Block::InfiniteLoop(InfiniteLoopBlock { block }));
+                        }
+                    }
+                }
+            }
+        }
+        None
+    }
 }
 
 impl BlockTrait for InfiniteLoopBlock {
@@ -1158,13 +1130,56 @@ impl BlockTrait for InfiniteLoopBlock {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 /// A simple do while block with a single condition for repeating
 pub struct SimpleDoWhileBlock {
     /// The single block for the loop, containing both the operational statements and the conditional
     block: Box<Block>,
     /// Indicates that the condition is reversed
     reversed: bool,
+}
+
+impl SimpleDoWhileBlock {
+    fn try_create(
+        simplified: &Vec<SimplifiedBlock>,
+        head: Option<&SimplifiedBlock>,
+        g: &mut graph::Graph<Block>,
+        notes: &mut Vec<String>,
+    ) -> Option<Block> {
+        if simplified.len() == 1 {
+            if let Some(h) = head {
+                notes.push(format!("Head end is {:?}\n", h.end));
+                if let BlockEnd::Branch(a, b) = h.end {
+                    notes.push("Branch detected for potential do while loop\n".to_string());
+                    if a.is_known() {
+                        let a = a.to_u64().unwrap();
+                        if a == h.start {
+                            notes.push("Loop detected for do while loop\n".to_string());
+                            let block = Box::new(g.elements.take(h.index).unwrap());
+                            return Some(Block::SimpleDoWhile(SimpleDoWhileBlock {
+                                block,
+                                reversed: false,
+                            }));
+                        }
+                    }
+                    if b.is_known() {
+                        let a = b.to_u64().unwrap();
+                        if a == h.start {
+                            notes.push("Reversed Loop detected for do while loop\n".to_string());
+                            let block = Box::new(g.elements.take(h.index).unwrap());
+                            return Some(Block::SimpleDoWhile(SimpleDoWhileBlock {
+                                block,
+                                reversed: true,
+                            }));
+                        }
+                    }
+                }
+            } else {
+                notes.push("No head detected?\n".to_string());
+            }
+        }
+        None
+    }
 }
 
 impl BlockTrait for SimpleDoWhileBlock {
@@ -1240,7 +1255,7 @@ impl BlockTrait for SimpleDoWhileBlock {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 /// Represents a generated dummy block of code
 pub struct GeneratedBlock {
     /// The start address of the generated block
@@ -1315,7 +1330,7 @@ impl BlockTrait for GeneratedBlock {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 /// Represents a simple if else chain. Each if statement in the chain has a single condition. All blocks "executed" point to the next block.
 /// Executed in this instance refers to the code executed in an if or else block of code.
 pub struct SimpleIfElseBlock {
@@ -1442,7 +1457,7 @@ impl BlockTrait for SimpleIfElseBlock {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct StatementBlock {
     statements: Vec<Statement>,
     head: bool,
@@ -1515,7 +1530,7 @@ impl BlockTrait for StatementBlock {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 /// A sequence of blocks
 pub struct SequenceBlock {
     /// The blocks in the sequence
@@ -1657,7 +1672,7 @@ impl BlockTrait for SequenceBlock {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 /// The block created dynamically by the disassembly process
 pub struct InstructionBlock {
     /// The instructions of the block
@@ -1784,7 +1799,7 @@ pub fn make_gv_graph(n: &str) -> graphviz_rust::dot_structures::Graph {
     graph!(di id!(n))
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 /// The end link for a node of a graph
 pub enum BlockEnd {
     /// The instruction does not have a next instruction (like a return instruction).
