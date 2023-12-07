@@ -128,7 +128,7 @@ impl<'a> InstructionDecoder<'a> {
     }
 }
 
-#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize, PartialEq)]
 /// The values that an item can have
 pub enum Value {
     /// The element contains the contents of another register.
@@ -196,7 +196,7 @@ impl Value {
     }
 }
 
-#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize, PartialEq)]
 /// An x86 register
 pub enum X86Register {
     /// An instruction addressable register
@@ -207,7 +207,7 @@ pub enum X86Register {
     Flags64(u64),
 }
 
-#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize, PartialEq)]
 /// A register for the target architecture
 pub enum Register {
     /// An x86 register
@@ -558,6 +558,7 @@ pub trait BlockTrait {
     fn conditional(&self) -> Option<Conditional>;
 }
 
+#[derive(PartialEq)]
 /// This represents a simplified block, used for simplifying a collection of blocks.
 pub struct SimplifiedBlock {
     /// The start address of the simplified block
@@ -743,11 +744,13 @@ impl Block {
             }
         }
         for el in &simplified {
-            if let Some(_h) = function_head {
-                //No remote inputs are allowed if a function head is found
-                if el.remote_inputs.len() > 0 {
-                    notes.push("Remote inputs found with function head\n".to_string());
-                    return false;
+            if let Some(h) = function_head {
+                //No remote inputs are allowed if a function head is found, except for the function head
+                if h != el {
+                    if el.remote_inputs.len() > 0 {
+                        notes.push("Remote inputs found with function head\n".to_string());
+                        return false;
+                    }
                 }
             } else {
                 // Do not simplify if more than one block has remote inputs
@@ -1292,7 +1295,7 @@ pub fn make_gv_graph(n: &str) -> graphviz_rust::dot_structures::Graph {
     graph!(di id!(n))
 }
 
-#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize, PartialEq)]
 /// The end link for a node of a graph
 pub enum BlockEnd {
     /// The instruction does not have a next instruction (like a return instruction).
