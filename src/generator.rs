@@ -53,44 +53,39 @@ impl GraphIterator {
 
     /// Check to see if the current graph is valid.
     pub fn check(&self) -> bool {
-        let mut valid = true;
         for (a, b) in self.links.iter() {
             if a == b && a.is_some() {
-                valid = false;
+                return false;
             }
             if a.is_none() && b.is_some() {
-                valid = false;
+                return false;
             }
             if let Some(a) = a {
                 if let Some(b) = b {
                     if a > b {
-                        valid = false;
+                        return false;
                     }
                 }
             }
         }
 
         let (a, b) = self.links[self.gg.num_blocks as usize - 1];
-        if a.is_some() || b.is_some() {
-            valid = false;
+        if a.is_some() && b.is_some() {
+            return false;
         }
 
         let mut inputs = vec![0; self.gg.num_blocks as usize];
-        for (index, (elem, elem2)) in self.links.iter().enumerate() {
+        for (elem, elem2) in self.links.iter() {
             if let Some(a) = *elem {
-                if index != a as usize {
-                    inputs[a as usize] += 1;
-                }
+                inputs[a as usize] += 1;
             }
             if let Some(a) = *elem2 {
-                if index != a as usize {
-                    inputs[a as usize] += 1;
-                }
+                inputs[a as usize] += 1;
             }
         }
         for i in inputs.iter().skip(1) {
             if *i == 0 {
-                valid = false;
+                return false;
             }
         }
 
@@ -112,10 +107,9 @@ impl GraphIterator {
             }
         }
         if !traced.iter().fold(true, |a, b| a & b) {
-            valid = false;
+            return false;
         }
-
-        valid
+        true
     }
 
     /// Generate graphs by advancing until a valid graph is found or the iterator is done.
