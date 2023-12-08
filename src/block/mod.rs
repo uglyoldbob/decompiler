@@ -530,9 +530,7 @@ impl Conditional {
     fn write(&self) -> String {
         match self {
             Conditional::Equality(a, b) => todo!(),
-            Conditional::Dummy => {
-                "dummy".to_string()
-            }
+            Conditional::Dummy => "dummy".to_string(),
         }
     }
 }
@@ -639,6 +637,18 @@ impl graph::GraphIdTrait for Block {
 }
 
 impl Block {
+    /// Build a SimplifiedBlock
+    pub fn build_simplified(&self, i: usize) -> SimplifiedBlock {
+        SimplifiedBlock {
+            start: self.address(),
+            end: self.calc_next(),
+            remote_inputs: Vec::new(),
+            local_inputs: Vec::new(),
+            index: i,
+            head: self.is_function_head(),
+        }
+    }
+
     /// Try to create a block with the given group of blocks by index
     pub fn try_create(
         g: &mut graph::Graph<Block>,
@@ -647,17 +657,7 @@ impl Block {
     ) -> bool {
         let mut simplified: Vec<SimplifiedBlock> = indexes
             .iter()
-            .map(|i| {
-                let b = g.elements.get(i).unwrap();
-                SimplifiedBlock {
-                    start: b.address(),
-                    end: b.calc_next(),
-                    remote_inputs: Vec::new(),
-                    local_inputs: Vec::new(),
-                    index: *i,
-                    head: b.is_function_head(),
-                }
-            })
+            .map(|i| g.elements.get(i).unwrap().build_simplified(*i))
             .collect();
         for (i, block) in g.elements.iter() {
             let local = indexes.contains(i);
